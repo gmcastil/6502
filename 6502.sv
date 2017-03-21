@@ -20,3 +20,21 @@ module 6502
    output        PHI_2,         // phase 2 clock (out)
    input         RES            // reset (active low)
    );
+
+   // 6502 registers from Fig 2.1 of WDC Programming Manual
+   reg [7:0]     A;             // accumulator
+   reg [7:0]     X;             // X index register
+   reg [7:0]     Y;             // Y index register
+   reg [7:0]     S;             // stack pointer
+   reg [15:0]    PC;            // program counter
+
+   // processor status register from Table 2-1 of WDC Programming Manual
+   reg           C;             // 1 = carry
+   reg           Z;             // 1 = result zero
+   reg           I;             // 1 = disable interrupt
+   reg           D;             // 1 = decimal mode
+   reg           B;             // 1 = break caused interrupt
+   reg           V;             // 1 = overflow
+   reg           N;             // 1 = negative
+
+endmodule
