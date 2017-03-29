@@ -37,4 +37,50 @@ module 6502
    reg           V;             // 1 = overflow
    reg           N;             // 1 = negative
 
+   // --- Combinatorial State Movemtents
+
+   /*
+
+    The state machine for the processor is broken into the following:
+
+    IDLE - for initial startup
+    RESET - reset logic
+    IRQ - all interrupt handling, including non-maskable interrupts
+    FETCH - obtain the next instruction and operands
+    DECODE -
+
+    The remainder of the states in the FSM group several opcodes and
+    addressing modes.
+
+    STORAGE   - load, store, and transfer instructions
+    MATH      - add, subtract, increment and decrement instructions
+    BITWISE   - Boolean functions, shift, and and rotate instructions
+
+    */
+   typedef enum logic [12:0]
+                {
+                 IDLE        13'b0_0000_0000_0001,
+                 RESET,      13'b0_0000_0000_0010,
+                 IRQ,        13'b0_0000_0000_0100,
+                 FETCH,      13'b0_0000_0000_1000,
+                 DECODE,     13'b0_0000_0001_0000,
+                 STORAGE,    13'b0_0000_0010_0000,
+                 MATH,       13'b0_0000_0100_0000,
+                 BITWISE,    13'b0_0000_1000_0000,
+                 BRANCH,     13'b0_0001_0000_0000,
+                 JUMP,       13'b0_0010_0000_0000,
+                 REGISTERS,  13'b0_0100_0000_0000,
+                 STACK,      13'b0_1000_0000_0000,
+                 SYSTEM      13'b1_0000_0000_0000
+                 } states
+
+   states next_state;
+   states present_state;
+
+   localparam IDLE_LOW_ID   = 0;
+   localparam HIGH_ID       = 1;
+   localparam IDLE_HIGH_ID  = 2;
+   localparam LOW_ID        = 3;
+
+
 endmodule
