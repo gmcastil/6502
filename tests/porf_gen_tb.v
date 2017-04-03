@@ -21,6 +21,7 @@ module porf_gen_tb();
                   .reset_out(reset_out));
 
   initial begin
+    #100
     reset_in = 1'b0;
     #23;
     reset_in = 1'b1;
