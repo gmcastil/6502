@@ -3,16 +3,16 @@ module porf_gen
     parameter N = 8
     )
    (
-    input  reset_in,
+    input  async_reset,
     input  clk,
     input  clk_enable,
-    output reset_out
+    output sync_reset
     );
 
-   wire    d_1;
+   wire     d_1;
    wire [N:1] q;
 
-   assign reset_out = q[N];
+   assign sync_reset = q[N];
    assign d_1 = 1'b0;
 
    // The first flop in the sequence needs D tied to ground
@@ -23,7 +23,7 @@ module porf_gen
                           .Q(q[1]),
                           .C(clk),
                           .CE(1'b1),
-                          .PRE(reset_in)
+                          .PRE(async_reset)
                           );
 
    // All the rest of these flops have the same wiring pattern. If you wanted to
@@ -38,7 +38,7 @@ module porf_gen
                           .Q(q[i]),
                           .C(clk),
                           .CE(clk_enable),
-                          .PRE(reset_in));
+                          .PRE(async_reset));
       end
    endgenerate
 
