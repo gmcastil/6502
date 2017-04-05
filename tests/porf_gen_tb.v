@@ -2,32 +2,46 @@
 
 module porf_gen_tb();
 
-  reg  clk_100m;
-  reg  reset_in;
-  wire reset_out;
+   reg  clk_100m;
+   reg  async_reset;
+   reg  clk_enable;
+   wire sync_reset;
 
-  initial begin
-    clk_100m <= 1'b1;
+   initial begin
+      clk_100m <= 1'b1;
       forever begin
-        #5 clk_100m <= ~clk_100m;
+         #5 clk_100m <= ~clk_100m;
       end
-    end  
+   end
 
+   porf_gen #(
+              ) u_porf_gen (
+                            .async_reset(async_reset),
+                            .clk(clk_100m),
+                            .clk_enable(clk_enable),
+                            .sync_reset(sync_reset));
 
-  porf_gen #(
-    ) u_porf_gen (
-                  .reset_in(reset_in),
-                  .clk(clk_100m),
-                  .reset_out(reset_out));
+   initial begin
+      // Let simulator get everything going
+      #10;
 
-  initial begin
-    #100
-    reset_in = 1'b0;
-    #23;
-    reset_in = 1'b1;
-    #54;
-    reset_in = 1'b0;
-    #53;
-  end
+      // Asynchronous reset should come out synchronous
+      clk_enable = 1'b1;
+      async_reset = 1'b0;
+      #23;
+      async_reset = 1'b1;
+      #54;
+      async_reset = 1'b0;
+      #53;
+
+      // Asynchronous reset should not appear
+      clk_enable = 1'b0;
+      async_reset = 1'b0;
+      #23;
+      async_reset = 1'b1;
+      #54;
+      async_reset = 1'b0;
+      #53;
+   end
 
 endmodule
