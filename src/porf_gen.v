@@ -6,16 +6,14 @@ module porf_gen
    );
 
   wire    d_1;
+
   wire    q_1;
-
-  wire    d_2;
   wire    q_2;
-
-  wire    d_3;
   wire    q_3;
-
-  wire    d_4;
   wire    q_4;
+
+  assign reset_out = q_4;
+  assign d_1 = 1'b0;
 
   FDPE #(
          .INIT(1'b0)
@@ -56,8 +54,5 @@ module porf_gen
                    .CE(1'b1),
                    .PRE(reset_in)
                    );
-
-  assign reset_out = q_4;
-  assign d_1 = 1'b0;
 
 endmodule // porf_gen
