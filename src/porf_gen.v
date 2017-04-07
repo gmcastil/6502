@@ -1,6 +1,6 @@
 module porf_gen
   #(
-    parameter N = 8
+    parameter N = 4
     )
    (
     input  async_reset,
@@ -22,24 +22,23 @@ module porf_gen
                           .D(d_1),
                           .Q(q[1]),
                           .C(clk),
-                          .CE(1'b1),
+                          .CE(clk_enable),
                           .PRE(async_reset)
                           );
 
    // All the rest of these flops have the same wiring pattern. If you wanted to
    // tap off the second to last flop, you would alter the loop to stop at N-1.
-   genvar     i;
-   generate
-      for (i=2; i=N; i=i+1) begin
-         FDPE #(
+   genvar i;
+   for (i=2; i<=N; i=i+1) begin: generate_flops
+       FDPE #(
                 .INIT(1'b0)
                 ) u_FDPE (
                           .D(q[i-1]),
                           .Q(q[i]),
                           .C(clk),
                           .CE(clk_enable),
-                          .PRE(async_reset));
+                          .PRE(async_reset)
+                          );
       end
-   endgenerate
 
 endmodule // porf_gen

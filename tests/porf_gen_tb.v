@@ -23,7 +23,7 @@ module porf_gen_tb();
 
    initial begin
       // Let simulator get everything going
-      #10;
+      #100;
 
       // Asynchronous reset should come out synchronous
       clk_enable = 1'b1;
