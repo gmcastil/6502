@@ -1,4 +1,4 @@
-`timescale 10n / 1ps;
+`timescale 10ns / 1ps;
 
 module alu_tb ();
 
@@ -14,7 +14,7 @@ module alu_tb ();
   logic       CO;
   logic       HC;
 
-  logic       out;
+  logic [7:0] out;
 
   alu #(
         ) dut (
@@ -34,11 +34,19 @@ module alu_tb ();
                );
 
   initial begin
-    // Let the simulator get caught up
+    // Let the simulator get caught up before starting to add
     #10ns;
-    AI = 8'bFF;
-    BI = 8'bFF;
+    AI = 8'hFF;
+    BI = 8'hFF;
     CI = 1'b1;
+    D = 1'b0;
+    ctrl = 4'b0000;
+    #10ns;
+    AI = 8'hFF;
+    BI = 8'hFF;
+    CI = 1'b0;
+    D = 1'b0;
+    ctrl = 4'b0000;
     #10ns;
   end
 

@@ -13,10 +13,10 @@ module alu
    output       N, // negative result
    output       V, // sign bit overflow
    output       Z, // zero result
-   output       CO, // arithmetic carry
+   output reg   CO, // arithmetic carry
    output       HC, // half carry
 
-   output [7:0] out
+   output reg [7:0] out
    );
 
   parameter ADD = 4'b0000;
@@ -37,14 +37,11 @@ module alu
           // BCD addition (not sure if there is a carry here)
         end else begin
           // Binary addition with carry in
+          $display("Here.");
           result = {1'b0, AI} + {1'b0, BI} + CI;
           out = result[7:0];
           CO = result[8];
         end
-      end
-
-      SUB: begin
-
       end
 
       OR: begin
