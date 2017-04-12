@@ -1,6 +1,7 @@
-module alu #(
-             // parameter
-             )
+module alu
+  #(
+    // parameter
+    )
    (
     input A,
     input B,
