@@ -1,3 +1,7 @@
+* Opcodes
+** ADC (add with carry)
+Affects Flags: S V Z C
+* Todo list
 * HDL tasks [0/10]
 - [ ] Design and simulate reset block
 - [ ] Design and simulate debouncing circuit
@@ -24,4 +28,13 @@ When the \oline{IRQ} input is low and the I (interrupt-disable) flag in the
 status register is clear, the processor finishes the currently-executing
 instruction and then gets the beginning address of the IRQ ISR from $FFFE-FFFF.
 
-So
+- [ ] Build a ROM that can be used to simulate the 64kB address space
+- [ ] Create reset routine and opcodes in the right locations for the reset,
+  interrupt, and NMI pointers
+- [ ] Fill it with illegal opcodes
+- [ ] Write basic program with noop and loop instructions
+- [ ] Put chipscope on the program counter
+- [ ] Design a reset module
+- [ ] Build a top module that brings together the ALU, processor, reset module
+  and ROM
+- [ ] Design the processor state machine
