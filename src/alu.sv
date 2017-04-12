@@ -37,7 +37,6 @@ module alu
           // BCD addition (not sure if there is a carry here)
         end else begin
           // Binary addition with carry in
-          $display("Here.");
           result = {1'b0, AI} + {1'b0, BI} + CI;
           out = result[7:0];
           CO = result[8];
