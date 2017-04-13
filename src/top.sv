@@ -19,20 +19,20 @@ module top ();
     #(
       // parameter
       )
-  dut (
-       .RDY           (RDY),
-       .PHI_1         (PHI_1),
-       .IRQ           (IRQ),
-       .NMI           (NMI),
-       .SYNC          (SYNC),
-       .AB            (AB),
-       .DB_IN         (DB_IN),
-       .DB_OUT        (DB_OUT),
-       .RW            (RW),
-       .PHI_0         (PHI_0),
-       .SO            (SO),
-       .PHI_2         (PHI_2),
-       .RES           (RES)
-       );
+  dut_6502 (
+            .RDY           (RDY),
+            .PHI_1         (PHI_1),
+            .IRQ           (IRQ),
+            .NMI           (NMI),
+            .SYNC          (SYNC),
+            .AB            (AB),
+            .DB_IN         (DB_IN),
+            .DB_OUT        (DB_OUT),
+            .RW            (RW),
+            .PHI_0         (PHI_0),
+            .SO            (SO),
+            .PHI_2         (PHI_2),
+            .RES           (RES)
+            );
 
   // --- Instantiate an address space for the processor to communicate over
