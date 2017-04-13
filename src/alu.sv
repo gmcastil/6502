@@ -57,7 +57,7 @@ module alu
 
       SR: begin
 
-      end
+       end
 
       default: begin end
 
