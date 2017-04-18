@@ -77,8 +77,8 @@ def main():
         header = [";; Distributed Memory Generator COE file\n",
                   ";; \tAddress Size = {HIGH_ADDRESS}\n".format(HIGH_ADDRESS=HIGH_ADDRESS),
                   ";; \tPage Size = {PAGE_SIZE}\n".format(PAGE_SIZE=PAGE_SIZE),
-                  ";; memory_initialization_radix = 16;\n",
-                  ";; memory_initialization_vector = \n"]
+                  "memory_initialization_radix = 16;\n",
+                  "memory_initialization_vector = \n"]
         coe_file.write("".join(header))
         page_numbers = 2**16 / 2**12
         for page_number in range(page_numbers):
