@@ -19,10 +19,6 @@ This is not very flexible but it is useful for generating a quick COE file for
 completely defining the entire space.  Note that distributed memories larger
 than 64k (65,536) are not supported by the Xilinx memory generation tool.
 
-; Sample Initialization file for a 16x32 distributed ROM
-memory_initialization_radix = 16;
-memory_initialization_vector =
-
 """
 COE_FILE = "./basic.coe"
 
@@ -80,7 +76,7 @@ def main():
     with open(COE_FILE, 'wb') as coe_file:
         header = [";; Distributed Memory Generator COE file\n",
                   ";; \tAddress Size = {HIGH_ADDRESS}\n".format(HIGH_ADDRESS=HIGH_ADDRESS),
-                  ";; \tPage Size = {PAGE_SIZE}\n.".format(PAGE_SIZE=PAGE_SIZE),
+                  ";; \tPage Size = {PAGE_SIZE}\n".format(PAGE_SIZE=PAGE_SIZE),
                   ";; memory_initialization_radix = 16;\n",
                   ";; memory_initialization_vector = \n"]
         coe_file.write("".join(header))
@@ -88,8 +84,8 @@ def main():
         for page_number in range(page_numbers):
             start_addr = hex(page_number * PAGE_SIZE)
             end_addr = hex((page_number + 1) * PAGE_SIZE - 1)
-            page_hdr = (";; Addresses from {start_addr} to {end_addr}.\n".format(start_addr=start_addr,end_addr=end_addr))
-            lines = (page_hdr, make_page(), "\n")
+            page_foot = (";; End of addresses {start_addr} to {end_addr}.\n".format(start_addr=start_addr,end_addr=end_addr))
+            lines = (make_page(), "\n", page_foot)
             coe_file.writelines(lines)
 
 if __name__ == "__main__":
