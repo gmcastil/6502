@@ -3,61 +3,101 @@ module alu
     // parameter
     )
   (
-   input [3:0]  ctrl,
-   input [7:0]  AI,
-   input [7:0]  BI,
-   input        CI, // carry in
-   input        D, // BCD enable
+   input [2:0]      ctrl,
+   input [7:0]      AI,
+   input [7:0]      BI,
+   input            CI, // carry in
+   input            DAA, // BCD enable
 
    // Processor status register flags
-   output       N, // negative result
-   output       V, // sign bit overflow
-   output       Z, // zero result
-   output reg   CO, // arithmetic carry
-   output       HC, // half carry
+   output           N, // negative result
+   output           V, // sign bit overflow
+   output           Z, // zero result
+   output reg       CO, // arithmetic carry
+   output           HC, // half carry
 
-   output reg [7:0] out
+   output reg [7:0] Y
    );
 
-  parameter ADD = 4'b0000;
-  parameter OR  = 4'b0001;
-  parameter XOR = 4'b0010;
-  parameter AND = 4'b0011;
-  parameter SR  = 4'b0011;
+  parameter SUM = 3'b000;
+  parameter OR  = 3'b001;
+  parameter XOR = 3'b010;
+  parameter AND = 3'b011;
+  parameter SR  = 3'b100;
 
   // Signals used in the case statement
-  reg [8:0]     result;
+  reg [8:0]         result;
 
   always @(*) begin
 
     case (ctrl)
 
-      ADD: begin
-        if (D) begin
+      SUM: begin
+        // Affects Flags: N V Z C
+        if (DAA) begin
           // BCD addition (not sure if there is a carry here)
         end else begin
           // Binary addition with carry in
           result = {1'b0, AI} + {1'b0, BI} + CI;
-          out = result[7:0];
+          Y = result[7:0];
           CO = result[8];
         end
       end
 
       OR: begin
-
+        // Affects Flags: N Z
+        Y = AI | BI;
+        // Set if result is zero; else cleared
+        if (Y == 8'b0) begin
+          Z = 1'b0;
+        end else begin
+          Z = 1'b1;
+        end
+        // Set if MSB is set; else cleared
+        N = Y[7];
       end
 
       XOR: begin
-
+        // Affects Flags: N Z
+        Y = AI ^ BI;
+        // Set if result is zero; else cleared
+        if (Y == 8'b0) begin
+          Z = 1'b0;
+        end else begin
+          Z = 1'b1;
+        end
+        // Set if MSB is set; else cleared
+        N = Y[7];
       end
 
       AND: begin
-
+        // Affects Flags: N Z
+        Y = AI & BI;
+        // Set if result is zero; else cleared
+        if (Y == 8'b0) begin
+          Z = 1'b0;
+        end else begin
+          Z = 1'b1;
+        end
+        // Set if MSB is set; else cleared
+        N = Y[7];
       end
 
       SR: begin
-
-       end
+        // Affects Flags: N Z CO
+        Y = {CI, A[7:1]};
+        // Low bit becomes carry: set if low bit is set; cleared if low bit was
+        // clear
+        CO = A[0];
+        // Set if result is zero; else cleared
+        if (Y == 8'b0) begin
+          Z = 1'b0;
+        end else begin
+          Z = 1'b1;
+        end
+        // Set if MSB is set; else cleared
+        N = Y[7];
+      end
 
       default: begin end
 

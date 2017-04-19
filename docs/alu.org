@@ -43,3 +43,6 @@ Necessary operations:
     - [ ] Add with carry
     - [ ] Increment operations
 - Subtraction
+
+Increment and decrement of the program counter needs to occur in a single cycle,
+so it cannot be done by the ALU (uses a lookahead adder)

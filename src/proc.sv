@@ -4,7 +4,7 @@
 
  */
 
-module 6502
+module proc
   (
    input         RDY,           // ready (active low)
    output        PHI_1,         // phase 1 clock (out)
@@ -28,6 +28,8 @@ module 6502
   reg [7:0]      S;             // stack pointer
   reg [15:0]     PC;            // program counter
 
+  reg [7:0]      IR;            // instruction register
+
   // processor status register from Table 2-1 of WDC Programming Manual
   reg            C;             // 1 = carry
   reg            Z;             // 1 = result zero
@@ -45,7 +47,7 @@ module 6502
 
    IDLE - for initial startup
    RESET - reset logic
-   IRQ - all interrupt handling, including non-maskable interrupts
+   IRQ_HANDLE - all interrupt handling, including non-maskable interrupts
    FETCH - obtain the next instruction and operands
    DECODE -
 
@@ -66,7 +68,7 @@ module 6502
                  {
                   IDLE        = 13'b0_0000_0000_0001,
                   RESET       = 13'b0_0000_0000_0010,
-                  IRQ         = 13'b0_0000_0000_0100,
+                  IRQ_HANDLE  = 13'b0_0000_0000_0100,
                   FETCH       = 13'b0_0000_0000_1000,
                   DECODE      = 13'b0_0000_0001_0000,
                   STORAGE     = 13'b0_0000_0010_0000,
@@ -77,13 +79,14 @@ module 6502
                   REGISTERS   = 13'b0_0100_0000_0000,
                   STACK       = 13'b0_1000_0000_0000,
                   SYSTEM      = 13'b1_0000_0000_0000
-                  } states
+                  } states;
 
   states present_state;
+  states next_state;
 
   localparam IDLE_ID       = 0;
   localparam RESET_ID      = 1;
-  localparam IRQ_ID        = 2;
+  localparam IRQ_HANDLE_ID = 2;
   localparam FETCH_ID      = 3;
   localparam DECODE_ID     = 4;
   localparam STORAGE_ID    = 5;
@@ -95,5 +98,13 @@ module 6502
   localparam STACK_ID      = 11;
   localparam SYSTEM_ID     = 12;
 
+  localparam RESET_VECTOR = 16'hFFFC
+
+  always @(*) begin
+
+    case (1'b1)
+
+      present_state[RESET_ID]: begin
+        PC[
 
 endmodule
