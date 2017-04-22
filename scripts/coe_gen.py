@@ -68,19 +68,19 @@ def main():
 
     """
     if (ROW_SIZE * COL_SIZE != PAGE_SIZE):
-        print "Page dimensions are incorrect. Check row and column sizes"
+        print("Page dimensions are incorrect. Check row and column sizes")
         return None
     if (HIGH_ADDRESS > MAX_ADDRESS):
-        print "Requested dimensions are too large.  Check address space size"
+        print("Requested dimensions are too large.  Check address space size")
         return None
-    with open(COE_FILE, 'wb') as coe_file:
+    with open(COE_FILE, 'w') as coe_file:
         header = [";; Distributed Memory Generator COE file\n",
                   ";; \tAddress Size = {HIGH_ADDRESS}\n".format(HIGH_ADDRESS=HIGH_ADDRESS),
                   ";; \tPage Size = {PAGE_SIZE}\n".format(PAGE_SIZE=PAGE_SIZE),
                   "memory_initialization_radix = 16;\n",
                   "memory_initialization_vector = \n"]
         coe_file.write("".join(header))
-        page_numbers = 2**16 / 2**12
+        page_numbers = 2**16 // 2**12
         for page_number in range(page_numbers):
             start_addr = hex(page_number * PAGE_SIZE)
             end_addr = hex((page_number + 1) * PAGE_SIZE - 1)
