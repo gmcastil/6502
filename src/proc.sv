@@ -6,105 +6,122 @@
 
 module proc
   (
-   input         RDY,           // ready (active low)
-   output        PHI_1,         // phase 1 clock (out)
-   input         IRQ,           // interrupt request (active low)
-   input         NMI,           // non-maskable interrupt (active low)
-   output        SYNC,          // synchronize signal
-   output [15:0] AB,            // 16-bit address bus
-   input [7:0]   DB_IN,         // 8-bit data bus (in)
-   output [7:0]  DB_OUT,        // 8-bit data bus (out)
-   output        RW,            // read / write
-   input         PHI_0,         // phase 0 clock (in)
-   input         SO,            // set overflow
-   output        PHI_2,         // phase 2 clock (out)
+   input         RDY, // ready (active low)
+   output        PHI_1, // phase 1 clock (out)
+   input         IRQ, // interrupt request (active low)
+   input         NMI, // non-maskable interrupt (active low)
+   output        SYNC, // synchronize signal
+   output [15:0] AB, // 16-bit address bus
+   input [7:0]   DB_IN, // 8-bit data bus (in)
+   output [7:0]  DB_OUT, // 8-bit data bus (out)
+   output        RW, // read / write
+   input         PHI_0, // phase 0 clock (in)
+   input         SO, // set overflow
+   output        PHI_2, // phase 2 clock (out)
    input         RES            // reset (active low)
    );
 
-  // 6502 registers from Fig 2.1 of WDC Programming Manual
-  reg [7:0]      A;             // accumulator
-  reg [7:0]      X;             // X index register
-  reg [7:0]      Y;             // Y index register
-  reg [7:0]      S;             // stack pointer
-  reg [15:0]     PC;            // program counter
+   // 6502 registers from Fig 2.1 of WDC Programming Manual
+   reg [7:0]     A;             // accumulator
+   reg [7:0]     X;             // X index register
+   reg [7:0]     Y;             // Y index register
+   reg [7:0]     S;             // stack pointer
+   reg [15:0]    PC;            // program counter
 
-  reg [7:0]      IR;            // instruction register
+   reg [7:0]     IR;            // instruction register
 
-  // processor status register from Table 2-1 of WDC Programming Manual
-  reg            C;             // 1 = carry
-  reg            Z;             // 1 = result zero
-  reg            I;             // 1 = disable interrupt
-  reg            D;             // 1 = decimal mode
-  reg            B;             // 1 = break caused interrupt
-  reg            V;             // 1 = overflow
-  reg            N;             // 1 = negative
+   // processor status register from Table 2-1 of WDC Programming Manual
+   reg           C;             // 1 = carry
+   reg           Z;             // 1 = result zero
+   reg           I;             // 1 = disable interrupt
+   reg           D;             // 1 = decimal mode
+   reg           B;             // 1 = break caused interrupt
+   reg           V;             // 1 = overflow
+   reg           N;             // 1 = negative
 
-  // --- Combinatorial State Movemtents
+   // --- Combinatorial State Movemtents
 
-  /*
+   /*
 
-   The state machine for the processor is broken into the following:
+    The state machine for the processor is broken into the following:
 
-   IDLE - for initial startup
-   RESET - reset logic
-   IRQ_HANDLE - all interrupt handling, including non-maskable interrupts
-   FETCH - obtain the next instruction and operands
-   DECODE -
+    RESET - reset logic
+    IRQ_HANDLE - all interrupt handling, including non-maskable interrupts
+    FETCH - obtain the next instruction
+    DECODE_OP - decode opcode
+    OPER_1 - fetch first operand if necessary
+    OPER_2 - fetch second operatnd if necessary
+    EXECUTE - execute instruction (probably be replaced as I add instructions)
 
-   The remainder of the states in the FSM group several opcodes and
-   addressing modes together to simplify the design:
-
-   STORAGE   - load, store, and transfer instructions
-   MATH      - add, subtract, increment and decrement instructions
-   BITWISE   - Boolean functions, shift, and and rotate instructions
-   BRANCH    -
-   JUMP      -
-   REGISTERS -
-   STACK     -
-   SYSTEM    -
-
-   */
-  typedef enum   logic [12:0]
+    */
+   typedef enum  logic [6:0]
                  {
-                  IDLE        = 13'b0_0000_0000_0001,
-                  RESET       = 13'b0_0000_0000_0010,
-                  IRQ_HANDLE  = 13'b0_0000_0000_0100,
-                  FETCH       = 13'b0_0000_0000_1000,
-                  DECODE      = 13'b0_0000_0001_0000,
-                  STORAGE     = 13'b0_0000_0010_0000,
-                  MATH        = 13'b0_0000_0100_0000,
-                  BITWISE     = 13'b0_0000_1000_0000,
-                  BRANCH      = 13'b0_0001_0000_0000,
-                  JUMP        = 13'b0_0010_0000_0000,
-                  REGISTERS   = 13'b0_0100_0000_0000,
-                  STACK       = 13'b0_1000_0000_0000,
-                  SYSTEM      = 13'b1_0000_0000_0000
-                  } states;
+                  IDLE        = 7'b0000001,
+                  RESET       = 7'b0000010,
+                  IRQ_HANDLE  = 7'b0000100,
+                  FETCH       = 7'b0001000,
+                  DECODE_OP   = 7'b0010000,
+                  OPER_1      = 7'b0100000,
+                  OPER_2      = 7'b1000000
+                  EXECUTE     = } states;
 
-  states present_state;
-  states next_state;
+   states present;
+   states next;
 
-  localparam IDLE_ID       = 0;
-  localparam RESET_ID      = 1;
-  localparam IRQ_HANDLE_ID = 2;
-  localparam FETCH_ID      = 3;
-  localparam DECODE_ID     = 4;
-  localparam STORAGE_ID    = 5;
-  localparam MATH_ID       = 6;
-  localparam BITWISE_ID    = 7;
-  localparam BRANCH_ID     = 8;
-  localparam JUMP_ID       = 9;
-  localparam REGISTERS_ID  = 10;
-  localparam STACK_ID      = 11;
-  localparam SYSTEM_ID     = 12;
+   localparam IDLE_ID       = 0;
+   localparam RESET_ID      = 1;
+   localparam IRQ_HANDLE_ID = 2;
+   localparam FETCH_ID      = 3;
+   localparam DECODE_OP_ID  = 4;
+   localparam OPER_1_ID     = 5;
+   localparam OPER_2_ID     = 6;
+   localparam EXECUTE_ID    = 7;
 
-  localparam RESET_VECTOR = 16'hFFFC
+   localparam RESET_VECTOR = 16'hFFFC;
+   localparam IRQ_VECTOR   = 16'hFFFE;
 
-  always @(*) begin
+   always @(posedge clk) begin
+      if (!RES) begin
+         // fetch reset vector
+         next = IDLE
+      end
+      else begin
 
-    case (1'b1)
+      end
+   end
 
-      present_state[RESET_ID]: begin
-        PC[
+   always @(*) begin
+
+      case (1'b1)
+
+        present[IDLE_ID]: begin
+        end
+
+        present[RESET_ID]: begin
+        end
+
+        present[IRQ_HANDLE_ID]: begin
+        end
+
+        present[FETCH_ID]: begin
+        end
+
+        present[DECODE_OP_ID]: begin
+        end
+
+        present[OPER_1_ID]: begin
+        end
+
+        present[OPER_2_ID]: begin
+        end
+
+        present[EXECUTE_ID]: begin
+        end
+
+        default: begin
+        end
+
+      endcase // case (1'b1)
+   end
 
 endmodule
