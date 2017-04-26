@@ -14,7 +14,7 @@ module alu
    output reg       V, // sign bit overflow
    output reg       Z, // zero result
    output reg       CO, // arithmetic carry
-   output           HC, // half carry
+   output reg       HC, // half carry
 
    output reg [7:0] Y
    );
@@ -29,6 +29,14 @@ module alu
   reg [8:0]         result;
 
   always @(*) begin
+
+    // Set default values for processor status register
+    N = 1'b0;
+    V = 1'b0;
+    Z = 1'b0;
+    CO = 1'b0;
+    HC = 1'b0;
+    result = 9'b0;
 
     case (ctrl)
 
