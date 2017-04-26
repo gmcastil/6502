@@ -10,9 +10,9 @@ module alu
    input            DAA, // BCD enable
 
    // Processor status register flags
-   output           N, // negative result
-   output           V, // sign bit overflow
-   output           Z, // zero result
+   output reg       N, // negative result
+   output reg       V, // sign bit overflow
+   output reg       Z, // zero result
    output reg       CO, // arithmetic carry
    output           HC, // half carry
 
@@ -85,10 +85,10 @@ module alu
 
       SR: begin
         // Affects Flags: N Z CO
-        Y = {CI, A[7:1]};
+        Y = {CI, AI[7:1]};
         // Low bit becomes carry: set if low bit is set; cleared if low bit was
         // clear
-        CO = A[0];
+        CO = AI[0];
         // Set if result is zero; else cleared
         if (Y == 8'b0) begin
           Z = 1'b0;
