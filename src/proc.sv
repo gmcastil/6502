@@ -21,40 +21,38 @@ module proc
    input         RES            // reset (active low)
    );
 
-   // 6502 registers from Fig 2.1 of WDC Programming Manual
-   reg [7:0]     A;             // accumulator
-   reg [7:0]     X;             // X index register
-   reg [7:0]     Y;             // Y index register
-   reg [7:0]     S;             // stack pointer
-   reg [15:0]    PC;            // program counter
+  // 6502 registers from Fig 2.1 of WDC Programming Manual
+  reg [7:0]      A;             // accumulator
+  reg [7:0]      X;             // X index register
+  reg [7:0]      Y;             // Y index register
+  reg [7:0]      S;             // stack pointer
+  reg [15:0]     PC;            // program counter
 
-   reg [7:0]     IR;            // instruction register
+  // Processor status register from Table 2-1 of WDC Programming Manual
+  reg            C;             // 1 = carry
+  reg            Z;             // 1 = result zero
+  reg            I;             // 1 = disable interrupt
+  reg            D;             // 1 = decimal mode
+  reg            B;             // 1 = break caused interrupt
+  reg            V;             // 1 = overflow
+  reg            N;             // 1 = negative
 
-   // processor status register from Table 2-1 of WDC Programming Manual
-   reg           C;             // 1 = carry
-   reg           Z;             // 1 = result zero
-   reg           I;             // 1 = disable interrupt
-   reg           D;             // 1 = decimal mode
-   reg           B;             // 1 = break caused interrupt
-   reg           V;             // 1 = overflow
-   reg           N;             // 1 = negative
+  reg [7:0]      IR;            // instruction register
 
-   // --- Combinatorial State Movemtents
+  /*
 
-   /*
+   The state machine for the processor is broken into the following:
 
-    The state machine for the processor is broken into the following:
+   RESET - reset logic
+   IRQ_HANDLE - all interrupt handling, including non-maskable interrupts
+   FETCH - obtain the next instruction
+   DECODE_OP - decode opcode
+   OPER_1 - fetch first operand if necessary
+   OPER_2 - fetch second operatnd if necessary
+   EXECUTE - execute instruction (probably be replaced as I add instructions)
 
-    RESET - reset logic
-    IRQ_HANDLE - all interrupt handling, including non-maskable interrupts
-    FETCH - obtain the next instruction
-    DECODE_OP - decode opcode
-    OPER_1 - fetch first operand if necessary
-    OPER_2 - fetch second operatnd if necessary
-    EXECUTE - execute instruction (probably be replaced as I add instructions)
-
-    */
-   typedef enum  logic [6:0]
+   */
+  typedef enum   logic [6:0]
                  {
                   IDLE        = 7'b0000001,
                   RESET       = 7'b0000010,
@@ -65,63 +63,63 @@ module proc
                   OPER_2      = 7'b1000000
                   EXECUTE     = } states;
 
-   states present;
-   states next;
+  states present;
+  states next;
 
-   localparam IDLE_ID       = 0;
-   localparam RESET_ID      = 1;
-   localparam IRQ_HANDLE_ID = 2;
-   localparam FETCH_ID      = 3;
-   localparam DECODE_OP_ID  = 4;
-   localparam OPER_1_ID     = 5;
-   localparam OPER_2_ID     = 6;
-   localparam EXECUTE_ID    = 7;
+  localparam IDLE_ID       = 0;
+  localparam RESET_ID      = 1;
+  localparam IRQ_HANDLE_ID = 2;
+  localparam FETCH_ID      = 3;
+  localparam DECODE_OP_ID  = 4;
+  localparam OPER_1_ID     = 5;
+  localparam OPER_2_ID     = 6;
+  localparam EXECUTE_ID    = 7;
 
-   localparam RESET_VECTOR = 16'hFFFC;
-   localparam IRQ_VECTOR   = 16'hFFFE;
+  localparam RESET_VECTOR = 16'hFFFC;
+  localparam IRQ_VECTOR   = 16'hFFFE;
 
-   always @(posedge clk) begin
-      if (!RES) begin
-         // fetch reset vector
-         next = IDLE
+  always @(posedge clk) begin
+    if (!RES) begin
+      // fetch reset vector
+      next = IDLE
+             end
+    else begin
+    end
+  end
+
+  // --- Combinatorial State Movements
+  always @(*) begin
+
+    case (1'b1)
+
+      present[IDLE_ID]: begin
       end
-      else begin
 
+      present[RESET_ID]: begin
       end
-   end
 
-   always @(*) begin
+      present[IRQ_HANDLE_ID]: begin
+      end
 
-      case (1'b1)
+      present[FETCH_ID]: begin
+      end
 
-        present[IDLE_ID]: begin
-        end
+      present[DECODE_OP_ID]: begin
+      end
 
-        present[RESET_ID]: begin
-        end
+      present[OPER_1_ID]: begin
+      end
 
-        present[IRQ_HANDLE_ID]: begin
-        end
+      present[OPER_2_ID]: begin
+      end
 
-        present[FETCH_ID]: begin
-        end
+      present[EXECUTE_ID]: begin
+      end
 
-        present[DECODE_OP_ID]: begin
-        end
+      default: begin
+      end
 
-        present[OPER_1_ID]: begin
-        end
-
-        present[OPER_2_ID]: begin
-        end
-
-        present[EXECUTE_ID]: begin
-        end
-
-        default: begin
-        end
-
-      endcase // case (1'b1)
-   end
+    endcase // case (1'b1)
+  end
 
 endmodule
