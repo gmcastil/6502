@@ -11,14 +11,31 @@ module memc
    output       data
    );
 
-  localparam RESET = 0;
-  localparam BIST  = 1;
-  localparam IDLE  = 2;
-  localparam READ  = 3;
-  localparam WRITE = 4;
+  // --- State machine signals
+  localparam RESET      = 0;
+  localparam BIST       = 1;
+  localparam TEST_WR1   = 2;
+  localparam TEST_RD1   = 3;
+  localparam TEST_WR2   = 4;
+  localparam TEST_RD2   = 5;
+  localparam ERROR      = 6;
+  localparam IDLE       = 7;
+  localparam READ       = 8;
+  localparam WRITE      = 9;
 
   reg [4:0]     state;
   reg [4:0]     next;
+
+  // --- Signal declarations
+  localparam [7:0] WR_PATT_1 = 8'hAA;
+  localparam [7:0] WR_PATT_2 = 8'h55;
+
+  reg [15:0]    bist_addr;
+  reg [15:0]    top_addr;
+  reg [15:0]    bottom_addr;
+  reg [7:0]     read_pattern;
+  reg           error;
+  reg           bist_done;
 
   always @(posedge clk) begin
     if (!reset) begin
