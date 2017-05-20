@@ -53,14 +53,22 @@ module memc
     case (1'b1)
 
       state[RESET]: begin
-        next <= BIST;
+        if (reset = 1'b0) begin:
+          next <= RESET;
+        end else begin
+          next <= BIST;
+        end
       end
 
       state[BIST]: begin
-        if (bist_done == 1'b0) begin
-          next <= TEST_WR1;
+        if (reset = 1'b0) begin:
+          next <= RESET;
         end else begin
-          next <= IDLE;
+          if (bist_done == 1'b0) begin
+            next <= TEST_WR1;
+          end else begin
+            next <= IDLE;
+          end
         end
       end
 
@@ -89,7 +97,11 @@ module memc
       end
 
       state[ERROR]: begin
-        next <= ERROR;
+        if (reset = 1'b0) begin
+          next <= RESET;
+        end else begin
+          next <= ERROR;
+        end
       end
 
       state[IDLE]: begin
