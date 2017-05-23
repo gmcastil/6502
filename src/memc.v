@@ -39,7 +39,7 @@ module memc
 
   always @(posedge clk) begin
     if (!reset) begin
-      state        <= 5'b0;
+      state        <= 10'b0;
       state[RESET] <= 1'b1;
     end else begin
       state <= next;
@@ -126,6 +126,57 @@ module memc
 
     endcase // case (1'b1)
   end
+
+  always @(posedge clk) begin
+
+    case (1'b1)
+
+      state[RESET_ID]: begin
+      end
+
+      state[BIST_ID]: begin
+      end
+
+      state[TEST_WR1_ID]: begin
+      end
+
+      state[TEST_RD1_ID]: begin
+      end
+
+      state[TEST_WR2_ID]: begin
+      end
+
+      state[TEST_RD2_ID]: begin
+      end
+
+      state[ERROR_ID]: begin
+      end
+
+      state[IDLE_ID]: begin
+      end
+
+      state[READ_ID]: begin
+      end
+
+      state[WRITE_ID]: begin
+      end
+
+      default: begin
+      end
+
+  end
+
+  // localparam RESET      = 0;
+  // localparam BIST       = 1;
+  // localparam TEST_WR1   = 2;
+  // localparam TEST_RD1   = 3;
+  // localparam TEST_WR2   = 4;
+  // localparam TEST_RD2   = 5;
+  // localparam ERROR      = 6;
+  // localparam IDLE       = 7;
+  // localparam READ       = 8;
+  // localparam WRITE      = 9;
+
 
   // Instantiate a 64k x 8 BRAM
 
