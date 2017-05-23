@@ -67,7 +67,7 @@ module memc
           if (bist_done == 1'b0) begin
             next <= TEST_WR1;
           end else begin
-            next <= IDLE;
+             next <= IDLE;
           end
         end
       end
