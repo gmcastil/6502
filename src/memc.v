@@ -5,10 +5,11 @@ module memc
    input        clk,
    input        reset,
    input [15:0] addr,
+   input [7:0]  data_in,
    input        read_en,
    input        write_en,
    output       busy,
-   output       data
+   output [7:0] data_out
    );
 
   // --- State machine signals
@@ -67,7 +68,7 @@ module memc
           if (bist_done == 1'b0) begin
             next <= TEST_WR1;
           end else begin
-            next <= IDLE;
+             next <= IDLE;
           end
         end
       end
@@ -132,33 +133,59 @@ module memc
     case (1'b1)
 
       state[RESET_ID]: begin
+        read_en = 1'b0;
+        write_en = 1'b0;
+        addr = 16'b0;
+        data = 8'b0;
+        bist_addr = 9'b0;
+        busy = 1'b1;
       end
 
       state[BIST_ID]: begin
+        read_en = 1'b0;
+        write_en = 1'b0;
+        addr = bist_addr;
+        data = 8'b0;
+        busy = 1'b1;
       end
 
       state[TEST_WR1_ID]: begin
+        read_en = 1'b0;
+        write_en = 1'b1;
+        addr = bist_addr;
+        data = WR_PATT_1;
+        busy = 1'b1;
       end
 
       state[TEST_RD1_ID]: begin
+        read_en = 1'b1;
+        write_en = 1'b0;
+        addr = bist_addr
+        busy = 1'b1;
       end
 
       state[TEST_WR2_ID]: begin
+        busy = 1'b1;
       end
 
       state[TEST_RD2_ID]: begin
+        busy = 1'b1;
       end
 
       state[ERROR_ID]: begin
+        busy = 1'b1;
       end
 
       state[IDLE_ID]: begin
+        busy = 1'b0;
       end
 
       state[READ_ID]: begin
+        busy = 1'b0;
       end
 
       state[WRITE_ID]: begin
+        busy = 1'b0;
       end
 
       default: begin
