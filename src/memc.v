@@ -30,11 +30,11 @@ module memc
   localparam [7:0] WR_PATT_1 = 8'b01010101;
   localparam [7:0] WR_PATT_2 = 8'b10101010;
 
-  reg [15:0]    bist_addr;
+  reg [16:0]    bist_addr;
   reg [15:0]    top_addr;
   reg [15:0]    bottom_addr;
   reg [7:0]     read_pattern;
-  reg           error;
+  reg           errors;
   reg           bist_done;
 
   always @(posedge clk) begin
@@ -53,66 +53,91 @@ module memc
     case (1'b1)
 
       state[RESET]: begin
-        next <= BIST;
+        next = BIST;
       end
 
       state[BIST]: begin
         if (bist_done == 1'b0) begin
-          next <= TEST_WR1;
+          next = TEST_WR1;
         end else begin
-          next <= IDLE;
+          next = IDLE;
         end
       end
 
       state[TEST_WR1]: begin
-        next <= TEST_RD1;
+        next = TEST_RD1;
       end
 
       state[TEST_RD1]: begin
         if (read_pattern == WR_PATT_1) begin
-          next <= TEST_WR2;
+          next = TEST_WR2;
         end else begin
-          next <= ERROR;
+          next = ERROR;
         end
       end
 
       state[TEST_WR2]: begin
-        next <= TEST_RD2;
+        next = TEST_RD2;
       end
 
       state[TEST_RD2]: begin
         if (read_pattern == WR_PATT_1) begin
-          next <= BIST;
+          next = BIST;
         end else begin
-          next <= ERROR;
+          next = ERROR;
         end
       end
 
       state[ERROR]: begin
-        next <= ERROR;
+        next = ERROR;
       end
 
       state[IDLE]: begin
         if  (read_en == 1'b1) begin
-          next <= READ;
-        end else if (write_en = 1'b1) begin
-          next <= WRITE;
+          next = READ;
+        end else if (write_en == 1'b1) begin
+          next = WRITE;
         end else begin
-          next <= IDLE;
+          next = IDLE;
+        end
       end
 
       state[READ]: begin
-        next <= IDLE;
+        next = IDLE;
       end
 
       state[WRITE]: begin
-        next <= IDLE;
+        next = IDLE;
       end
 
       default: begin
       end
 
     endcase // case (1'b1)
+  end
+
+  always @(posedge clk) begin
+
+    case (1'b1)
+
+      state[RESET]: begin
+        write_en <= 1'b0;
+        read_en <= 1'b0;
+        busy <= 1'b1;
+      end
+
+      state[BIST]: begin
+        write_en <= 1'b0;
+        read_en <= 1'b0;
+        busy <= 1'b1;
+      end
+
+      state[TEST_WR1]: begin
+        write_en <= 1'b1;
+        read_en <= 1'b0;
+        busy <= 1'b1;
+        addr <= bist_addr
+
   end
 
   // Instantiate a 64k x 8 BRAM
