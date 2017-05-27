@@ -1,16 +1,30 @@
 module memc
   #(
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 16
     )
   (
-   input        clk,
-   input        reset,
-   input [15:0] addr,
-   input [7:0]  data_in,
-   input        read_en,
-   input        write_en,
-   output       busy,
-   output [7:0] data_out
+   input memc_clk,
+   input memc_reset,
+   input memc_read_enable,
+   input memc_write_enable,
+   input [DATA_WIDTH-1:0] memc_read_data,
+   input [DATA_WIDTH-1:0] memc_write_data,
+   input [ADDR_WIDTH-1:0] memc_addr,
+
+   output memc_busy,
+   output bram_clk,
+   output bram_reset,
+   output bram_read_enable,
+   output bran_write_enable,
+   output [DATA_WIDTH-1:0] bram_read_data,
+   output [DATA_WIDTH-1:0] bram_write_data,
+   output [ADDR_WIDTH-1:0] bram_addr
    );
+
+`ifdef SIM
+  // define some signals in here for simulation
+`endif
 
   // --- State machine signals
   localparam RESET      = 0;
@@ -90,7 +104,7 @@ module memc
       end
 
       state[TEST_RD2]: begin
-        if (read_pattern == WR_PATT_1) begin
+        if (read_pattern == WR_PATT_2) begin
           next <= BIST;
         end else begin
           next <= ERROR;
@@ -106,9 +120,9 @@ module memc
       end
 
       state[IDLE]: begin
-        if  (read_en == 1'b1) begin
+        if  (memc_read_enable == 1'b1) begin
           next <= READ;
-        end else if (write_en = 1'b1) begin
+        end else if (memc_write_enable = 1'b1) begin
           next <= WRITE;
         end else begin
           next <= IDLE;
@@ -133,59 +147,65 @@ module memc
     case (1'b1)
 
       state[RESET_ID]: begin
-        read_en = 1'b0;
-        write_en = 1'b0;
-        addr = 16'b0;
-        data = 8'b0;
-        bist_addr = 9'b0;
-        busy = 1'b1;
+        bram_read_enable = 1'b0;
+        bram_write_enable = 1'b0;
+        memc_busy = 1'b1;
       end
 
       state[BIST_ID]: begin
-        read_en = 1'b0;
-        write_en = 1'b0;
-        addr = bist_addr;
-        data = 8'b0;
-        busy = 1'b1;
+        bram_read_enable = 1'b0;
+        bram_write_enable = 1'b0;
+        memc_busy = 1'b1;
       end
 
       state[TEST_WR1_ID]: begin
-        read_en = 1'b0;
-        write_en = 1'b1;
-        addr = bist_addr;
-        data = WR_PATT_1;
-        busy = 1'b1;
+        bram_read_enable = 1'b0;
+        bram_write_enable = 1'b1;
+        memc_busy = 1'b1;
       end
 
       state[TEST_RD1_ID]: begin
-        read_en = 1'b1;
-        write_en = 1'b0;
-        addr = bist_addr
-        busy = 1'b1;
+        bram_read_enable = 1'b1;
+        bram_write_enable = 1'b0;
+        memc_busy = 1'b1;
       end
 
       state[TEST_WR2_ID]: begin
-        busy = 1'b1;
+        bram_read_enable = 1'b0;
+        bram_write_enable = 1'b1;
+        memc_busy = 1'b1;
       end
 
       state[TEST_RD2_ID]: begin
-        busy = 1'b1;
+        bram_read_enable = 1'b1;
+        bram_write_enable = 1'b0;
+        memc_busy = 1'b1;
       end
 
       state[ERROR_ID]: begin
-        busy = 1'b1;
+        bram_read_enable = 1'b0;
+        bram_write_enable = 1'b0;
+        memc_busy = 1'b1;
       end
 
       state[IDLE_ID]: begin
-        busy = 1'b0;
+        bram_read_enable = 1'b0;
+        bram_write_enable = 1'b0;
+        memc_busy = 1'b0;
       end
 
       state[READ_ID]: begin
-        busy = 1'b0;
+        bram_read_enable = memc_read_enable;
+        bram_write_enable = memc_write_enable;
+        addr = memc_addr;
+        memc_busy = 1'b0;
       end
 
       state[WRITE_ID]: begin
-        busy = 1'b0;
+        bram_read_enable = memc_read_enable;
+        bram_write_enable = memc_write_enable;
+        addr = memc_addr;
+        memc_busy = 1'b0;
       end
 
       default: begin
