@@ -6,19 +6,20 @@ module memc
   (
    input                   memc_clk,
    input                   memc_reset,
+   output                  memc_busy,
+
    input                   memc_rd_enable,
    input                   memc_wr_enable,
-
-   input [DATA_WIDTH-1:0]  bram_rd_data,
+   output [DATA_WIDTH-1:0] memc_rd_data,
    input [DATA_WIDTH-1:0]  memc_wr_data,
    input [ADDR_WIDTH-1:0]  memc_addr,
 
    output                  bram_rd_enable,
-   output                  bran_wr_enable,
-   output [DATA_WIDTH-1:0] memc_rd_data,
+   output                  bram_wr_enable,
+   input [DATA_WIDTH-1:0]  bram_rd_data,
    output [DATA_WIDTH-1:0] bram_wr_data,
    output [ADDR_WIDTH-1:0] bram_addr
-   output                  memc_busy,
+
    );
 
 `ifdef SIM

@@ -29,18 +29,19 @@ module memory_top
          ) u_memc (
                    .memc_clk (clk),
                    .memc_reset (reset),
+                   .memc_busy (busy),
+
                    .memc_rd_enable (rd_enable),
                    .memc_wr_enable (wr_enable),
-                   .bram_rd_data (rd_data),
-                   .memc_write_data (wr_data),
+                   .memc_rd_data (rd_data),
+                   .memc_wr_data (wr_data),
                    .memc_addr (addr),
 
                    .bram_rd_enable (int_rd_enable),
                    .bram_wr_enable (int_wr_enable),
-                   .memc_rd_data (int_rd_data),
+                   .bram_rd_data (int_rd_data),
                    .bram_wr_data (int_wr_data),
                    .bram_addr (int_addr),
-                   .memc_busy (busy)
                    );
 
   // -- Memory wrapper
