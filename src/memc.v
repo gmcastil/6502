@@ -4,21 +4,21 @@ module memc
     parameter ADDR_WIDTH = 16
     )
   (
-   input                   memc_clk,
-   input                   memc_reset,
-   output                  memc_busy,
+   input                       memc_clk,
+   input                       memc_reset,
+   output reg                  memc_busy,
 
-   input                   memc_rd_enable,
-   input                   memc_wr_enable,
-   output [DATA_WIDTH-1:0] memc_rd_data,
-   input [DATA_WIDTH-1:0]  memc_wr_data,
-   input [ADDR_WIDTH-1:0]  memc_addr,
+   input                       memc_rd_enable,
+   input                       memc_wr_enable,
+   output reg [DATA_WIDTH-1:0] memc_rd_data,
+   input [DATA_WIDTH-1:0]      memc_wr_data,
+   input [ADDR_WIDTH-1:0]      memc_addr,
 
-   output                  bram_rd_enable,
-   output                  bram_wr_enable,
-   input [DATA_WIDTH-1:0]  bram_rd_data,
-   output [DATA_WIDTH-1:0] bram_wr_data,
-   output [ADDR_WIDTH-1:0] bram_addr
+   output reg                  bram_rd_enable,
+   output reg                  bram_wr_enable,
+   input [DATA_WIDTH-1:0]      bram_rd_data,
+   output reg [DATA_WIDTH-1:0] bram_wr_data,
+   output reg [ADDR_WIDTH-1:0] bram_addr
 
    );
 

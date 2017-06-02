@@ -41,7 +41,7 @@ module memory_top
                    .bram_wr_enable (int_wr_enable),
                    .bram_rd_data (int_rd_data),
                    .bram_wr_data (int_wr_data),
-                   .bram_addr (int_addr),
+                   .bram_addr (int_addr)
                    );
 
   // -- Memory wrapper
