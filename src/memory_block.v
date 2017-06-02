@@ -31,7 +31,7 @@ module memory_block
                                         .ADDR(addr),
                                         .CLK(clk),
                                         .DI(wr_data),
-                                        .EN(rd_enable)
+                                        .EN(rd_enable),
                                         .REGCE(DO_REG),
                                         .RST(reset),
                                         .WE(wr_enable)
