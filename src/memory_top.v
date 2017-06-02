@@ -45,14 +45,14 @@ module memory_top
                    );
 
   // -- Memory wrapper
-  mem_block #(
-              ) u_mem_block (
-                             .clk (clk),
-                             .reset (reset),
-                             .rd_enable (int_rd_enable),
-                             .wr_enable (int_wr_enable),
-                             .rd_data (int_wr_data),
-                             .wr_data (int_rd_data),
-                             .addr (int_addr)
-                             );
+  memory_block #(
+                 ) u_memory_block (
+                                   .clk (clk),
+                                   .reset (reset),
+                                   .rd_enable (int_rd_enable),
+                                   .wr_enable (int_wr_enable),
+                                   .rd_data (int_wr_data),
+                                   .wr_data (int_rd_data),
+                                   .addr (int_addr)
+                                   );
 endmodule // memory_top

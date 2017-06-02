@@ -1,4 +1,4 @@
-module mem_block
+module memory_block
   #(
     parameter DATA_WIDTH = 8,
     parameter ADDR_WIDTH = 16
