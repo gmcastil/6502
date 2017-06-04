@@ -15,6 +15,7 @@ module memory_block
 
   // For now, this will just instantiate the Xilinx primitives
 
+  wire                    resetn;
   assign resetn = !reset;
 
 //   BRAM_SINGLE_MACRO
@@ -212,10 +213,4 @@ BRAM_SINGLE_MACRO #(
                );
 
                // End of BRAM_SINGLE_MACRO_inst instantiation
-
-
-
-
-
-
 endmodule // mem_block

@@ -13,8 +13,8 @@ module memory_top_tb
   reg                   wr_enable;
   reg [DATA_WIDTH-1:0]  wr_data;
   reg [ADDR_WIDTH-1:0]  addr;
-  reg                   busy;
-  reg [DATA_WIDTH-1:0]  rd_data;
+  wire                  busy;
+  wire [DATA_WIDTH-1:0] rd_data;
 
   localparam T=10;  // 10ns clock period
 
