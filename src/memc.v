@@ -27,105 +27,110 @@ module memc
 `endif
 
   // --- State machine signals
-  localparam RESET      = 0;
-  localparam BIST       = 1;
-  localparam TEST_WR1   = 2;
-  localparam TEST_RD1   = 3;
-  localparam TEST_DEC1  = 4;
-  localparam TEST_WR2   = 5;
-  localparam TEST_RD2   = 5;
-  localparam TEST_DEC2  = 7;
-  localparam ERROR      = 8;
-  localparam IDLE       = 9;
-  localparam READ       = 10;
-  localparam READ_DEC   = 11;
-  localparam WRITE      = 12;
-  localparam WRITE_DEC  = 13;
+  localparam RESET      = 1;
+  localparam BIST       = 2;
+  localparam TEST_WR1   = 3;
+  localparam TEST_RD1   = 4;
+  localparam TEST_DEC1  = 5;
+  localparam TEST_WR2   = 6;
+  localparam TEST_RD2   = 7;
+  localparam TEST_DEC2  = 8;
+  localparam ERROR      = 9;
+  localparam IDLE       = 10;
+  localparam READ       = 11;
+  localparam READ_DEC   = 12;
+  localparam WRITE      = 13;
+  localparam WRITE_DEC  = 14;
 
-  reg [9:0]     state;
-  reg [9:0]     next;
+  reg [13:0]     state;
+  reg [13:0]     next;
 
   // --- Signal declarations
   localparam [7:0] WR_PATT_1 = 8'b01010101;
   localparam [7:0] WR_PATT_2 = 8'b10101010;
 
-  reg [16:0]    bist_addr;
-  reg [15:0]    top_addr;
-  reg [15:0]    bottom_addr;
-  reg [7:0]     read_pattern;
-  reg           errors;
-  reg           bist_done;
+  localparam TOP_ADDR = {ADDR_WIDTH-1{1'b1}};
+  localparam BOTTOM_ADDR = {ADDR_WIDTH-1{1'b0}};
+
+  reg [ADDR_WIDTH:0]      bist_addr;
+  reg [DATA_WIDTH-1:0]    read_pattern;
+  reg [DATA_WIDTH-1:0]    bist_rd_data;
+  reg                     error;
+  reg                     bist_done;
 
   always @(posedge memc_clk) begin
     if (!memc_reset) begin
-      state        <= 10'b0;
+      state <= 14'b0;
       state[RESET] <= 1'b1;
     end else begin
       state <= next;
     end
   end
 
+  // -- Combinatorial State Machine Movements
   always @(*) begin
 
-    next = 10'b0;
+    next = 14'b0;
 
     case (1'b1)
 
       state[RESET]: begin
         if (memc_reset == 1'b0) begin
-          next = RESET;
+          next[RESET] = 1'b1;
         end else begin
-          next = BIST;
+          next[BIST] = 1'b1;
         end
       end
 
       state[BIST]: begin
         if (memc_reset == 1'b0) begin
-          next = RESET;
+          next[RESET] = 1'b1;
         end else begin
-          if (bist_done == 1'b0) begin
-            next = TEST_WR1;
+          if (bist_done == 1'b1) begin
+            next[IDLE] = 1'b1;
           end else begin
-             next = IDLE;
+             next[TEST_WR1] = 1'b1;
           end
         end
       end
 
       state[TEST_WR1]: begin
-        next = TEST_RD1;
+        next[TEST_RD1] = 1'b1;
       end
 
       state[TEST_RD1]: begin
-        if (bram_rd_data == WR_PATT_1) begin
-          next = TEST_WR2;
-        end else begin
-          next = ERROR;
-        end
+        next[TEST_DEC1] = 1'b1;
       end
 
       state[TEST_DEC1]: begin
-      end
-
-      state[TEST_WR2]: begin
-        next = TEST_RD2;
-      end
-
-      state[TEST_RD2]: begin
-        if (bram_rd_data == WR_PATT_2) begin
-          next = BIST;
-        end else begin
-          next = ERROR;
+        if (bram_rd_data == WR_PATT_1) begin
+          next[TEST_WR2] = 1'b1;
+      end else begin
+          next[ERROR] = 1'b1;
         end
       end
 
+      state[TEST_WR2]: begin
+        next[TEST_RD2] = 1'b1;
+      end
+
+      state[TEST_RD2]: begin
+        next[TEST_DEC2] = 1'b1;
+      end
+
       state[TEST_DEC2]: begin
+        if (bram_rd_data == WR_PATT_2) begin
+        next[BIST] = 1'b1;
+      end else begin
+        next[ERROR] = 1'b1;
+        end
       end
 
       state[ERROR]: begin
-        if (memc_reset == 1'b0) begin
-          next = RESET;
+        if (!memc_reset) begin
+          next[RESET] = 1'b1;
         end else begin
-          next = ERROR;
+          next[ERROR] = 1'b1;
         end
       end
 
@@ -177,16 +182,17 @@ module memc
         bram_rd_enable <= 1'b0;
         bram_wr_enable <= 1'b1;
         bram_addr <= bist_addr;
+        bram_wr_data <= WR_PATT_1;
         memc_busy <= 1'b1;
-        bist_addr <= bist_addr;
       end
 
       state[TEST_RD1]: begin
         bram_rd_enable <= 1'b1;
         bram_wr_enable <= 1'b0;
-        bram_addr <= bist_addr;
-        memc_busy <= 1'b1;
         bist_addr <= bist_addr;
+        bist_rd_data <= bram_rd_data;
+        memc_busy <= 1'b1;
+
       end
 
       state[TEST_DEC1]: begin
