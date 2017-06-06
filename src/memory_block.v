@@ -1,13 +1,13 @@
 module memory_block
   #(
     parameter DATA_WIDTH = 8,
-    parameter ADDR_WIDTH = 16
+    parameter ADDR_WIDTH = 12
     )
   (
    input clk,
    input reset,
    input rd_enable,
-   input wr_enable,
+   input [3:0] wr_enable,
    output [DATA_WIDTH-1:0] rd_data,
    input [DATA_WIDTH-1:0] wr_data,
    input [ADDR_WIDTH-1:0] addr
@@ -28,16 +28,16 @@ module memory_block
       .WRITE_WIDTH(DATA_WIDTH),
       .READ_WIDTH(DATA_WIDTH),
       .SRVAL({DATA_WIDTH{1'b0}}),
-      .WRITE_MODE("WRITE_FIRST")
+      .WRITE_MODE("NO CHANGE")
       ) BRAM_SINGLE_MACRO_inst (
                                 .DO(rd_data),
-                                .ADDR(addr),
-                                .CLK(clk),
                                 .DI(wr_data),
-                                .EN(1'b1),  // not sure
+                                .ADDR(addr),
+                                .WE(wr_enable),
+                                .EN(1'b1),
+                                .RST(reset),
                                 .REGCE(1'b1),
-                                .RST(reset),  // not sure
-                                .WE({DATA_WIDTH{1'b1}})
+                                .CLK(clk)
                                 );
 
 endmodule // mem_block

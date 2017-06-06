@@ -1,7 +1,7 @@
 module memory_top
   #(
     parameter DATA_WIDTH = 8,
-    parameter ADDR_WIDTH = 16
+    parameter ADDR_WIDTH = 12
     )
   (
    input                   clk,
@@ -25,7 +25,7 @@ module memory_top
   // -- Memory controller
   memc #(
          .DATA_WIDTH (8),
-         .ADDR_WIDTH (16)
+         .ADDR_WIDTH (12)
          ) u_memc (
                    .memc_clk (clk),
                    .memc_reset (reset),
@@ -46,6 +46,8 @@ module memory_top
 
   // -- Memory wrapper
   memory_block #(
+         .DATA_WIDTH (8),
+         .ADDR_WIDTH (12)
                  ) u_memory_block (
                                    .clk (clk),
                                    .reset (reset),

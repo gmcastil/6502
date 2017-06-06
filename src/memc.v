@@ -1,7 +1,7 @@
 module memc
   #(
     parameter DATA_WIDTH = 8,
-    parameter ADDR_WIDTH = 16
+    parameter ADDR_WIDTH = 12
     )
   (
    input                       memc_clk,
@@ -15,7 +15,7 @@ module memc
    input [ADDR_WIDTH-1:0]      memc_addr,
 
    output reg                  bram_rd_enable,
-   output reg                  bram_wr_enable,
+   output reg [3:0]            bram_wr_enable,
    input [DATA_WIDTH-1:0]      bram_rd_data,
    output reg [DATA_WIDTH-1:0] bram_wr_data,
    output reg [ADDR_WIDTH-1:0] bram_addr
@@ -164,7 +164,7 @@ module memc
 
       state[RESET]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         bram_addr <= {ADDR_WIDTH{1'b0}};
         memc_busy <= 1'b1;
         bist_addr <= {ADDR_WIDTH{1'b0}};
@@ -172,7 +172,7 @@ module memc
 
       state[BIST]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         bram_addr <= {ADDR_WIDTH{1'b0}};
         memc_busy <= 1'b1;
         bist_addr <= bist_addr;
@@ -180,35 +180,35 @@ module memc
 
       state[TEST_WR1]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b1;
+        bram_wr_enable <= 4'b1111;
         bram_addr <= bist_addr;
         bram_wr_data <= WR_PATT_1;
         memc_busy <= 1'b1;
       end
 
       state[TEST_RD1]: begin
-        bram_rd_enable <= 1'b1;
-        bram_wr_enable <= 1'b0;
+        bram_rd_enable <= 1'b1;  // irrelevant
+        bram_wr_enable <= 4'b0;
         bist_addr <= bist_addr;
         memc_busy <= 1'b1;
       end
 
       state[TEST_DEC1]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         memc_busy <= 1'b1;
       end
 
       state[TEST_WR2]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b1;
+        bram_wr_enable <= 4'b1111;
         memc_busy <= 1'b1;
         bist_addr <= bist_addr;
       end
 
       state[TEST_RD2]: begin
         bram_rd_enable <= 1'b1;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         bram_addr <= bist_addr;
         memc_busy <= 1'b1;
         bist_addr <= bist_addr + 1'b1;
@@ -216,21 +216,21 @@ module memc
 
       state[TEST_DEC2]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         bram_addr <= bist_addr;
         memc_busy <= 1'b1;
       end
 
       state[ERROR]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         memc_busy <= 1'b1;
         bist_addr <= bist_addr;
       end
 
       state[IDLE]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 1'b0;
+        bram_wr_enable <= 4'b0;
         bram_addr <= memc_addr;
         memc_busy <= 1'b0;
         bist_addr <= bist_addr;
