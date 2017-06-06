@@ -60,7 +60,7 @@ module memc
 
   always @(posedge memc_clk) begin
     if (!memc_reset) begin
-      state <= 14'b0;
+      state <= 13'b0;
       state[RESET] <= 1'b1;
     end else begin
       state <= next;
@@ -70,7 +70,7 @@ module memc
   // -- Combinatorial State Machine Movements
   always @(*) begin
 
-    next = 14'b0;
+    next = 13'b0;
 
     case (1'b1)
 
@@ -190,18 +190,18 @@ module memc
         bram_rd_enable <= 1'b1;
         bram_wr_enable <= 1'b0;
         bist_addr <= bist_addr;
-        bist_rd_data <= bram_rd_data;
         memc_busy <= 1'b1;
-
       end
 
       state[TEST_DEC1]: begin
+        bram_rd_enable <= 1'b0;
+        bram_wr_enable <= 1'b0;
+        memc_busy <= 1'b1;
       end
 
       state[TEST_WR2]: begin
         bram_rd_enable <= 1'b0;
         bram_wr_enable <= 1'b1;
-        bram_addr <= bist_addr;
         memc_busy <= 1'b1;
         bist_addr <= bist_addr;
       end
@@ -215,12 +215,15 @@ module memc
       end
 
       state[TEST_DEC2]: begin
+        bram_rd_enable <= 1'b0;
+        bram_wr_enable <= 1'b0;
+        bram_addr <= bist_addr;
+        memc_busy <= 1'b1;
       end
 
       state[ERROR]: begin
         bram_rd_enable <= 1'b0;
         bram_wr_enable <= 1'b0;
-        bram_addr <= bist_addr;
         memc_busy <= 1'b1;
         bist_addr <= bist_addr;
       end

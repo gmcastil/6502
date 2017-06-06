@@ -3,7 +3,7 @@
 module memory_top_tb
   #(
     parameter DATA_WIDTH = 8,
-    parameter ADDR_WIDTH = 16
+    parameter ADDR_WIDTH = 12
     )
   ();
 
@@ -16,7 +16,7 @@ module memory_top_tb
   wire                  busy;
   wire [DATA_WIDTH-1:0] rd_data;
 
-  localparam T=10;  // 10ns clock period
+  localparam T=20;  // 10ns clock period
 
   initial begin
     clk <= 1'b1;
@@ -38,6 +38,8 @@ module memory_top_tb
   end
 
   memory_top #(
+               .DATA_WIDTH (DATA_WIDTH),
+               .ADDR_WIDTH (ADDR_WIDTH)
                ) u_memory_top (
                                .clk (clk),
                                .reset (reset),
