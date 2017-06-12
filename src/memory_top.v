@@ -53,8 +53,8 @@ module memory_top
                                    .reset (reset),
                                    .rd_enable (int_rd_enable),
                                    .wr_enable (int_wr_enable),
-                                   .rd_data (int_rd_data),
-                                   .wr_data (int_wr_data),
+                                   .rd_data (int_wr_data),
+                                   .wr_data (int_rd_data),
                                    .addr (int_addr)
                                    );
 endmodule // memory_top
