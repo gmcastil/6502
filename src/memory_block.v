@@ -7,7 +7,7 @@ module memory_block
    input clk,
    input reset,
    input rd_enable,
-   input [3:0] wr_enable,
+   input wr_enable,
    output [DATA_WIDTH-1:0] rd_data,
    input [DATA_WIDTH-1:0] wr_data,
    input [ADDR_WIDTH-1:0] addr
@@ -16,7 +16,10 @@ module memory_block
   // For now, this will just instantiate the Xilinx primitives
 
   wire                    resetn;
+  wire [3:0]              byte_wide_wr_enable;
+  
   assign resetn = !reset;
+  assign byte_wide_wr_enable = {4{wr_enable}};
 
   BRAM_SINGLE_MACRO
     #(
@@ -34,8 +37,8 @@ module memory_block
                                 .DI(wr_data),
                                 .ADDR(addr),
                                 .WE(wr_enable),
-                                .EN(1'b1),
-                                .RST(reset),
+                                .EN(rd_enable),
+                                .RST(resetn),
                                 .REGCE(1'b1),
                                 .CLK(clk)
                                 );

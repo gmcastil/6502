@@ -33,8 +33,30 @@ module memory_top_tb
     reset = 1'b0;
     #(3*T);
     reset = 1'b1;
+    
+    rd_enable = 1'b0;
+    wr_enable = 1'b0;
+    addr = {ADDR_WIDTH{1'b0}};
+    wr_data = {DATA_WIDTH{1'b0}};
 
-    // Should wait until the busy signal has gone to zero
+    wait (busy == 1'b0) begin
+      $display("BIST completed...");
+      wr_enable = 1'b1;
+      rd_enable = 1'b0;
+      wr_data = {DATA_WIDTH{1'b1}};
+      addr = {ADDR_WIDTH{1'b0}};
+      #(T);
+      wr_enable = 1'b0;
+      rd_enable = 1'b1;
+      #(T);
+      if (rd_data == wr_data) begin
+        $display("External operation correct...");
+      end else begin
+        $display("Error writing to memory...");
+      end
+      rd_enable = 1'b0;
+      wr_enable = 1'b0;
+    end
   end
 
   memory_top #(
@@ -47,7 +69,8 @@ module memory_top_tb
                                .wr_enable (wr_enable),
                                .addr (addr),
                                .busy (busy),
-                               .rd_data (rd_data)
+                               .rd_data (rd_data),
+                               .wr_data (wr_data)
                                );
 
 endmodule // memory_top_tb

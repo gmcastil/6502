@@ -15,7 +15,7 @@ module memc
    input [ADDR_WIDTH-1:0]      memc_addr,
 
    output reg                  bram_rd_enable,
-   output reg [3:0]            bram_wr_enable,
+   output reg                  bram_wr_enable,
    input [DATA_WIDTH-1:0]      bram_rd_data,
    output reg [DATA_WIDTH-1:0] bram_wr_data,
    output reg [ADDR_WIDTH-1:0] bram_addr
@@ -27,40 +27,33 @@ module memc
 `endif
 
   // --- State machine signals
-  localparam RESET      = 1;
-  localparam BIST       = 2;
-  localparam TEST_WR1   = 3;
-  localparam TEST_RD1   = 4;
-  localparam TEST_DEC1  = 5;
-  localparam TEST_WR2   = 6;
-  localparam TEST_RD2   = 7;
-  localparam TEST_DEC2  = 8;
-  localparam ERROR      = 9;
-  localparam IDLE       = 10;
-  localparam READ       = 11;
-  localparam READ_DEC   = 12;
-  localparam WRITE      = 13;
-  localparam WRITE_DEC  = 14;
+  localparam RESET      = 0;  // 1
+  localparam BIST       = 1;  // 2
+  localparam TEST_WR1   = 2;  // 4
+  localparam TEST_RD1   = 3;  // 8
+  localparam TEST_DEC1  = 4;  // 16
+  localparam TEST_WR2   = 5;  // 32
+  localparam TEST_RD2   = 6;  // 64
+  localparam TEST_DEC2  = 7;  // 128
+  localparam ERROR      = 8;  // 256
+  localparam IDLE       = 9;  // 512
+  localparam READ       = 10; // 1024
+  localparam WRITE      = 11; // 2048
 
-  reg [13:0]     state;
-  reg [13:0]     next;
+  reg [11:0]     state;
+  reg [11:0]     next;
 
   // --- Signal declarations
   localparam [7:0] WR_PATT_1 = 8'b01010101;
   localparam [7:0] WR_PATT_2 = 8'b10101010;
 
-  localparam TOP_ADDR = {ADDR_WIDTH-1{1'b1}};
-  localparam BOTTOM_ADDR = {ADDR_WIDTH-1{1'b0}};
+  localparam TOP_ADDR = {ADDR_WIDTH{1'b1}};
 
-  reg [ADDR_WIDTH:0]      bist_addr;
-  reg [DATA_WIDTH-1:0]    read_pattern;
-  reg [DATA_WIDTH-1:0]    bist_rd_data;
-  reg                     error;
   reg                     bist_done;
 
   always @(posedge memc_clk) begin
     if (!memc_reset) begin
-      state <= 13'b0;
+      state <= 12'b0;
       state[RESET] <= 1'b1;
     end else begin
       state <= next;
@@ -70,7 +63,7 @@ module memc
   // -- Combinatorial State Machine Movements
   always @(*) begin
 
-    next = 13'b0;
+    next = 12'b0;
 
     case (1'b1)
 
@@ -120,9 +113,9 @@ module memc
 
       state[TEST_DEC2]: begin
         if (bram_rd_data == WR_PATT_2) begin
-        next[BIST] = 1'b1;
-      end else begin
-        next[ERROR] = 1'b1;
+          next[BIST] = 1'b1;
+        end else begin
+          next[ERROR] = 1'b1;
         end
       end
 
@@ -136,20 +129,20 @@ module memc
 
       state[IDLE]: begin
         if  (memc_rd_enable == 1'b1) begin
-          next = READ;
+          next[READ] = 1'b1;
         end else if (memc_wr_enable == 1'b1) begin
-          next = WRITE;
+          next[WRITE] = 1'b1;
         end else begin
-          next = IDLE;
+          next[IDLE] = 1'b1;
         end
       end
 
       state[READ]: begin
-        next = IDLE;
+        next[IDLE] = 1'b1;
       end
 
       state[WRITE]: begin
-        next = IDLE;
+        next[IDLE] = 1'b1;
       end
 
       default: begin
@@ -162,100 +155,91 @@ module memc
 
     case (1'b1)
 
-      state[RESET]: begin
+      next[RESET]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b0;
+        bram_wr_enable <= 1'b0;
         bram_addr <= {ADDR_WIDTH{1'b0}};
         memc_busy <= 1'b1;
-        bist_addr <= {ADDR_WIDTH{1'b0}};
+        bist_done <= 1'b0;
       end
 
-      state[BIST]: begin
+      next[BIST]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b0;
-        bram_addr <= {ADDR_WIDTH{1'b0}};
+        bram_wr_enable <= 1'b0;
         memc_busy <= 1'b1;
-        bist_addr <= bist_addr;
       end
 
-      state[TEST_WR1]: begin
-        bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b1111;
-        bram_addr <= bist_addr;
+      next[TEST_WR1]: begin
+        bram_rd_enable <= 1'b1;
+        bram_wr_enable <= 1'b1;
         bram_wr_data <= WR_PATT_1;
         memc_busy <= 1'b1;
       end
 
-      state[TEST_RD1]: begin
-        bram_rd_enable <= 1'b1;  // irrelevant
-        bram_wr_enable <= 4'b0;
-        bist_addr <= bist_addr;
-        memc_busy <= 1'b1;
-      end
-
-      state[TEST_DEC1]: begin
-        bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b0;
-        memc_busy <= 1'b1;
-      end
-
-      state[TEST_WR2]: begin
-        bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b1111;
-        memc_busy <= 1'b1;
-        bist_addr <= bist_addr;
-      end
-
-      state[TEST_RD2]: begin
+      next[TEST_RD1]: begin
         bram_rd_enable <= 1'b1;
-        bram_wr_enable <= 4'b0;
-        bram_addr <= bist_addr;
-        memc_busy <= 1'b1;
-        bist_addr <= bist_addr + 1'b1;
-      end
-
-      state[TEST_DEC2]: begin
-        bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b0;
-        bram_addr <= bist_addr;
+        bram_wr_enable <= 1'b0;
         memc_busy <= 1'b1;
       end
 
-      state[ERROR]: begin
+      next[TEST_DEC1]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b0;
+        bram_wr_enable <= 1'b0;
         memc_busy <= 1'b1;
-        bist_addr <= bist_addr;
       end
 
-      state[IDLE]: begin
+      next[TEST_WR2]: begin
+        bram_rd_enable <= 1'b1;
+        bram_wr_enable <= 1'b1;
+        bram_wr_data <= WR_PATT_2;
+        memc_busy <= 1'b1;
+      end
+
+      next[TEST_RD2]: begin
+        bram_rd_enable <= 1'b1;
+        bram_wr_enable <= 1'b0;
+        memc_busy <= 1'b1;
+      end
+
+      next[TEST_DEC2]: begin
         bram_rd_enable <= 1'b0;
-        bram_wr_enable <= 4'b0;
+        bram_wr_enable <= 1'b0;
+        memc_busy <= 1'b1;
+        if (bram_addr == TOP_ADDR) begin
+          bist_done <= 1'b1;
+        end else begin
+          bist_done <= 1'b0;
+        end
+        bram_addr <= bram_addr + 1'b1;
+      end
+
+      next[ERROR]: begin
+        bram_rd_enable <= 1'b0;
+        bram_wr_enable <= 1'b0;
+        memc_busy <= 1'b1;
+      end
+
+      next[IDLE]: begin
+        bram_rd_enable <= 1'b0;
+        bram_wr_enable <= 1'b0;
         bram_addr <= memc_addr;
         memc_busy <= 1'b0;
-        bist_addr <= bist_addr;
       end
 
-      state[READ]: begin
-        bram_rd_enable <= memc_rd_enable;
-        bram_wr_enable <= memc_wr_enable;
+      next[READ]: begin
+        bram_rd_enable <= 1'b1;
+        bram_wr_enable <= 1'b0;
+        memc_rd_data <= bram_rd_data;
         bram_addr <= memc_addr;
         memc_busy <= 1'b0;
-        bist_addr <= bist_addr;
       end
 
-      state[READ_DEC]: begin
-      end
-
-      state[WRITE]: begin
-        bram_rd_enable <= memc_rd_enable;
-        bram_wr_enable <= memc_wr_enable;
+      next[WRITE]: begin
+        bram_rd_enable <= 1'b1;
+        bram_wr_enable <= 1'b1;
+        bram_wr_data <= memc_wr_data;
         bram_addr <= memc_addr;
         memc_busy <= 1'b0;
-        bist_addr <= bist_addr;
-      end
-
-      state[WRITE_DEC]: begin
       end
 
       default: begin
