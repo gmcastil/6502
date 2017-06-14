@@ -40,6 +40,7 @@ module memory_top_tb
     wr_data = {DATA_WIDTH{1'b0}};
 
     wait (busy == 1'b0) begin
+      #(10*T);
       $display("BIST completed...");
       wr_enable = 1'b1;
       rd_enable = 1'b0;
@@ -49,13 +50,14 @@ module memory_top_tb
       wr_enable = 1'b0;
       rd_enable = 1'b1;
       #(T);
+      rd_enable = 1'b0;
+      wr_enable = 1'b0;
       if (rd_data == wr_data) begin
         $display("External operation correct...");
       end else begin
         $display("Error writing to memory...");
       end
-      rd_enable = 1'b0;
-      wr_enable = 1'b0;
+
     end
   end
 

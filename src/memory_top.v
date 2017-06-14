@@ -22,7 +22,8 @@ module memory_top
   wire [DATA_WIDTH-1:0]    int_wr_data;
   wire [ADDR_WIDTH-1:0]    int_addr;
 
-    // -- Memory controller
+  // assign rd_data = 
+  // -- Memory controller
   memc #(
          .DATA_WIDTH (8),
          .ADDR_WIDTH (12)

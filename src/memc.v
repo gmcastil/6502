@@ -43,6 +43,46 @@ module memc
   reg [11:0]     state;
   reg [11:0]     next;
 
+     // synthesis translate_off
+           reg [(8*12)-1:0] state_ascii;
+           always @(*) begin
+            
+             case (state)
+               12'b000000000001: state_ascii <= "    RESET";
+               12'b000000000010: state_ascii <= "     BIST";
+               12'b000000000100: state_ascii <= " TEST_WR1";
+               12'b000000001000: state_ascii <= " TEST_RD1";
+               12'b000000010000: state_ascii <= "TEST_DEC1";
+               12'b000000100000: state_ascii <= " TEST_WR2";
+               12'b000001000000: state_ascii <= " TEST_RD2";
+               12'b000010000000: state_ascii <= "TEST_DEC2";
+               12'b000100000000: state_ascii <= "    ERROR";
+               12'b001000000000: state_ascii <= "     IDLE";
+               12'b010000000000: state_ascii <= "     READ";
+               12'b100000000000: state_ascii <= "    WRITE";
+             endcase // case (state)
+           end
+           
+           reg [(8*12)-1:0] next_ascii;
+           always @(*) begin
+            
+             case (next)
+             12'b000000000001: next_ascii <= "    RESET";
+             12'b000000000010: next_ascii <= "     BIST";
+             12'b000000000100: next_ascii <= " TEST_WR1";
+             12'b000000001000: next_ascii <= " TEST_RD1";
+             12'b000000010000: next_ascii <= "TEST_DEC1";
+             12'b000000100000: next_ascii <= " TEST_WR2";
+             12'b000001000000: next_ascii <= " TEST_RD2";
+             12'b000010000000: next_ascii <= "TEST_DEC2";
+             12'b000100000000: next_ascii <= "    ERROR";
+             12'b001000000000: next_ascii <= "     IDLE";
+             12'b010000000000: next_ascii <= "     READ";
+             12'b100000000000: next_ascii <= "    WRITE";
+             endcase
+           end
+        // synthesis translate_on
+
   // --- Signal declarations
   localparam [7:0] WR_PATT_1 = 8'b01010101;
   localparam [7:0] WR_PATT_2 = 8'b10101010;
@@ -63,86 +103,94 @@ module memc
   // -- Combinatorial State Machine Movements
   always @(*) begin
 
-    next = 12'b0;
+    next <= 12'b0;
 
     case (1'b1)
 
       state[RESET]: begin
         if (memc_reset == 1'b0) begin
-          next[RESET] = 1'b1;
+          next[RESET] <= 1'b1;
         end else begin
-          next[BIST] = 1'b1;
+          next[BIST] <= 1'b1;
         end
       end
 
       state[BIST]: begin
         if (memc_reset == 1'b0) begin
-          next[RESET] = 1'b1;
+          next[RESET] <= 1'b1;
         end else begin
           if (bist_done == 1'b1) begin
-            next[IDLE] = 1'b1;
+            next[IDLE] <= 1'b1;
           end else begin
-             next[TEST_WR1] = 1'b1;
+             next[TEST_WR1] <= 1'b1;
           end
         end
       end
 
       state[TEST_WR1]: begin
-        next[TEST_RD1] = 1'b1;
+        next[TEST_RD1] <= 1'b1;
       end
 
       state[TEST_RD1]: begin
-        next[TEST_DEC1] = 1'b1;
+        next[TEST_DEC1] <= 1'b1;
       end
 
       state[TEST_DEC1]: begin
         if (bram_rd_data == WR_PATT_1) begin
-          next[TEST_WR2] = 1'b1;
+          next[TEST_WR2] <= 1'b1;
       end else begin
-          next[ERROR] = 1'b1;
+          next[ERROR] <= 1'b1;
         end
       end
 
       state[TEST_WR2]: begin
-        next[TEST_RD2] = 1'b1;
+        next[TEST_RD2] <= 1'b1;
       end
 
       state[TEST_RD2]: begin
-        next[TEST_DEC2] = 1'b1;
+        next[TEST_DEC2] <= 1'b1;
       end
 
       state[TEST_DEC2]: begin
         if (bram_rd_data == WR_PATT_2) begin
-          next[BIST] = 1'b1;
+          next[BIST] <= 1'b1;
         end else begin
-          next[ERROR] = 1'b1;
+          next[ERROR] <= 1'b1;
         end
       end
 
       state[ERROR]: begin
         if (!memc_reset) begin
-          next[RESET] = 1'b1;
+          next[RESET] <= 1'b1;
         end else begin
-          next[ERROR] = 1'b1;
+          next[ERROR] <= 1'b1;
         end
       end
 
       state[IDLE]: begin
         if  (memc_rd_enable == 1'b1) begin
-          next[READ] = 1'b1;
+          next[READ] <= 1'b1;
         end else if (memc_wr_enable == 1'b1) begin
-          next[WRITE] = 1'b1;
+          next[WRITE] <= 1'b1;
         end else begin
-          next[IDLE] = 1'b1;
+          next[IDLE] <= 1'b1;
         end
       end
 
       state[READ]: begin
-        next[IDLE] = 1'b1;
+        if (memc_wr_enable == 1'b1) begin
+          next[WRITE] <= 1'b1;
+        end else begin
+          next[IDLE] <= 1'b1;
+        end
       end
 
       state[WRITE]: begin
-        next[IDLE] = 1'b1;
+        if (memc_rd_enable == 1'b1) begin
+          next[READ] <= 1'b1;
+        end else begin
+          next[IDLE] <= 1'b1;
+        end
       end
 
       default: begin
