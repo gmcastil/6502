@@ -15,7 +15,7 @@ module top ();
   logic         RES;           // reset (active low)
 
   // --- Instantiate the processor
-  6502
+  proc
     #(
       // parameter
       )
@@ -35,4 +35,19 @@ module top ();
             .RES           (RES)
             );
 
-  // --- Instantiate an address space for the processor to communicate over
+  // --- Instantiate an address space for the processor to get initial programming
+
+  memory_array
+    #(
+      // parameter
+      )
+  memory_block (
+                .clka (PHI_2),
+                .ena (),
+                .wea (),
+                .addra (),
+                .dina (),
+                .douta ()
+                );
+
+endmodule // top
