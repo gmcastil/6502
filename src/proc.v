@@ -1,13 +1,22 @@
 module proc
   (
-   input        clk,
-   input        reset,
-   input [15:0] address,
-   input [7:0]  read_data,
+   input         clk,
+   input         reset,
+   input [7:0]   read_data,
 
-   output [7:0] write_data,
-   output       write_enable
+   output [15:0] address,
+
+   // Debug signals
+   output [8:0]  debug_state,
+   output [7:0]  debug_opcode,
+   output [15:0] debug_PC,
+   output [15:0] debug_operands
    );
+
+  assign debug_state = present_state;
+  assign debug_PC = PC;
+  assign debug_opcode = IR;
+  assign debug_operands = {oper_2, oper_1};
 
   localparam RESET    = 0;
   localparam VECTOR_1 = 1;
@@ -25,9 +34,12 @@ module proc
   reg [15:0]    PC;
   reg [7:0]     IR;
 
+  reg [7:0]     oper_1;
+  reg [7:0]     oper_2;
+
   parameter RESET_VECTOR = 16'hFFFC;
 
-  // Operands
+  // -- Operands
   parameter NOP = 8'hEA;
   parameter JMP = 8'h4C;
 
@@ -99,28 +111,52 @@ module proc
 
     case (1'b1)
 
-      next_state[VECTOR_1]: begin
+      present_state[VECTOR_1]: begin
         address <= RESET_VECTOR;
         if (next_state[VECTOR_2] == 1'b1) begin
           PC[7:0] <= read_data;
         end
       end
 
-      next_state[VECTOR_2]: begin
+      present_state[VECTOR_2]: begin
         address <= RESET_VECTOR + 1'b1;
         if (next_state[FETCH] == 1'b1) begin
           PC[15:8] <= read_data;
         end
       end
 
-      next_state[FETCH]: begin
+      present_state[FETCH]: begin
         address <= PC;
         if (next_state[DECODE] == 1'b1) begin
           IR <= read_data;
         end
       end
 
-      next_state[DECODE]: begin
+      present_state[DECODE]: begin
+        address <= PC + 1'b1;
+      end
+
+      present_state[OPER_A1]: begin
+        address <= PC + 16'b10;
+        if (next_state[OPER_A2] == 1'b1) begin
+          oper_1 <= read_data;
+        end
+      end
+
+      present_state[OPER_A2]: begin
+        if (next_state[EXECUTE] == 1'b1) begin
+          oper_2 <= read_data;
+        end
+      end
+
+      present_state[OPER_B1]: begin
+        address <= PC + 1'b1;
+        if (next_state[FETCH] == 1'b1) begin
+          oper_1 <= read_data;
+        end
+      end
+
+      present_state[EXECUTE]: begin
 
       end
 
