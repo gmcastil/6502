@@ -17,7 +17,7 @@ module memory_block
 
   wire                    resetn;
   wire [3:0]              byte_wide_wr_enable;
-
+  
   assign resetn = !reset;
   assign byte_wide_wr_enable = {4{wr_enable}};
 
@@ -36,8 +36,8 @@ module memory_block
                                 .DO(rd_data),
                                 .DI(wr_data),
                                 .ADDR(addr),
-                                .WE(byte_wide_wr_enable),
-                                .EN(1'b1),
+                                .WE(wr_enable),
+                                .EN(rd_enable),
                                 .RST(resetn),
                                 .REGCE(1'b1),
                                 .CLK(clk)
