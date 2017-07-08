@@ -1,14 +1,16 @@
+#!/usr/bin/env python3
+
 """
-Builds a COE file filled with 65C02 NOP codes
+Builds a COE file filled with MOS 6502 NOP codes
 
 This is an initial script developed to create a COE file filled with NOP opcodes
 for initializing memory content with the Xilinx Distributed Memory Generator
-(8.0).  It builds it in a sensible way that is still somewhat reasonable.  For
+(8.3).  It builds it in a sensible way that is still somewhat reasonable.  For
 example:
 
-;; $0000 to $0FFF
-0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F ...
-0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F 0F ...
+;; $0000 to $EAFF
+EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA ...
+EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA ...
 ...
 ...
 ;; $1000 to $1FFF
@@ -18,6 +20,13 @@ example:
 This is not very flexible but it is useful for generating a quick COE file for
 completely defining the entire space.  Note that distributed memories larger
 than 64k (65,536) are not supported by the Xilinx memory generation tool.
+
+Once a COE file has been created, 6502 machine codes can replace the NOP codes
+that are in the file (e.g., a reset vector at $FFFC) and the initial programming
+of a 6502 (for simulation purposes) can be performed.  Eventually more
+complicated programs will be necessary, and those will probably be made with a
+text editor and then another script can be written which will write those
+contents into memory.
 
 """
 COE_FILE = "./basic.coe"
@@ -29,7 +38,7 @@ PAGE_SIZE = 2**12  # 4096 addresses per page
 ROW_SIZE = 2**6  # number of rows per page
 COL_SIZE = 2**6  # number of cols per page
 
-OPCODE = "0F"  # opcode to fill COE file with
+OPCODE = "EA"  # opcode to fill COE file with
 
 def make_page():
     """Constructs a range of addresses for writing a page to a COE file
