@@ -1,50 +1,75 @@
-# Build script for synthesis of the memory module and wrapper files
+# Creates a 64KB RAM from a COE file which must be provided as an argument
+# at runtime.  This script is intended to be used to call Vivado in batch mode
+# with -tclargs.
+if {$argc == 0} {
+    puts "ERROR: Path to a valid COE file must be provided."
+    exit 1
+} else {
+    set coe_file [lindex $argv 0]
+}
 
-set src_dir ../src/
-set build_dir ../build/
-set constraints_dir ../constraints/
+if {[file exists $coe_file] == 0} {
+    puts "ERROR: COE file not found at $coe_file."
+    exit 1
+}
 
-set part xc7a35tcpg236-1
+# Set some environment variables
+set working_dir "./working"
+if {[file writable $working_dir] == 0} {
+    puts "ERROR: No working directory or working directory not writable."
+    exit 2
+}
 
-read_verilog "$src_dir/memc.v
-              $src_dir/memory_block.v
-              $src_dir/memory_top.v"
+set module_name "memory_block"
+set module_dir "$working_dir/$module_name/"
+set managed_ip_dir "$working_dir/managed_ip_project"
 
-# Read constraints
+set part "xc7a35tcpg236-1"
 
-# Synthesize design
-synth_design -top memory_top.v -part $part
-
-start_gui
-create_project managed_ip_project /home/castillo/code/managed_ip_project -part xc7a35tcpg236-1 -ip
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1704] No user IP repositories specified
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2017.1/data/ip'.
+# Create managed IP project
+create_project managed_ip_project $managed_ip_dir -part $part -ip
 set_property target_simulator XSim [current_project]
-create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.3 -module_name memory_block -dir /home/castillo/code
-set_property -dict [list CONFIG.Write_Width_A {8} CONFIG.Write_Depth_A {65536} CONFIG.Load_Init_File {true} CONFIG.Coe_File {/home/castillo/code/6502/scripts/basic.coe} CONFIG.Read_Width_A {8} CONFIG.Write_Width_B {8} CONFIG.Read_Width_B {8}] [get_ips memory_block]
-INFO: [IP_Flow 19-3484] Absolute path of file '/home/castillo/code/6502/scripts/basic.coe' provided. It will be converted relative to IP Instance files '../6502/scripts/basic.coe'
-generate_target {instantiation_template} [get_files /home/castillo/code/memory_block/memory_block.xci]
-INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'memory_block'...
-generate_target all [get_files  /home/castillo/code/memory_block/memory_block.xci]
-INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'memory_block'...
-INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'memory_block'...
-INFO: [IP_Flow 19-1686] Generating 'Miscellaneous' target for IP 'memory_block'...
-INFO: [IP_Flow 19-1686] Generating 'Change Log' target for IP 'memory_block'...
-generate_target: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 6198.676 ; gain = 0.000 ; free physical = 28829 ; free virtual = 37731
-export_ip_user_files -of_objects [get_files /home/castillo/code/memory_block/memory_block.xci] -no_script -sync -force -quiet
-create_ip_run [get_files -of_objects [get_fileset sources_1] /home/castillo/code/memory_block/memory_block.xci]
-launch_runs -jobs 4 memory_block_synth_1
-[Mon Jul  3 16:36:20 2017] Launched memory_block_synth_1...
-Run output will be captured here: /home/castillo/code/managed_ip_project/managed_ip_project.runs/memory_block_synth_1/runme.log
-export_simulation -of_objects [get_files /home/castillo/code/memory_block/memory_block.xci] -directory /home/castillo/code/ip_user_files/sim_scripts -ip_user_files_dir /home/castillo/code/ip_user_files -ipstatic_source_dir /home/castillo/code/ip_user_files/ipstatic -lib_map_path [list {modelsim=/home/castillo/code/managed_ip_project/managed_ip_project.cache/compile_simlib/modelsim} {questa=/home/castillo/code/managed_ip_project/managed_ip_project.cache/compile_simlib/questa} {ies=/home/castillo/code/managed_ip_project/managed_ip_project.cache/compile_simlib/ies} {vcs=/home/castillo/code/managed_ip_project/managed_ip_project.cache/compile_simlib/vcs} {riviera=/home/castillo/code/managed_ip_project/managed_ip_project.cache/compile_simlib/riviera}] -use_ip_compiled_libs -force -quiet
-close_project
 
-# Build the memory block
-# From the design checkpoint, extract the EDIF netlist
-# Find the simulation
-# Need the following files:
-#  - .mif file in lieu of the coe file
-#  -
-#
-#
+# Set IP properties
+create_ip \
+    -name blk_mem_gen \
+    -vendor xilinx.com \
+    -library ip \
+    -version 8.3 \
+    -module_name $module_name \
+    -dir $working_dir
+
+set_property -dict [list \
+                        CONFIG.Write_Width_A {8} \
+                        CONFIG.Write_Depth_A {65536} \
+                        CONFIG.Load_Init_file {true} \
+                        CONFIG.Coe_File $coe_file \
+                        CONFIG.Read_Width_A {8} \
+                        CONFIG.Write_Width_B {8} \
+                        CONFIG.Read_Width_B {8}] [get_ips $module_name]
+
+generate_target {instantiation_template} [get_files $module_dir/$module_name.xci]
+
+generate_target all [get_files $module_dir/$module_name.xci]
+
+export_ip_user_files \
+    -of_objects [get_files $module_dir/$module_name.xci] \
+    -no_script \
+    -sync \
+    -force \
+    -quiet
+
+create_ip_run [get_files -of_objects [get_fileset sources_1] $module_dir/$module_name.xci]
+
+# Now synthesize, wait for it to complete and check the status afterwards
+set synth_run $module_name\_synth_1
+launch_runs -jobs 4 $synth_run
+wait_on_run $synth_run
+if {[get_property PROGRESS [get_runs $synth_run]] != "100%"} {
+    error "ERROR: $synth_ruin failed"
+    exit 2
+}
+
+# Now read out the EDIF netlist from the DCP that was created during synthesis
+open_checkpoint "$module_name.dcp"
+write_edif -verbose -force "$module_name.edf"
