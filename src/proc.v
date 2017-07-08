@@ -1,7 +1,7 @@
 module proc
   (
    input         clk,
-   input         reset,
+   input         resetn,
    input [7:0]   read_data,
 
    output [15:0] address,
@@ -18,7 +18,7 @@ module proc
   assign debug_opcode = IR;
   assign debug_operands = {oper_2, oper_1};
 
-  localparam RESET    = 0;
+  localparam RESETN    = 0;
   localparam VECTOR_1 = 1;
   localparam VECTOR_2 = 2;
   localparam FETCH    = 3;
@@ -37,16 +37,16 @@ module proc
   reg [7:0]     oper_1;
   reg [7:0]     oper_2;
 
-  parameter RESET_VECTOR = 16'hFFFC;
+  parameter RESETN_VECTOR = 16'hFFFC;
 
   // -- Operands
   parameter NOP = 8'hEA;
   parameter JMP = 8'h4C;
 
   always @(posedge clk) begin
-    if (reset) begin
+    if (resetn) begin
       present_state <= 9'b0;
-      present_state[RESET] <= 1'b1;
+      present_state[RESETN] <= 1'b1;
     end else begin
       next_state <= present_state;
     end
@@ -112,14 +112,14 @@ module proc
     case (1'b1)
 
       present_state[VECTOR_1]: begin
-        address <= RESET_VECTOR;
+        address <= RESETN_VECTOR;
         if (next_state[VECTOR_2] == 1'b1) begin
           PC[7:0] <= read_data;
         end
       end
 
       present_state[VECTOR_2]: begin
-        address <= RESET_VECTOR + 1'b1;
+        address <= RESETN_VECTOR + 1'b1;
         if (next_state[FETCH] == 1'b1) begin
           PC[15:8] <= read_data;
         end
@@ -140,7 +140,7 @@ module proc
         address <= PC + 16'b10;
         if (next_state[OPER_A2] == 1'b1) begin
           oper_1 <= read_data;
-        end
+        endpp
       end
 
       present_state[OPER_A2]: begin
