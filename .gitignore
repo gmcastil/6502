@@ -1,0 +1,4 @@
+# Ignore Emacs backups
+*~
+# Also ignore all the files that Vivado litters around the drive
+vivado*
