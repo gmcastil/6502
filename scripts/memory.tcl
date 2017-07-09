@@ -1,6 +1,7 @@
 # Creates a 64KB RAM from a COE file which must be provided as an argument
 # at runtime.  This script is intended to be used to call Vivado in batch mode
-# with -tclargs.
+# with -tclargs, where the argument provided is a path to the desired COE file
+
 if {$argc == 0} {
     puts "ERROR: Path to a valid COE file must be provided."
     exit 1
