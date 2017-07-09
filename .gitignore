@@ -6,3 +6,5 @@ vivado*
 #to create these in multiple locations.  Also ignore any build directories
 working/
 build/
+# Also ignore the temporary files that emacs and such make
+.\#*
