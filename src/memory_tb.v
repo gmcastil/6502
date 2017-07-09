@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 // ----------------------------------------------------------------------------
 // Module:  memory_tb.v
 // Project: MOS 6502 Processor
@@ -10,6 +8,8 @@
 // processor and allow early programming during development by manually
 // entering 6502 processor opcodes.
 // ----------------------------------------------------------------------------
+
+`timescale 1ns / 1ps
 
 module memory_tb();
 

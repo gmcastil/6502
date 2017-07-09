@@ -1,3 +1,14 @@
+// ----------------------------------------------------------------------------
+// Module:  alu.sv
+// Project: MOS 6502 Processor
+// Author:  George Castillo
+// Date:    Sat Jul  8 15:31:17 2017
+//
+// Description: Early cut at an arithmetic logic unit (ALU) for the
+// 6502 processor. Does not completely support BCD mode yet and has
+// had virtually zero testing performed on it.
+----------------------------------------------------------------------------
+
 module alu
   #(
     // parameter

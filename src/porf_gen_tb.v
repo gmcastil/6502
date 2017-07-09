@@ -1,3 +1,12 @@
+// ----------------------------------------------------------------------------
+// Module:  porf_gen_tb.v
+// Project: MOS 6502 Processor
+// Author:  George Castillo <gmcastil@gmail.com>
+// Date:    09 July 2017
+//
+// Description: Testbench for the power on reset generator
+// ----------------------------------------------------------------------------
+
 `timescale 1ns / 1ps
 
 module porf_gen_tb();

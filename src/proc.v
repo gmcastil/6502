@@ -1,3 +1,12 @@
+// ----------------------------------------------------------------------------
+// Module:  proc.v
+// Project: MOS 6502 Processor
+// Author:  George Castillo <gmcastil@gmail.com>
+// Date:    09 July 2017
+//
+// Description: Main module for the MOS 6502 processor core.
+// ----------------------------------------------------------------------------
+
 module proc
   (
    input         clk,

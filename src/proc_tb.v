@@ -1,3 +1,16 @@
+// ----------------------------------------------------------------------------
+// Module:  proc_tb.v
+// Project: MOS 6502 Processor
+// Author:  George Castillo <gmcastil@gmail.com>
+// Date:    09 July 2017
+//
+// Description: Testbench for the MOS 6502 processor core.  Currently requires a
+// 64KB memory block to be generated (scripts to do this are in the project's
+// scripts directory) with desired machine instructions manually placed within
+// the memory array.  The processor simulation scripts can then be used to
+// verify functionality as it is implemented.
+// ----------------------------------------------------------------------------
+
 `timescale 1ns / 1ps
 
 module proc_top_tb ();

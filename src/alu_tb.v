@@ -1,3 +1,13 @@
+// ----------------------------------------------------------------------------
+// Module:  alu_tb.v
+// Project: MOS 6502 Processor
+// Author:  George Castillo <gmcastil@gmail.com>
+// Date:    09 July 2017
+//
+// Description: Testbench for the MOS 6502 ALU.  Does not really attempt to do
+// much more than instantiate teh ALU and add a couple of numbers together.
+// ----------------------------------------------------------------------------
+
 `timescale 10ns / 1ps;
 
 module alu_tb ();
