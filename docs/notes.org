@@ -1,40 +1,5 @@
-* Opcodes
-** ADC (add with carry)
-Affects Flags: S V Z C
-* Todo list
-* HDL tasks [0/10]
-- [ ] Design and simulate reset block
-- [ ] Design and simulate debouncing circuit
-- [ ] Automate construction of a ROM
-- [ ] Construct space of ROM with opcodes and illegal instructions
-- [ ] Figure out how to load the ROM with the pattern
-- [ ] Figure out the clocking and reset operation of the 65C02
-- [ ] Implement reset architecture
-
-
-* ROM structure
-The 65C02 can address up to 64kB with its 16-bit address and 8-bit data buses.
-
-** Non-maskable interrupts (NMI)
-When the \oline{NMI} input experiences a high-to-low transition, the processor
-finishes the currently-executing instruction and then gets the beginning
-address of the NMI interrupt service routine from $FFFA-FFFB.
-** Reset (RST)
-When the processor is first powered up or its \oline{RST} gets pulled low and
-then brought back high, the 6502 starts its reset process and gets the address
-to start executing program instructions from $FFFC-$FFFD.
-** Interrupt request (IRQ)
-When the \oline{IRQ} input is low and the I (interrupt-disable) flag in the
-status register is clear, the processor finishes the currently-executing
-instruction and then gets the beginning address of the IRQ ISR from $FFFE-FFFF.
-
-- [ ] Build a ROM that can be used to simulate the 64kB address space
-- [ ] Create reset routine and opcodes in the right locations for the reset,
-  interrupt, and NMI pointers
-- [ ] Fill it with illegal opcodes
-- [ ] Write basic program with noop and loop instructions
-- [ ] Put chipscope on the program counter
-- [ ] Design a reset module
-- [ ] Build a top module that brings together the ALU, processor, reset module
-  and ROM
-- [ ] Design the processor state machine
+* Development Plan
+- [X] Script to generate the memory block IP using the included COE file
+- [X] Script to simulate looping through the memory array reading each address
+- [ ] Script to simulate testing of the processor with the memory array
+- [ ] Design the processor module so that it can actually
