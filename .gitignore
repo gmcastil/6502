@@ -3,5 +3,6 @@
 # Also ignore all the files that Vivado litters around the drive
 vivado*
 # Ignore any working directories too - simulations and such will tend
-#to create these in multiple locations
+#to create these in multiple locations.  Also ignore any build directories
 working/
+build/
