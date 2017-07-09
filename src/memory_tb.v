@@ -19,9 +19,9 @@ module memory_tb();
   reg enable;
   reg write_enable;
 
-  wire [15:0] address;
-  reg [7:0]  read_data;
-  wire [7:0] write_data;
+  reg [15:0] address;
+  wire [7:0] read_data;
+  reg [7:0]  write_data;
 
   initial begin
     clk_sys = 1'b1;

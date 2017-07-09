@@ -11,5 +11,10 @@ export LOG_DIR="$WORKING_DIR/logs/"
 export REPORT_DIR="$WORKING_DIR/reports/"
 
 # Common executable paths
-export vivado="/opt/Xilinx/Vivado/2017.1/bin/vivado"
+export xilinx="/opt/Xilinx/Vivado/2017.1/bin/"
+export vivado="$xilinx/vivado"
+export xvlog="$xilinx/xvlog"
+export xelab="$xilinx/xelab"
+export xsim="$xilinx/xsim"
+
 export COLORIZE="./severity.py"

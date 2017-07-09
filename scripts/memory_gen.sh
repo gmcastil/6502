@@ -43,7 +43,7 @@ mkdir -pv $WORKING_DIR
 
 # Create the memory block and read out the EDIF netlist (from the Tcl script)
 $vivado -verbose -notrace \
-       -mode batch -source memory.tcl \
+       -mode batch -source memory_gen.tcl \
        -tclargs $coe_file | $COLORIZE
 
 # The memory block is now located inside $WORKING_DIR/memory_block/
