@@ -5,7 +5,7 @@ involving simulation.
 
 The typical use case is to run one of the shell scripts, which sets up some
 environmental variables, creates temporary directories, and then calls Vivado
-in batch mode with various parameters and fires off a TCL script.
+in batch mode with various parameters and fires off a Tcl script.
 
 ## Generating an Initial Memory Array
 Development of the MOS 6502 processor commonly needs a memory artifact of some
@@ -20,24 +20,33 @@ automate this.
 
 First, to create the initial memory map, run the `coe_gen.py` program:
 ```bash
-./coe_gen.py
+$ ./coe_gen.py
 ```
-This will create a `basic.coe` file, such as the one in the `/6502/roms/`
+This will create a `basic.coe` file, such as the one in the `/roms/`
 directory, but entirely filled with NOP (0xEA) instructions. Using a text
 editor, carefully insert opcodes and data as desired into the `.coe` file at
-each. Then, from the `/6502/scripts/` directory, run the `memory_gen.sh` script.
-This will call Vivado and generate a 64KB memory IP block.
+each address. Then, from the `/scripts/` directory, run the `memory_gen.sh`
+script.
+```bash
+$ ./memory_gen.sh my-basic.coe
+```
+This will call Vivado and generate a 64KB memory IP block using whatever
+customized `.coe` file you've supplied.
 
 ## Simulating the Operation of the Memory Array
 After the initial memory array has been generated as described in the previous
-paragraph, run the `memory_sim.sh` script to run a simulation in Vivado. This
-will not launch Vivado right away - to view the actual waveform, you'll need to
-open a static simulation, which can be done from the Vivado start screen. or via
-a series of TCL commands from the console in Vivado. With the waveform open, you
-can check the memory contents to make sure that the initial program for the
-processor is complete and accurate (Tip: Remember that the MOS 6502 is little
-endian, so be sure to verify byte ordering). If all goes well, you should see
-every address of the memory array read out, matching what you put in.
+paragraph, run the `memory_sim.sh` script to run a simulation in Vivado.
+```bash
+$ ./memory_sim.sh my-basic.coe
+```
+This won't launch Vivado right away - to actually view the waveform, you'll
+need to open a static simulation, which can be done from the Vivado start
+screen. or via a series of Tcl commands from the console in Vivado. With the
+waveform open, you can check the memory contents to make sure that the initial
+program for the processor is complete and accurate (Tip: Remember that the MOS
+6502 is little endian, so be sure to verify byte ordering). If all goes well,
+you should see every address of the memory array read out, matching what you put
+in at each address.
 
 ## Processor Simulation
 TBD
