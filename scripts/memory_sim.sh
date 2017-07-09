@@ -28,20 +28,19 @@ else
 fi
 
 # Make sure that the IP has been generated and if so, create a directory
-# to start doing simulation
+# alongside to start doing simulation
 ip_dir="$WORKING_DIR/memory_block/"
 if [[ ! -d $ip_dir ]]; then
     echo "ERROR: Nothing found in $ip_dir"
     exit 1
 else
     # Remove any existing sim directory and make a new one
-    if [[ -d "$ip_dir/memory_block_sim/" ]]; then
-        rm -rf "$ip_dir/memory_block_sim/"
+    if [[ -d "$WORKING_DIR/memory_block_sim/" ]]; then
+        rm -rf "$WORKING_DIR/memory_block_sim/"
     fi
-    mkdir -pv "$WORKING_DIR/memory_block_sim/"
 fi
 
-$vivado -verbose \
+$vivado -verbose -notrace \
         -mode batch \
         -source memory_sim.tcl \
         -tclargs $coe_file | $COLORIZE
