@@ -5,12 +5,26 @@ set -o nounset  # -u
 set -o pipefail
 IFS=$'\n\t'
 
-export SRC_DIR="../src/"
-export WORKING_DIR="./working/"
-export LOG_DIR="$WORKING_DIR/logs/"
-export REPORT_DIR="$WORKING_DIR/reports/"
+# Constructs a 64KB memory block for use in simulating the 6502
+# processor core.  The only required parameter is a path to a readable
+# .coe file containing the desired memory contents.
 
-vivado="/opt/Xilinx/Vivado/2017.1/bin/vivado"
+# The build script calls Vivado in batch mode with a Tcl script, which
+# generates the IP block and extracts an EDIF netlist. Once this has
+# been performed, the memory_sim.sh script can be run, which allows
+# inspection of the contents of the generated IP. Alternatively, the
+# proc_sim.sh can be run which simulates the processor coming out of
+# reset, reading the reset vector, and then executing whatever program
+# was loaded into the memory (i.e., the contents of the .coe file).
+
+common="./common.sh"
+
+if [[ -x "$common" ]]; then
+    source $common
+else
+    echo "ERROR: $common missing or not executable." | $COLORIZE
+    exit 1
+fi
 
 # Using positional arguments is a bit more involved in strict mode
 coe_file=${1:-}
@@ -27,8 +41,13 @@ fi
 
 mkdir -pv $WORKING_DIR
 
-# Build the memory block using the Block Memory Generator inside
-# Vivado
-$vivado -notrace -verbose -mode batch -source memory.tcl -tclargs $coe_file | ./severity.py
+# Create the memory block and read out the EDIF netlist (from the Tcl script)
+$vivado -verbose -notrace \
+       -mode batch -source memory.tcl \
+       -tclargs $coe_file | $COLORIZE
 
 # The memory block is now located inside $WORKING_DIR/memory_block/
+if [[ ! -f "$WORKING_DIR/memory_block/memory_block.edf" ]]; then
+    echo "ERROR: Problem creating EDIF netlist" | $COLORIZE
+    exit 1
+fi

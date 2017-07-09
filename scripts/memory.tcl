@@ -72,5 +72,5 @@ if {[get_property PROGRESS [get_runs $synth_run]] != "100%"} {
 }
 
 # Now read out the EDIF netlist from the DCP that was created during synthesis
-open_checkpoint "$module_name.dcp"
-write_edif -verbose -force "$module_name.edf"
+open_checkpoint "$module_dir/$module_name.dcp"
+write_edif -verbose -force "$module_dir/$module_name.edf"
