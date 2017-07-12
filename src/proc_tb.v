@@ -22,10 +22,10 @@ module proc_top_tb ();
   reg          clk;
   reg          resetn;
   reg          enable;
-  reg          write_enable;
+  reg          wr_enable;
   wire [15:0]  address;
-  wire [7:0]   read_data;
-  reg [7:0]    write_data;
+  wire [7:0]   rd_data;
+  reg [7:0]    wr_data;
 
   // Create the 100MHz clock that the memory will run at
   initial begin
@@ -48,7 +48,7 @@ module proc_top_tb ();
   // Set some parameters to remain constant throughout (at least for now)
   initial begin
     enable = 1'b1;
-    write_enable = 1'b0;
+    wr_enable = 1'b0;
   end
 
   // Initiate the global reset (for now, synchronize both edges to both
@@ -68,10 +68,10 @@ module proc_top_tb ();
       ) inst_memory_block (
                            .clka  (clk_sys),
                            .ena   (enable),
-                           .wea   (write_enable),
+                           .wea   (wr_enable),
                            .addra (address),
-                           .dina  (write_data),
-                           .douta (read_data)
+                           .dina  (wr_data),
+                           .douta (rd_data)
                            );
 
   proc
@@ -79,12 +79,9 @@ module proc_top_tb ();
       ) inst_proc (
                    clk           (clk),
                    resetn        (resetn),
-                   read_data     (read_data),
+                   rd_data       (rd_data),
+
                    address       (address),
-                   debug_state   (),
-                   debug_opcode  (),
-                   debug_PC      (),
-                   debug_operand (),
    );
 
 endmodule // proc_top_tb

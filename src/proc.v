@@ -8,170 +8,189 @@
 // ----------------------------------------------------------------------------
 
 module proc
+  #(
+    // parameters
+    )
   (
    input         clk,
    input         resetn,
-   input [7:0]   read_data,
+   input [7:0]   rd_data,
 
-   output [15:0] address,
-
-   // Debug signals
-   output [8:0]  debug_state,
-   output [7:0]  debug_opcode,
-   output [15:0] debug_PC,
-   output [15:0] debug_operands
+   output [15:0] address
    );
 
-  assign debug_state = present_state;
-  assign debug_PC = PC;
-  assign debug_opcode = IR;
-  assign debug_operands = {oper_2, oper_1};
+  localparam RESET     = 0;
+  localparam VECTOR_1  = 1;
+  localparam VECTOR_2  = 2;
+  localparam VECTOR_3  = 3;
+  localparam FETCH_1   = 4;
+  localparam EXECUTE_2 = 5;
+  localparam DECODE    = 6;
+  localparam OPER_A1   = 7;
+  localparam OPER_B1   = 8;
+  localparam EXECUTE   = 9;
+  localparam OPER_A2   = 10;
 
-  localparam RESETN    = 0;
-  localparam VECTOR_1 = 1;
-  localparam VECTOR_2 = 2;
-  localparam FETCH    = 3;
-  localparam DECODE   = 4;
-  localparam OPER_A1  = 5;
-  localparam OPER_A2  = 6;
-  localparam OPER_B1  = 7;
-  localparam EXECUTE  = 8;
+  localparam EMPTY     = 11'b0;  // Zero out the state vector more explicitly
 
-  reg [8:0]     present_state;
-  reg [8:0]     next_state;
+  localparam RESET_LSB = 8'bFFFC;
+  localparam RESET_MSB = 8'bFFFD;
 
-  reg [15:0]    PC;
-  reg [7:0]     IR;
+  reg [10:0]     next;
+  reg [10:0]     present;
 
-  reg [7:0]     oper_1;
-  reg [7:0]     oper_2;
+  reg [15:0]     new_PC;
 
-  parameter RESETN_VECTOR = 16'hFFFC;
-
-  // -- Operands
-  parameter NOP = 8'hEA;
-  parameter JMP = 8'h4C;
+  reg [15:0]     PC;  // program counter
+  reg [7:0]      IR;  // instruction register
 
   always @(posedge clk) begin
-    if (resetn) begin
-      present_state <= 9'b0;
-      present_state[RESETN] <= 1'b1;
+    if (!resetn == 1'b1) begin
+      next <= EMPTY;
+      next[RESET] <= 1'b1;
     end else begin
-      next_state <= present_state;
+      next <= present;
     end
   end
 
-  always @(*) begin
+  // --- State Machine Definition
+  always @(*) begin:
 
-    next_state = 9'b0;
+    next = EMPTY;
 
-    case (1'b1)
+    case (1'b1);
 
-      present_state[VECTOR_1]: begin
-        next_state[VECTOR_2] = 1'b1;
+      present[VECTOR_1]: begin
+        next[VECTOR_2] = 1'b1;
       end
 
-      present_state[VECTOR_2]: begin
-        next_state[FETCH] = 1'b1;
+      present[VECTOR_2]: begin
+        next[VECTOR_3] = 1'b1;
       end
 
-      present_state[FETCH]: begin
-        next_state[DECODE] = 1'b1;
+      present[VECTOR_3]: begin
+        next[FETCH_1] = 1'b1;
       end
 
-      present_state[DECODE]: begin
+      present[FETCH_1]: begin
+        next[FETCH_] = 1'b1;
+      end
 
-        case (IR)
+      present[FETCH_2]: begin
+        next[DECODE] = 1'b1;
+      end
+
+      present[DECODE]: begin
+        // This state machine transition is a little different than the other,
+        // since the next state is dependent upon the decoded value of the
+        // IR which was read from during the FETCH cycles
+        next = dec_opcode;
+      end
+
+      present[OPER_A1]: begin
+        next[OPER_A2] = 1'b1;
+      end
+
+      present[OPER_B1]: begin
+        next[EXECUTE] = 1'b1;
+      end
+
+      present[OPER_A2]: begin
+        next[EXECUTE] = 1'b1;
+      end
+
+      present[EXECUTE]: begin
+        next[FETCH_1] = 1'b1;
+      end
+
+      default: begin end
+    endcase // case (1'b1)
+  end
+
+  // --- Signals with State Machine Interactions
+  always @(posedge clk) begin: INSTRUCTION_CYCLE
+
+    case (1'b1);
+
+      present[VECTOR_1]: begin
+        address <= RESET_LSB;
+      end
+
+      present[VECTOR_2]: begin
+        address <= RESET_MSB;
+        PC[7:0] <= rd_data;
+      end
+
+      present[VECTOR_3]: begin
+        PC[15:0] <= rd_data;
+      end
+
+      present[FETCH_1]: begin
+        address <= PC;
+      end
+
+      present[FETCH_2]: begin
+        IR <= rd_data;
+      end
+
+      present[DECODE]: begin
+        PC <= PC + 16'b1;
+        address <= PC + 16'b1;
+      end
+
+      present[OPER_A1]: begin
+        PC_next <= PC + 16'b1;
+        address <= PC + 16'b1;
+        oper_LSB <= rd_data;
+      end
+
+      present[OPER_B1]: begin
+        PC_next <= PC + 16'b1;
+        oper_MSB <= rd_data;
+      end
+
+      present[EXECUTE]: begin
+
+        case (IR):
 
           NOP: begin
-            next_state[FETCH] = 1'b1;
           end
 
           JMP: begin
-            next_state[OPER_A1] = 1'b1;
+            PC <= {oper_MSB, oper_LSB};
           end
-
-          default: begin end
-        endcase
+        endcase // case (opcode)
       end
 
-      present_state[OPER_A1]: begin
-        next_state[OPER_A2] = 1'b1;
-      end
-
-      present_state[OPER_A2]: begin
-        next_state[EXECUTE] = 1'b1;
-      end
-
-      present_state[OPER_B1]: begin
-        next_state[EXECUTE] = 1'b1;
-      end
-
-      present_state[EXECUTE]: begin
-        next_state[FETCH] = 1'b1;
+      present[OPER_A2]: begin
+        new_PC <= PC + 16'h0002;
       end
 
       default: begin end
-
-    endcase
-  end
-
-  always @(posedge clk) begin
-
-    case (1'b1)
-
-      present_state[VECTOR_1]: begin
-        address <= RESETN_VECTOR;
-        if (next_state[VECTOR_2] == 1'b1) begin
-          PC[7:0] <= read_data;
-        end
-      end
-
-      present_state[VECTOR_2]: begin
-        address <= RESETN_VECTOR + 1'b1;
-        if (next_state[FETCH] == 1'b1) begin
-          PC[15:8] <= read_data;
-        end
-      end
-
-      present_state[FETCH]: begin
-        address <= PC;
-        if (next_state[DECODE] == 1'b1) begin
-          IR <= read_data;
-        end
-      end
-
-      present_state[DECODE]: begin
-        address <= PC + 1'b1;
-      end
-
-      present_state[OPER_A1]: begin
-        address <= PC + 16'b10;
-        if (next_state[OPER_A2] == 1'b1) begin
-          oper_1 <= read_data;
-        endpp
-      end
-
-      present_state[OPER_A2]: begin
-        if (next_state[EXECUTE] == 1'b1) begin
-          oper_2 <= read_data;
-        end
-      end
-
-      present_state[OPER_B1]: begin
-        address <= PC + 1'b1;
-        if (next_state[FETCH] == 1'b1) begin
-          oper_1 <= read_data;
-        end
-      end
-
-      present_state[EXECUTE]: begin
-
-      end
-
-      default: begin end
-
     endcase // case (1'b1)
-  end
+
+  end // block: INSTRUCTION_CYCLE
+
+  // --- Opcode Definitions
+  localparam NOP = 8'bEA;
+  localparam JMP = 8'b4C;
+
+  // The contents of the instruction register are decoded to determine the next
+  // state that the state machine will transition to, which in turn determines
+  // the number of additional oeprands that will need to be read from memory.
+  always @(*): begin: OPCODE_DECODER
+
+    case (IR):
+
+      NOP: begin
+        dec_opcode = EXECUTE;
+      end
+
+      JMP: begin
+        dec_opcode = OPER_A1;
+      end
+    endcase // case (IR)
+
+  end // block: OPCODE_DECODER
 
 endmodule // proc
