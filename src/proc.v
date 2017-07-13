@@ -39,10 +39,11 @@ module proc
   reg [10:0]     next;
   reg [10:0]     present;
 
-  reg [15:0]     new_PC;
-
   reg [15:0]     PC;  // program counter
   reg [7:0]      IR;  // instruction register
+
+  reg [7:0]      oper_LSB;  // first operand
+  reg [7:0]      oper_MSB;  // second operand
 
   always @(posedge clk) begin
     if (!resetn == 1'b1) begin
@@ -81,7 +82,7 @@ module proc
       end
 
       present[DECODE]: begin
-        // This state machine transition is a little different than the other,
+        // This state machine transition is a little different than the others,
         // since the next state is dependent upon the decoded value of the
         // IR which was read from during the FETCH cycles
         next = dec_opcode;
@@ -134,19 +135,22 @@ module proc
       end
 
       present[DECODE]: begin
-        PC <= PC + 16'b1;
+        // Pipeline the read of the first operand - if the decoded opcode does
+        // not require additional operands, the value will be ignored
         address <= PC + 16'b1;
       end
 
       present[OPER_A1]: begin
-        PC_next <= PC + 16'b1;
-        address <= PC + 16'b1;
+        address <= PC + 16'b1 + 16'b1;
         oper_LSB <= rd_data;
       end
 
-      present[OPER_B1]: begin
-        PC_next <= PC + 16'b1;
+      present[OPER_A2]: begin
         oper_MSB <= rd_data;
+      end
+
+      present[OPER_B1]: begin
+        oper_LSB <= rd_data;
       end
 
       present[EXECUTE]: begin
@@ -159,11 +163,7 @@ module proc
           JMP: begin
             PC <= {oper_MSB, oper_LSB};
           end
-        endcase // case (opcode)
-      end
-
-      present[OPER_A2]: begin
-        new_PC <= PC + 16'h0002;
+        endcase // case (IR)
       end
 
       default: begin end
@@ -189,6 +189,7 @@ module proc
       JMP: begin
         dec_opcode = OPER_A1;
       end
+
     endcase // case (IR)
 
   end // block: OPCODE_DECODER
