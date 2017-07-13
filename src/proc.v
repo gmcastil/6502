@@ -8,15 +8,12 @@
 // ----------------------------------------------------------------------------
 
 module proc
-  #(
-    // parameters
-    )
   (
    input         clk,
    input         resetn,
    input [7:0]   rd_data,
 
-   output [15:0] address
+   output reg [15:0] address
    );
 
   localparam RESET     = 0;
@@ -24,20 +21,21 @@ module proc
   localparam VECTOR_2  = 2;
   localparam VECTOR_3  = 3;
   localparam FETCH_1   = 4;
-  localparam EXECUTE_2 = 5;
-  localparam DECODE    = 6;
-  localparam OPER_A1   = 7;
-  localparam OPER_B1   = 8;
-  localparam EXECUTE   = 9;
+  localparam FETCH_2   = 5;
+  localparam EXECUTE   = 6;
+  localparam DECODE    = 7;
+  localparam OPER_A1   = 8;
+  localparam OPER_B1   = 9;
   localparam OPER_A2   = 10;
 
   localparam EMPTY     = 11'b0;  // Zero out the state vector more explicitly
 
-  localparam RESET_LSB = 8'bFFFC;
-  localparam RESET_MSB = 8'bFFFD;
+  localparam RESET_LSB = 16'hFFFC;
+  localparam RESET_MSB = 16'hFFFD;
 
   reg [10:0]     next;
-  reg [10:0]     present;
+  reg [10:0]     state;
+  reg [10:0]     dec_opcode;
 
   reg [15:0]     PC;  // program counter
   reg [7:0]      IR;  // instruction register
@@ -45,62 +43,91 @@ module proc
   reg [7:0]      oper_LSB;  // first operand
   reg [7:0]      oper_MSB;  // second operand
 
+  // --- Opcode Definitions
+  localparam NOP = 8'hEA;
+  localparam JMP = 8'h4C;
+
+// synthesis translate_off
+    reg [(8*11)-1:0] state_ascii;
+    always @(*) begin
+     
+      case (state)
+        11'b000000000001: state_ascii <= "   RESET";
+        11'b000000000010: state_ascii <= "VECTOR_1";
+        11'b000000000100: state_ascii <= "VECTOR_2";
+        11'b000000001000: state_ascii <= "VECTOR_3";
+        11'b000000010000: state_ascii <= " FETCH_1";
+        11'b000000100000: state_ascii <= " FETCH_2";
+        11'b000001000000: state_ascii <= " EXECUTE";
+        11'b000010000000: state_ascii <= "  DECODE";
+        11'b000100000000: state_ascii <= " OPER_A1";
+        11'b001000000000: state_ascii <= " OPER_B1";
+        11'b010000000000: state_ascii <= " OPER_A2";
+      endcase
+    end
+  
+  // synthesis translate_on
+
   always @(posedge clk) begin
     if (!resetn == 1'b1) begin
-      next <= EMPTY;
-      next[RESET] <= 1'b1;
+      state <= EMPTY;
+      state[RESET] <= 1'b1;
     end else begin
-      next <= present;
+      state <= next;
     end
   end
 
   // --- State Machine Definition
-  always @(*) begin:
+  always @(*) begin
 
     next = EMPTY;
 
-    case (1'b1);
+    case (1'b1)
+    
+      state[RESET]: begin
+        next[VECTOR_1] = 1'b1;
+      end
 
-      present[VECTOR_1]: begin
+      state[VECTOR_1]: begin
         next[VECTOR_2] = 1'b1;
       end
 
-      present[VECTOR_2]: begin
+      state[VECTOR_2]: begin
         next[VECTOR_3] = 1'b1;
       end
 
-      present[VECTOR_3]: begin
+      state[VECTOR_3]: begin
         next[FETCH_1] = 1'b1;
       end
 
-      present[FETCH_1]: begin
-        next[FETCH_] = 1'b1;
+      state[FETCH_1]: begin
+        next[FETCH_2] = 1'b1;
       end
 
-      present[FETCH_2]: begin
+      state[FETCH_2]: begin
         next[DECODE] = 1'b1;
       end
 
-      present[DECODE]: begin
+      state[DECODE]: begin
         // This state machine transition is a little different than the others,
         // since the next state is dependent upon the decoded value of the
         // IR which was read from during the FETCH cycles
         next = dec_opcode;
       end
 
-      present[OPER_A1]: begin
+      state[OPER_A1]: begin
         next[OPER_A2] = 1'b1;
       end
 
-      present[OPER_B1]: begin
+      state[OPER_B1]: begin
         next[EXECUTE] = 1'b1;
       end
 
-      present[OPER_A2]: begin
+      state[OPER_A2]: begin
         next[EXECUTE] = 1'b1;
       end
 
-      present[EXECUTE]: begin
+      state[EXECUTE]: begin
         next[FETCH_1] = 1'b1;
       end
 
@@ -111,53 +138,54 @@ module proc
   // --- Signals with State Machine Interactions
   always @(posedge clk) begin: INSTRUCTION_CYCLE
 
-    case (1'b1);
+    case (1'b1)
 
-      present[VECTOR_1]: begin
+      state[VECTOR_1]: begin
         address <= RESET_LSB;
       end
 
-      present[VECTOR_2]: begin
+      state[VECTOR_2]: begin
         address <= RESET_MSB;
         PC[7:0] <= rd_data;
       end
 
-      present[VECTOR_3]: begin
-        PC[15:0] <= rd_data;
+      state[VECTOR_3]: begin
+        PC[15:8] <= rd_data;
       end
 
-      present[FETCH_1]: begin
+      state[FETCH_1]: begin
         address <= PC;
       end
 
-      present[FETCH_2]: begin
+      state[FETCH_2]: begin
         IR <= rd_data;
       end
 
-      present[DECODE]: begin
+      state[DECODE]: begin
         // Pipeline the read of the first operand - if the decoded opcode does
         // not require additional operands, the value will be ignored
         address <= PC + 16'b1;
       end
 
-      present[OPER_A1]: begin
+      state[OPER_A1]: begin
         address <= PC + 16'b1 + 16'b1;
         oper_LSB <= rd_data;
       end
 
-      present[OPER_A2]: begin
+      state[OPER_A2]: begin
         oper_MSB <= rd_data;
       end
 
-      present[OPER_B1]: begin
+      state[OPER_B1]: begin
         oper_LSB <= rd_data;
       end
 
-      present[EXECUTE]: begin
+      state[EXECUTE]: begin
 
-        case (IR):
+        case (IR)
 
           NOP: begin
+            PC <= PC + 16'b1;
           end
 
           JMP: begin
@@ -171,23 +199,22 @@ module proc
 
   end // block: INSTRUCTION_CYCLE
 
-  // --- Opcode Definitions
-  localparam NOP = 8'bEA;
-  localparam JMP = 8'b4C;
 
   // The contents of the instruction register are decoded to determine the next
   // state that the state machine will transition to, which in turn determines
   // the number of additional oeprands that will need to be read from memory.
-  always @(*): begin: OPCODE_DECODER
+  always @(*) begin: OPCODE_DECODER
 
-    case (IR):
+    dec_opcode = EMPTY;
+
+    case (IR)
 
       NOP: begin
-        dec_opcode = EXECUTE;
+        dec_opcode[EXECUTE] = 1'b1;
       end
 
       JMP: begin
-        dec_opcode = OPER_A1;
+        dec_opcode[OPER_A1] = 1'b1;
       end
 
     endcase // case (IR)

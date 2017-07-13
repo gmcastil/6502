@@ -38,10 +38,10 @@ module proc_top_tb ();
 
   // Create the 10MHz clock that the processor will run at
   initial begin
-    clk_sys = 1'b1;
+    clk = 1'b1;
     forever begin
       #(P/2);
-      clk_sys = ~clk_sys;
+      clk = ~clk;
     end
   end
 
@@ -77,11 +77,10 @@ module proc_top_tb ();
   proc
     #(
       ) inst_proc (
-                   clk           (clk),
-                   resetn        (resetn),
-                   rd_data       (rd_data),
-
-                   address       (address),
+                   .clk           (clk),
+                   .resetn        (resetn),
+                   .rd_data       (rd_data),
+                   .address       (address)
    );
 
 endmodule // proc_top_tb
