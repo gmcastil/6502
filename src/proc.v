@@ -23,11 +23,8 @@ module proc
   localparam FETCH     = 5;
   localparam EXECUTE   = 6;
   localparam DECODE    = 7;
-  localparam OPER_A1   = 8;
-  localparam OPER_B1   = 9;
-  localparam OPER_A2   = 10;
 
-  localparam EMPTY     = 11'b0;  // Zero out the state vector more explicitly
+  localparam EMPTY     = 7'b0;  // Zero out the state vector more explicitly
 
   localparam RESET_LSB = 16'hFFFC;
   localparam RESET_MSB = 16'hFFFD;
@@ -40,11 +37,9 @@ module proc
   reg [7:0]      IR;  // instruction register
 
   reg [7:0]      oper_LSB;  // first operand
-  reg [7:0]      oper_MSB;  // second operand
 
   // --- Opcode Definitions
   localparam NOP = 8'hEA;
-  localparam NOP_X = 8'h1A;
   localparam JMP = 8'h4C;
 
 // synthesis translate_off
@@ -52,16 +47,13 @@ module proc
     always @(*) begin
 
       case (state)
-        11'b000000000001: state_ascii <= "   RESET";
-        11'b000000000010: state_ascii <= "VECTOR_1";
-        11'b000000000100: state_ascii <= "VECTOR_2";
-        11'b000000001000: state_ascii <= "VECTOR_3";
-        11'b000000100000: state_ascii <= "   FETCH";
-        11'b000001000000: state_ascii <= " EXECUTE";
-        11'b000010000000: state_ascii <= "  DECODE";
-        11'b000100000000: state_ascii <= " OPER_A1";
-        11'b001000000000: state_ascii <= " OPER_B1";
-        11'b010000000000: state_ascii <= " OPER_A2";
+        7'b00000001: state_ascii <= "   RESET";
+        7'b00000010: state_ascii <= "VECTOR_1";
+        7'b00000100: state_ascii <= "VECTOR_2";
+        7'b00001000: state_ascii <= "VECTOR_3";
+        7'b00100000: state_ascii <= "   FETCH";
+        7'b01000000: state_ascii <= " EXECUTE";
+        7'b10000000: state_ascii <= "  DECODE";
       endcase
     end
 
@@ -110,18 +102,6 @@ module proc
         next = dec_opcode;
       end
 
-      state[OPER_A1]: begin
-        next[OPER_A2] = 1'b1;
-      end
-
-      state[OPER_B1]: begin
-        next[EXECUTE] = 1'b1;
-      end
-
-      state[OPER_A2]: begin
-        next[EXECUTE] = 1'b1;
-      end
-
       state[EXECUTE]: begin
         next[FETCH] = 1'b1;
       end
@@ -145,63 +125,43 @@ module proc
       end
 
       state[VECTOR_3]: begin
-        PC[15:8] <= rd_data;
         address  <= { rd_data, PC[7:0] };
+        PC[15:8] <= rd_data;
       end
 
       state[FETCH]: begin
+        address <= PC + 16'b1;
         IR <= rd_data;
       end
 
       state[DECODE]: begin
-        // Pipeline the read of the first operand - if the decoded opcode does
-        // not require additional operands, the value will be ignored
-        address <= PC + 16'b1;
+        oper_LSB <= rd_data;
 
         case (IR)
-        
-        NOP_X,
-        NOP: begin
-          PC <= PC + 16'b1;
-        end
-        
-        default: begin end
-      endcase
-       
-      end
 
-      state[OPER_A1]: begin
-        address <= PC + 16'b1 + 16'b1;
-        oper_LSB <= rd_data;
-      end
+          NOP: begin
+            PC <= PC + 16'b1;
+            address <= PC + 16'b1;
+          end
 
-      state[OPER_A2]: begin
-        oper_MSB <= rd_data;
-      end
+          JMP: begin
+            address <= PC + 16'b1 + 16'b1;
+          end
 
-      state[OPER_B1]: begin
-        oper_LSB <= rd_data;
+          default: begin end
+        endcase
+
       end
 
       state[EXECUTE]: begin
 
         case (IR)
 
-          NOP: begin
-            address <= PC + 16'd1;
-            PC <= PC + 16'b1;
-          end
-          
-          NOP_X: begin
-            address <= PC + 16'd1;
-            PC <= PC + 16'b1;
+         JMP: begin
+            address <= { rd_data, oper_LSB };
+            PC <= { rd_data, oper_LSB };
           end
 
-          JMP: begin
-            address <= {oper_MSB, oper_LSB};
-            PC <= {oper_MSB, oper_LSB};
-          end
-          
           default: begin
             address <= 16'hFFFF;
             PC <= 16'hFFFF;
@@ -213,7 +173,6 @@ module proc
     endcase // case (1'b1)
 
   end // block: INSTRUCTION_CYCLE
-
 
   // The contents of the instruction register are decoded to determine the next
   // state that the state machine will transition to, which in turn determines
@@ -228,12 +187,8 @@ module proc
         dec_opcode[FETCH] = 1'b1;
       end
 
-      NOP_X: begin
-        dec_opcode[FETCH] = 1'b1;
-      end
-
       JMP: begin
-        dec_opcode[OPER_A1] = 1'b1;
+        dec_opcode[EXECUTE] = 1'b1;
       end
 
     endcase // case (IR)
