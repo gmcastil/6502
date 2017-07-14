@@ -32,7 +32,7 @@ if [[ -z "$coe_file" ]]; then
     echo "Usage: $0 filename"
     exit 1
 else
-    coe_file=`realpath $coe_file`
+    coe_file=`readlink -f $coe_file`
 fi
 
 if [[ -d $WORKING_DIR ]]; then
