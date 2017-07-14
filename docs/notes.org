@@ -3,3 +3,10 @@
 - [X] Script to simulate looping through the memory array reading each address
 - [ ] Script to simulate testing of the processor with the memory array
 - [ ] Design the processor module so that it can actually
+* Opcodes
+| Mneumonic | Opcode | Arguments | Mode |
+|-----------+--------+-----------+------|
+| NOP       | EA     | 0         |      |
+| JMP       | 4C     | 2         |      |
+| LDA       | 49     | 1         |      |
+|           |        |           |      |

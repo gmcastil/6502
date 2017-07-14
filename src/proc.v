@@ -29,6 +29,8 @@ module proc
   localparam RESET_LSB = 16'hFFFC;
   localparam RESET_MSB = 16'hFFFD;
 
+  localparam ZERO      = 8'b0;
+
   reg [6:0]     next;
   reg [6:0]     state;
   reg [6:0]     dec_opcode;
@@ -51,27 +53,28 @@ module proc
   reg           i;   // interrupt
 
   reg [7:0]     oper_LSB;  // first operand
+  wire          msb_rd_data = rd_data[7];
 
   // --- Opcode Definitions
   localparam NOP = 8'hEA;  // No op
   localparam JMP = 8'h4C;  // Jump - absolute
   localparam LDA = 8'hA9;  // Load accumulator from memory - immediate
 
-// synthesis translate_off
-    reg [(8*8)-1:0] state_ascii;
-    always @(*) begin
+  // synthesis translate_off
+  reg [(8*8)-1:0] state_ascii;
+  always @(*) begin
 
-      case (state)
-        7'b0000001: state_ascii <= "  RESET ";
-        7'b0000010: state_ascii <= "VECTOR_1";
-        7'b0000100: state_ascii <= "VECTOR_2";
-        7'b0001000: state_ascii <= "VECTOR_3";
-        7'b0010000: state_ascii <= "  FETCH ";
-        7'b0100000: state_ascii <= " EXECUTE";
-        7'b1000000: state_ascii <= " DECODE ";
-      endcase
-    end
+    case (state)
+      7'b0000001: state_ascii <= "  RESET ";
+      7'b0000010: state_ascii <= "VECTOR_1";
+      7'b0000100: state_ascii <= "VECTOR_2";
+      7'b0001000: state_ascii <= "VECTOR_3";
+      7'b0010000: state_ascii <= "  FETCH ";
+      7'b0100000: state_ascii <= " EXECUTE";
+      7'b1000000: state_ascii <= " DECODE ";
+    endcase
 
+  end
   // synthesis translate_on
 
   always @(posedge clk) begin
@@ -167,6 +170,12 @@ module proc
             PC      <= PC + 16'b1 + 16'b1;
             address <= PC + 16'b1 + 16'b1;
             A       <= rd_data;
+            n       <= msb_rd_data;
+            if (rd_data == ZERO) begin
+              z <= 1'b1;
+            end else begin
+              z <= 1'b0;
+            end
           end
 
           default: begin end
