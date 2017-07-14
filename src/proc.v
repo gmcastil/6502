@@ -20,18 +20,18 @@ module proc
   localparam VECTOR_1  = 1;
   localparam VECTOR_2  = 2;
   localparam VECTOR_3  = 3;
-  localparam FETCH     = 5;
-  localparam EXECUTE   = 6;
-  localparam DECODE    = 7;
+  localparam FETCH     = 4;
+  localparam EXECUTE   = 5;
+  localparam DECODE    = 6;
 
   localparam EMPTY     = 7'b0;  // Zero out the state vector more explicitly
 
   localparam RESET_LSB = 16'hFFFC;
   localparam RESET_MSB = 16'hFFFD;
 
-  reg [10:0]     next;
-  reg [10:0]     state;
-  reg [10:0]     dec_opcode;
+  reg [6:0]     next;
+  reg [6:0]     state;
+  reg [6:0]     dec_opcode;
 
   reg [15:0]     PC;  // program counter
   reg [7:0]      IR;  // instruction register
@@ -43,17 +43,17 @@ module proc
   localparam JMP = 8'h4C;
 
 // synthesis translate_off
-    reg [(8*11)-1:0] state_ascii;
+    reg [(8*8)-1:0] state_ascii;
     always @(*) begin
 
       case (state)
-        7'b00000001: state_ascii <= "   RESET";
-        7'b00000010: state_ascii <= "VECTOR_1";
-        7'b00000100: state_ascii <= "VECTOR_2";
-        7'b00001000: state_ascii <= "VECTOR_3";
-        7'b00100000: state_ascii <= "   FETCH";
-        7'b01000000: state_ascii <= " EXECUTE";
-        7'b10000000: state_ascii <= "  DECODE";
+        7'b0000001: state_ascii <= "   RESET";
+        7'b0000010: state_ascii <= "VECTOR_1";
+        7'b0000100: state_ascii <= "VECTOR_2";
+        7'b0001000: state_ascii <= "VECTOR_3";
+        7'b0010000: state_ascii <= "   FETCH";
+        7'b0100000: state_ascii <= " EXECUTE";
+        7'b1000000: state_ascii <= "  DECODE";
       endcase
     end
 
