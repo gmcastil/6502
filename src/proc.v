@@ -20,8 +20,7 @@ module proc
   localparam VECTOR_1  = 1;
   localparam VECTOR_2  = 2;
   localparam VECTOR_3  = 3;
-  localparam FETCH_1   = 4;
-  localparam FETCH_2   = 5;
+  localparam FETCH     = 5;
   localparam EXECUTE   = 6;
   localparam DECODE    = 7;
   localparam OPER_A1   = 8;
@@ -45,19 +44,19 @@ module proc
 
   // --- Opcode Definitions
   localparam NOP = 8'hEA;
+  localparam NOP_X = 8'h1A;
   localparam JMP = 8'h4C;
 
 // synthesis translate_off
     reg [(8*11)-1:0] state_ascii;
     always @(*) begin
-     
+
       case (state)
         11'b000000000001: state_ascii <= "   RESET";
         11'b000000000010: state_ascii <= "VECTOR_1";
         11'b000000000100: state_ascii <= "VECTOR_2";
         11'b000000001000: state_ascii <= "VECTOR_3";
-        11'b000000010000: state_ascii <= " FETCH_1";
-        11'b000000100000: state_ascii <= " FETCH_2";
+        11'b000000100000: state_ascii <= "   FETCH";
         11'b000001000000: state_ascii <= " EXECUTE";
         11'b000010000000: state_ascii <= "  DECODE";
         11'b000100000000: state_ascii <= " OPER_A1";
@@ -65,7 +64,7 @@ module proc
         11'b010000000000: state_ascii <= " OPER_A2";
       endcase
     end
-  
+
   // synthesis translate_on
 
   always @(posedge clk) begin
@@ -83,7 +82,7 @@ module proc
     next = EMPTY;
 
     case (1'b1)
-    
+
       state[RESET]: begin
         next[VECTOR_1] = 1'b1;
       end
@@ -97,14 +96,10 @@ module proc
       end
 
       state[VECTOR_3]: begin
-        next[FETCH_1] = 1'b1;
+        next[FETCH] = 1'b1;
       end
 
-      state[FETCH_1]: begin
-        next[FETCH_2] = 1'b1;
-      end
-
-      state[FETCH_2]: begin
+      state[FETCH]: begin
         next[DECODE] = 1'b1;
       end
 
@@ -128,7 +123,7 @@ module proc
       end
 
       state[EXECUTE]: begin
-        next[FETCH_1] = 1'b1;
+        next[FETCH] = 1'b1;
       end
 
       default: begin end
@@ -151,13 +146,10 @@ module proc
 
       state[VECTOR_3]: begin
         PC[15:8] <= rd_data;
+        address  <= { rd_data, PC[7:0] };
       end
 
-      state[FETCH_1]: begin
-        address <= PC;
-      end
-
-      state[FETCH_2]: begin
+      state[FETCH]: begin
         IR <= rd_data;
       end
 
@@ -165,6 +157,17 @@ module proc
         // Pipeline the read of the first operand - if the decoded opcode does
         // not require additional operands, the value will be ignored
         address <= PC + 16'b1;
+
+        case (IR)
+        
+        NOP_X,
+        NOP: begin
+          PC <= PC + 16'b1;
+        end
+        
+        default: begin end
+      endcase
+       
       end
 
       state[OPER_A1]: begin
@@ -185,11 +188,23 @@ module proc
         case (IR)
 
           NOP: begin
+            address <= PC + 16'd1;
+            PC <= PC + 16'b1;
+          end
+          
+          NOP_X: begin
+            address <= PC + 16'd1;
             PC <= PC + 16'b1;
           end
 
           JMP: begin
+            address <= {oper_MSB, oper_LSB};
             PC <= {oper_MSB, oper_LSB};
+          end
+          
+          default: begin
+            address <= 16'hFFFF;
+            PC <= 16'hFFFF;
           end
         endcase // case (IR)
       end
@@ -210,7 +225,11 @@ module proc
     case (IR)
 
       NOP: begin
-        dec_opcode[EXECUTE] = 1'b1;
+        dec_opcode[FETCH] = 1'b1;
+      end
+
+      NOP_X: begin
+        dec_opcode[FETCH] = 1'b1;
       end
 
       JMP: begin
