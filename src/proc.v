@@ -53,7 +53,9 @@ module proc
   reg           i;   // interrupt
 
   reg [7:0]     oper_LSB;  // first operand
-  wire          msb_rd_data = rd_data[7];
+  wire          msb_rd_data;
+
+  assign msb_rd_data = rd_data[7];
 
   // --- Opcode Definitions
   localparam NOP = 8'hEA;  // No op
@@ -78,7 +80,7 @@ module proc
   // synthesis translate_on
 
   always @(posedge clk) begin
-    if (!resetn == 1'b1) begin
+    if (resetn == 1'b0) begin
       state <= EMPTY;
       state[RESET] <= 1'b1;
     end else begin
