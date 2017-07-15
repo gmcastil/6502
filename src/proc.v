@@ -208,7 +208,7 @@ module proc
 
   // The contents of the instruction register are decoded to determine the next
   // state that the state machine will transition to, which in turn determines
-  // the number of additional oeprands that will need to be read from memory.
+  // the number of additional operands that will need to be read from memory.
   always @(*) begin: OPCODE_DECODER
 
     dec_opcode = EMPTY;
