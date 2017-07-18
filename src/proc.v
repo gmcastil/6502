@@ -12,7 +12,7 @@
 //     and 65802. New York, NY: Prentice Hall, 1986.
 // ----------------------------------------------------------------------------
 
-`include "./include/proc.vh"
+`include "opcodes.vh"
 
 module proc
   (
