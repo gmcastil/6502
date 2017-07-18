@@ -5,7 +5,14 @@
 // Date:    09 July 2017
 //
 // Description: Main module for the MOS 6502 processor core.
+//
+// References:
+//
+// [1] D. Eyes and R. Lichty, Programming the 65816: Including the 6502, 65C02
+//     and 65802. New York, NY: Prentice Hall, 1986.
 // ----------------------------------------------------------------------------
+
+`include "./include/proc.vh"
 
 module proc
   (
@@ -16,25 +23,19 @@ module proc
    output reg [15:0] address
    );
 
-  localparam RESET     = 0;
-  localparam VECTOR_1  = 1;
-  localparam VECTOR_2  = 2;
-  localparam VECTOR_3  = 3;
-  localparam FETCH     = 4;
-  localparam EXECUTE   = 5;
-  localparam DECODE    = 6;
-
-  localparam EMPTY     = 7'b0;  // Zero out the state vector more explicitly
-
-  localparam RESET_LSB = 16'hFFFC;
-  localparam RESET_MSB = 16'hFFFD;
-
-  localparam ZERO      = 8'b0;
+  // --- State Machine Indices and Signals
+  localparam RESET    = 0;
+  localparam VECTOR_1 = 1;
+  localparam VECTOR_2 = 2;
+  localparam VECTOR_3 = 3;
+  localparam FETCH    = 4;
+  localparam EXECUTE  = 5;
+  localparam DECODE   = 6;
 
   reg [6:0]     next;
   reg [6:0]     state;
-  reg [6:0]     dec_opcode;
 
+  //
   // --- Processor Registers
   reg [7:0]     A;   // accumulator
   reg [7:0]     X;   // X index register
@@ -54,13 +55,15 @@ module proc
 
   reg [7:0]     oper_LSB;  // first operand
   wire          msb_rd_data;
+  localparam RESET_LSB = 16'hFFFC;
+  localparam RESET_MSB = 16'hFFFD;
+
+  localparam ZERO      = 8'b0;
+  localparam EMPTY     = 7'b0;  // Zero out the state vector more explicitly
+
+  reg [6:0]     dec_opcode;
 
   assign msb_rd_data = rd_data[7];
-
-  // --- Opcode Definitions
-  localparam NOP = 8'hEA;  // No op
-  localparam JMP = 8'h4C;  // Jump - absolute
-  localparam LDA = 8'hA9;  // Load accumulator from memory - immediate
 
   // synthesis translate_off
   reg [(8*8)-1:0] state_ascii;
