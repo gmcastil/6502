@@ -103,6 +103,12 @@ localparam
   BCS     = 8'hB0;  // PC relative    BCS label           2       2        1,2
 
 localparam
+  //
+  //
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+
 
 
 localparam NOP = 8'hEA; //
