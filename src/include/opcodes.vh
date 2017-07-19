@@ -17,7 +17,7 @@
 
 // A convention for identifying addressing modes:
 //
-// <none> immediate
+// <none> immediate or accumulator
 // A      absolute
 // D      direct page
 // DI     DP indirect
@@ -74,10 +74,18 @@ localparam
   AND_DIX = 8'h21,  // DP indirect X  AND (dp, X)           2       6      1,2
   AND_DIY = 8'h31;  // DP indirect Y  AND (dp) Y            2       5      1,2,3
 
-
+localparam
   //
   // Shift Memory or Accumulator Left (ASL)
-  //
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  ASL     = 8'h0A,  // Accumulator    ASL A                 1       2
+  ASL_A   = 8'h0E,  // Abs            ASL addr              3       6      1
+  ASL_D   = 8'h06,  // DP             ASL dp                2       5      1,2
+  ASL_X   = 8'h1E,  // Abs X          ASL addr, X           3       7      1,3
+  ASL_DX  = 8'h16;  // DP index X     ASL dp, X             2       6      1,2
+
 
 
 
