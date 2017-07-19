@@ -43,11 +43,11 @@
 // These data are not included here.  See chapter 18 in [1] for details.
 
 localparam
-//
-// Add With Carry (ADC)
-//                                                65C02
-//          Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
-//          ------     ---------      ------      -----   ------  ------   -----    ------------
+  //
+  // Add With Carry (ADC)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
   ADC     = 8'h69,  // Immediate      ADC #const            2       2      1,4
   ADC_A   = 8'h6D,  // Abs            ADC addr              3       4      1,4
   ADC_D   = 8'h65,  // DP             ADC dp                2       3      1,2,4
@@ -57,6 +57,29 @@ localparam
   ADC_DX  = 8'h75,  // DP index X     ADC dp, X             2       4      1,2,4
   ADC_DIX = 8'h61,  // DP indirect X  ADC (dp, X)           2       6      1,2,4
   ADC_DIY = 8'h71;  // DP indirect Y  ADC (dp), Y           2       5      1,2,3,4
+
+localparam
+  //
+  // And Accumulator With Memory (AND)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  AND     = 8'h29,  // Immediate      AND #const            2       2      1
+  AND_A   = 8'h2D,  // Abs            AND addr              3       4      1
+  AND_D   = 8'h25,  // DP             AND dp                2       3      1,2
+  AND_DI  = 8'h32,  // DP indirect    AND (dp)      *       2       5      1,2
+  AND_X   = 8'h3D,  // Abs X          AND addr, X           3       4      1,3
+  AND_Y   = 8'h39,  // Abs Y          AND addr, Y           3       4      1,3
+  AND_DX  = 8'h35,  // DP index X     AND dp, X             2       4      1,2
+  AND_DIX = 8'h21,  // DP indirect X  AND (dp, X)           2       6      1,2
+  AND_DIY = 8'h31;  // DP indirect Y  AND (dp) Y            2       5      1,2,3
+
+
+  //
+  // Shift Memory or Accumulator Left (ASL)
+  //
+
+
 
 
 localparam NOP = 8'hEA; //
