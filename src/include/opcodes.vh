@@ -104,10 +104,22 @@ localparam
 
 localparam
   //
-  //
+  // Branch if Equal (BEQ)
   //                                              65C02
   //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
   //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BEQ     = 8'hF0;  // Relative       BEQ label           2       2        1,2
+
+localparam
+  //
+  // Test Memory Bits Against Accumulator (BIT)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BIT     = 8'h89,  // Immediate      BIT #const    *     2       2        1
+  BIT_A   = 8'h2C,  // Abs            BIT addr            3       44       1
+  BIT_D   = 8'h24,  //
+
 
 
 
