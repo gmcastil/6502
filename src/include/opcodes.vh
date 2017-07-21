@@ -108,7 +108,7 @@ localparam
   //                                              65C02
   //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
   //        ------     ---------      ------      -----   ------  ------   -----    ------------
-  BEQ     = 8'hF0;  // Relative       BEQ label           2       2        1,2
+  BEQ     = 8'hF0;  // PC relative    BEQ label           2       2        1,2
 
 localparam
   //
@@ -117,8 +117,111 @@ localparam
   //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
   //        ------     ---------      ------      -----   ------  ------   -----    ------------
   BIT     = 8'h89,  // Immediate      BIT #const    *     2       2        1
-  BIT_A   = 8'h2C,  // Abs            BIT addr            3       44       1
-  BIT_D   = 8'h24,  //
+  BIT_A   = 8'h2C,  // Abs            BIT addr            3       4        1
+  BIT_D   = 8'h24,  // DP             BIT dp              2       3        1,2
+  BIT_X   = 8'h3C,  // Abs X          BIT addr, X   *     3       4        1,3
+  BIT_DX  = 8'h34;  // DP X           BIT dp, X     *     2       4        1,2
+
+localparam
+  //
+  // Brand if Minus (BMI)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BMI     = 8'h30;  // PC relative    BMI label           2       2        1,2
+
+localparam
+  //
+  // Branch if Not Equal (BNE)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BNE     = 8'hD0;  // PC relative    BNE label           2       2        1,2
+
+localparam
+  //
+  // Branch if Plus (BPL)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BPL     = 8'h10;  // PC relative    BPL label           2       2        1,2
+
+localparam
+  //
+  // Branch Always (BRA)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BRA     = 8'h80;  // PC relative    BRA label     *     2       3        1
+
+localparam
+  //
+  // Software Break (BRK)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BRK     = 8'h00;  // Stack / IRQ    BRK                 2       7        1
+
+localparam
+  //
+  // Branch if Overflow Clear (BVC)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BVC     = 8'h50;  // PC relative    BVC label           2       2        1,2
+
+localparam
+  //
+  // Branch if Overflow Set (BVS)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  BVS     = 8'h70;  // PC relative    BVC label           2       2        1,2
+
+localparam
+  //
+  // Clear Carry Flag (CLC)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CLC     = 8'h18;  // Implied        CLC                 1       2
+
+localparam
+  //
+  // Clear Decimal Mode Flag (CLD)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CLD     = 8'hD8;  // Implied        CLD                 1       2
+
+localparam
+  //
+  // Clear Interrupt Disable Flag (CLI)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CLI     = 8'h58;  // Implied        CLI                 1       2
+
+localparam
+  //
+  // Clear Overflow Flag (CLV)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CLV     = 8'hB8;  // Implied        CLV                 1       2
+
+localparam
+  //
+  // Compare Accumulator with Memory (CMP)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CMP     = 8'hC9,  // Immediate      CMP #const          2       2        1
+  CMP_A   = 8'hCD,  // Abs            CMP addr            3       4        1
+  CMP_D   = 8'hC5,  // DP             CMP dp              2       3        1,2
+  CMP_DI  = 8'hD2,  // DP indirect    CMP (dp)      *     2       5        1,2
+  CMP_X   - 8'hDD,  // Abs X          CMP addr, X
+
 
 
 
