@@ -64,7 +64,7 @@ module proc
   reg [(8*8)-1:0] state_ascii;
   always @(*) begin
 
-    case (state)
+    case ( state )
       7'b0000001: state_ascii <= "   RESET";
       7'b0000010: state_ascii <= "VECTOR_1";
       7'b0000100: state_ascii <= "VECTOR_2";
@@ -91,7 +91,7 @@ module proc
 
     next = EMPTY;
 
-    case (1'b1)
+    case ( 1'b1 )
 
       state[RESET]: begin
         next[VECTOR_1] = 1'b1;
@@ -132,7 +132,7 @@ module proc
   // --- Signals with State Machine Interactions
   always @(posedge clk) begin: INSTRUCTION_CYCLE
 
-    case (1'b1)
+    case ( 1'b1 )
 
       state[VECTOR_1]: begin
         address <= RESET_LSB;
@@ -156,7 +156,7 @@ module proc
       state[DECODE]: begin
         oper_LSB <= rd_data;
 
-        case (IR)
+        case ( IR )
 
           NOP: begin
             PC <= PC + 16'b1;
@@ -181,13 +181,13 @@ module proc
           end
 
           default: begin end
-        endcase
+        endcase // ( IR )
 
       end
 
       state[EXECUTE]: begin
 
-        case (IR)
+        case ( IR )
 
          JMP: begin
             address <= { rd_data, oper_LSB };
@@ -198,11 +198,11 @@ module proc
             address <= 16'hFFFF;
             PC <= 16'hFFFF;
           end
-        endcase // case (IR)
+        endcase // case ( IR )
       end
 
       default: begin end
-    endcase // case (1'b1)
+    endcase // case ( 1'b1 )
 
   end // block: INSTRUCTION_CYCLE
 
@@ -213,7 +213,7 @@ module proc
 
     dec_opcode = EMPTY;
 
-    case (IR)
+    case ( IR )
 
       NOP: begin
         dec_opcode[FETCH] = 1'b1;
@@ -230,7 +230,7 @@ module proc
       default: begin
         dec_opcode = EMPTY;  // Obvious indicator of failure to decode
       end
-    endcase // case (IR)
+    endcase // case ( IR )
 
   end // block: OPCODE_DECODER
 
