@@ -258,6 +258,23 @@ localparam
   DEC_X   = 8'hDE,  // Abs X          DEC addr, X         3       7        1,3
   DEC_DX  = 8'hD6;  // DP indexed, X  DEC dp, X           2       6        1,2
 
+localparam
+  //
+  // Decrement Index Register X (DEX)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  DEX     = 8'hCA;  // Implied        DEX                 1       2
+
+localparam
+  //
+  // Decrement Index Register Y (DEY)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  DEY     = 8'h88;  // Implied        DEY                 1       2
+
+
 
 
 localparam NOP = 8'hEA; //
