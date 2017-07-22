@@ -246,6 +246,18 @@ localparam
   CPY_A   = 8'hCC,  // Absolute       CPX addr            3       4        1
   CPY_D   = 8'hC4;  // DP             CPX dp              2       3        1,2
 
+localparam
+  //
+  // Decrement (DEC)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  DEC     = 8'h3A,  // Accumulator    DEC A         *     1       2
+  DEC_A   = 8'hCE,  // Abs            DEC addr            3       6        1
+  DEC_D   = 8'hC6,  // DP             DEC dp              2       5        1,2
+  DEC_X   = 8'hDE,  // Abs X          DEC addr, X         3       7        1,3
+  DEC_DX  = 8'hD6;  // DP indexed, X  DEC dp, X           2       6        1,2
+
 
 
 localparam NOP = 8'hEA; //
