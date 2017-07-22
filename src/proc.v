@@ -5,11 +5,6 @@
 // Date:    09 July 2017
 //
 // Description: Main module for the MOS 6502 processor core.
-//
-// References:
-//
-// [1] D. Eyes and R. Lichty, Programming the 65816: Including the 6502, 65C02
-//     and 65802. New York, NY: Prentice Hall, 1986.
 // ----------------------------------------------------------------------------
 
 `include "opcodes.vh"
@@ -32,10 +27,11 @@ module proc
   localparam EXECUTE  = 5;
   localparam DECODE   = 6;
 
+  localparam EMPTY    = 7'b0;  // Zero out the state vector more explicitly
+
   reg [6:0]     next;
   reg [6:0]     state;
 
-  //
   // --- Processor Registers
   reg [7:0]     A;   // accumulator
   reg [7:0]     X;   // X index register
@@ -43,23 +39,22 @@ module proc
   reg [15:0]    S;   // stack pointer
   reg [15:0]    PC;  // program counter
   reg [7:0]     IR;  // instruction register
+  reg [7:0]     P;   // processor status register
 
   // --- Status Registers
-  reg           n;   // negative
-  reg           z;   // zero
-  reg           v;   // overflow
-  reg           c;   // carry
-  reg           b;   // break
-  reg           d;   // decimal
-  reg           i;   // interrupt
+  localparam NEG   = 7;  // negative result
+  localparam OFV   = 6;  // overflow
+  localparam BREAK = 4;
+  localparam BCD   = 3;  // mode for add and subtract
+  localparam IRQ   = 2;  // enable or disable IRQ line
+  localparam ZERO  = 1;
+  localparam CARRY = 0;
 
   reg [7:0]     oper_LSB;  // first operand
   wire          msb_rd_data;
+
   localparam RESET_LSB = 16'hFFFC;
   localparam RESET_MSB = 16'hFFFD;
-
-  localparam ZERO      = 8'b0;
-  localparam EMPTY     = 7'b0;  // Zero out the state vector more explicitly
 
   reg [6:0]     dec_opcode;
 
@@ -70,13 +65,13 @@ module proc
   always @(*) begin
 
     case (state)
-      7'b0000001: state_ascii <= "  RESET ";
+      7'b0000001: state_ascii <= "   RESET";
       7'b0000010: state_ascii <= "VECTOR_1";
       7'b0000100: state_ascii <= "VECTOR_2";
       7'b0001000: state_ascii <= "VECTOR_3";
-      7'b0010000: state_ascii <= "  FETCH ";
+      7'b0010000: state_ascii <= "   FETCH";
       7'b0100000: state_ascii <= " EXECUTE";
-      7'b1000000: state_ascii <= " DECODE ";
+      7'b1000000: state_ascii <= "  DECODE";
     endcase
 
   end
@@ -92,7 +87,7 @@ module proc
   end
 
   // --- State Machine Definition
-  always @(*) begin
+  always @(*) begin: STATE_MACHINE
 
     next = EMPTY;
 
@@ -131,7 +126,8 @@ module proc
 
       default: begin end
     endcase // case (1'b1)
-  end
+
+  end // block: STATE_MACHINE
 
   // --- Signals with State Machine Interactions
   always @(posedge clk) begin: INSTRUCTION_CYCLE
@@ -175,11 +171,12 @@ module proc
             PC      <= PC + 16'b1 + 16'b1;
             address <= PC + 16'b1 + 16'b1;
             A       <= rd_data;
-            n       <= msb_rd_data;
-            if (rd_data == ZERO) begin
-              z <= 1'b1;
+            P[NEG]  <= msb_rd_data;
+
+            if (rd_data == 8'b0) begin
+              P[ZERO] <= 1'b1;
             end else begin
-              z <= 1'b0;
+              P[ZERO] <= 1'b0;
             end
           end
 
@@ -209,10 +206,10 @@ module proc
 
   end // block: INSTRUCTION_CYCLE
 
+  always @(*) begin: OPCODE_DECODER
   // The contents of the instruction register are decoded to determine the next
   // state that the state machine will transition to, which in turn determines
   // the number of additional operands that will need to be read from memory.
-  always @(*) begin: OPCODE_DECODER
 
     dec_opcode = EMPTY;
 
@@ -230,6 +227,9 @@ module proc
         dec_opcode[FETCH] = 1'b1;
       end
 
+      default: begin
+        dec_opcode = EMPTY;  // Obvious indicator of failure to decode
+      end
     endcase // case (IR)
 
   end // block: OPCODE_DECODER
