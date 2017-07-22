@@ -78,7 +78,7 @@ module proc
   // synthesis translate_on
 
   always @(posedge clk) begin
-    if (resetn == 1'b0) begin
+    if ( resetn == 1'b0 ) begin
       state <= EMPTY;
       state[RESET] <= 1'b1;
     end else begin
@@ -173,7 +173,7 @@ module proc
             A       <= rd_data;
             P[NEG]  <= msb_rd_data;
 
-            if (rd_data == 8'b0) begin
+            if ( rd_data == 8'b0 ) begin
               P[ZERO] <= 1'b1;
             end else begin
               P[ZERO] <= 1'b0;
