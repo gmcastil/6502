@@ -220,10 +220,11 @@ localparam
   CMP_A   = 8'hCD,  // Abs            CMP addr            3       4        1
   CMP_D   = 8'hC5,  // DP             CMP dp              2       3        1,2
   CMP_DI  = 8'hD2,  // DP indirect    CMP (dp)      *     2       5        1,2
-  CMP_X   - 8'hDD,  // Abs X          CMP addr, X
-
-
-
+  CMP_X   = 8'hDD,  // Abs X          CMP addr, X         3       4        1,3
+  CMP_Y   = 8'hD9,  // Abs Y          CMP addr, Y         3       4        1,3
+  CMP_DX  = 8'hD5,  // DP index X     CMP dp, X           2       4        1,2
+  CMP_DIX = 8'hC1,  // DP indirect X  CMP (dp, X)         2       6        1,2
+  CMP_DIY = 8'hD1;  // DP indirect Y  CMP (dp), Y         2       5        1,2,3
 
 
 localparam NOP = 8'hEA; //
