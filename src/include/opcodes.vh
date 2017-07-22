@@ -226,6 +226,27 @@ localparam
   CMP_DIX = 8'hC1,  // DP indirect X  CMP (dp, X)         2       6        1,2
   CMP_DIY = 8'hD1;  // DP indirect Y  CMP (dp), Y         2       5        1,2,3
 
+localparam
+  //
+  // Compare Index Register X with Memory (CPX)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CPX     = 8'hE0,  // Immediate      CPX #const          2       2        1
+  CPX_A   = 8'hEC,  // Absolute       CPX addr            3       4        1
+  CPX_D   = 8'hE4;  // DP             CPX dp              2       3        1,2
+
+localparam
+  //
+  // Compare Index Register Y with Memory (CPY)
+  //                                              65C02
+  //        Opcode     Addr Mode      Syntax      Only    Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------      -----   ------  ------   -----    ------------
+  CPY     = 8'hC0,  // Immediate      CPX #const          2       2        1
+  CPY_A   = 8'hCC,  // Absolute       CPX addr            3       4        1
+  CPY_D   = 8'hC4;  // DP             CPX dp              2       3        1,2
+
+
 
 localparam NOP = 8'hEA; //
 localparam JMP = 8'h4C; //
