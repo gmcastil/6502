@@ -9,10 +9,10 @@
 // had virtually zero testing performed on it.
 ----------------------------------------------------------------------------
 
-module alu
-  #(
-    // parameter
-    )
+  module alu
+    #(
+      // parameter
+      )
   (
    input [2:0]      ctrl,
    input [7:0]      AI,
@@ -20,21 +20,21 @@ module alu
    input            CI, // carry in
    input            DAA, // BCD enable
 
-   // Processor status register flags
-   output reg       N, // negative result
-   output reg       V, // sign bit overflow
-   output reg       Z, // zero result
-   output reg       CO, // arithmetic carry
-   output reg       HC, // half carry
-
+   output reg [2:0] alu_flags,
    output reg [7:0] Y
    );
 
+  // --- Control Signals
   parameter SUM = 3'b000;
   parameter OR  = 3'b001;
   parameter XOR = 3'b010;
   parameter AND = 3'b011;
   parameter SR  = 3'b100;
+
+  // --- Index Into ALU Status Flags
+  localparam OVF   = 2;
+  localparam CARRY = 1;
+  localparam HALF  = 0;
 
   // Signals used in the case statement
   reg [8:0]         result;
@@ -49,7 +49,7 @@ module alu
     HC = 1'b0;
     result = 9'b0;
 
-    case (ctrl)
+    case ( ctrl )
 
       SUM: begin
         // Affects Flags: N V Z C
@@ -120,7 +120,7 @@ module alu
 
       default: begin end
 
-    endcase // case (ctrl)
+    endcase // case ( ctrl )
 
   end
 

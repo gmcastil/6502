@@ -11,9 +11,10 @@
 
 module proc
   (
-   input         clk,
-   input         resetn,
-   input [7:0]   rd_data,
+   input             clk,
+   input             resetn,
+   input [7:0]       rd_data,
+   input [2:0]       alu_flags,
 
    output reg [15:0] address
    );
@@ -41,7 +42,7 @@ module proc
   reg [7:0]     IR;  // instruction register
   reg [7:0]     P;   // processor status register
 
-  // --- Status Registers
+  // --- Index Into Processor Status Flags
   localparam NEG   = 7;  // negative result
   localparam OFV   = 6;  // overflow
   localparam BREAK = 4;
