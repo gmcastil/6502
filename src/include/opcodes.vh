@@ -22,7 +22,7 @@
 // A      Absolute                                         LDA  $2000
 // PCR    PC relative                                      BEQ  LABEL12
 // S      Stack                                            PHA
-// ZS     Zero stack                                       LDA  $81
+// Z      Zero page                                        LDA  $81
 // X      Absolute indexed with X                          LDA  $2000, X
 // Y      Absolute indexed with Y                          LDA  $2000, Y
 // ZX     Zero page indexed with X                         LDA  $55, X
@@ -46,173 +46,180 @@
 // Also note that each instruction will affect the status of processor flags
 // These data are not included here.  See chapter 18 in [1] for details.
 
-
+localparam
   //
   // Add With Carry (ADC)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
-
+  //        Opcode     Addr Mode          Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------          ------        ------  ------   -----    ------------
+  ADC     = 8'h69,  // Immediate          ADC #const    2       2        1,4
+  ADC_A   = 8'h6D,  // Absolute           ADC addr      3       4        1,4
+  ADC_Z   = 8'h65,  // ZP                 ADC zp        2       3        1,2,4
+  ADC_X   = 8'h7D,  // Absolute X         ADC addr, X   3       4        1,3,4
+  ADC_Y   = 8'h79,  // Absolute Y         ADC addr, Y   3       4        1,3,4
+  ADC_ZX  = 8'h75,  // ZP index X         ADC zp, X     2       4        1,2,4
+  ADC_ZIX = 8'h61,  // ZP ind indirect X  ADC (zp, X)   2       6        1,2,4
+  ADC_ZIY = 8'h71;  // ZP indirect ind Y  ADC (zp), Y   2       5        1,2,3,4
 
   //
   // And Accumulator With Memory (AND)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Shift Memory or Accumulator Left (ASL)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Carry Clear (BCC)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Carry Set (BCS)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Equal (BEQ)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Test Memory Bits Against Accumulator (BIT)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Brand if Minus (BMI)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Not Equal (BNE)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Plus (BPL)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Software Break (BRK)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Overflow Clear (BVC)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Branch if Overflow Set (BVS)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Clear Carry Flag (CLC)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Clear Decimal Mode Flag (CLD)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Clear Interrupt Disable Flag (CLI)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Clear Overflow Flag (CLV)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Compare Accumulator with Memory (CMP)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Compare Index Register X with Memory (CPX)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Compare Index Register Y with Memory (CPY)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Decrement (DEC)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Decrement Index Register X (DEX)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Decrement Index Register Y (DEY)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
   //
   // Jump (JMP)
   //
-  //        Opcode     Addr Mode      Syntax      Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------      ------  ------   -----    ------------
+  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
+  //        ------     ---------      ------        ------  ------   -----    ------------
 
 localparam NOP = 8'hEA; //
 localparam JMP = 8'h4C; //
