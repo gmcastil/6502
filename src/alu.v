@@ -14,14 +14,14 @@
       // parameter
       )
   (
-   input [2:0]      ctrl,
-   input [7:0]      AI,
-   input [7:0]      BI,
-   input            CI, // carry in
-   input            DAA, // BCD enable
+   input [2:0]      alu_ctrl,
+   input [7:0]      alu_AI,
+   input [7:0]      alu_BI,
+   input            alu_carry, // carry in
+   input            alu_DAA,   // BCD enable
 
-   output reg [2:0] alu_flags,
-   output reg [7:0] Y
+   output reg [7:0] alu_flags,
+   output reg [7:0] alu_Y
    );
 
   // --- Control Signals
@@ -31,10 +31,14 @@
   parameter AND = 3'b011;
   parameter SR  = 3'b100;
 
-  // --- Index Into ALU Status Flags
-  localparam OVF   = 2;
-  localparam CARRY = 1;
-  localparam HALF  = 0;
+  // --- Index Into ALU Status Flags (shared with processor)
+  localparam NEG   = 7;  // negative result
+  localparam OFV   = 6;  // overflow
+  localparam BREAK = 4;
+  localparam BCD   = 3;  // mode for add and subtract
+  localparam IRQ   = 2;  // enable or disable IRQ line
+  localparam ZERO  = 1;
+  localparam CARRY = 0;
 
   // Signals used in the case statement
   reg [8:0]         result;
