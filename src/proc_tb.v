@@ -27,6 +27,15 @@ module proc_top_tb ();
   wire [7:0]   rd_data;
   reg [7:0]    wr_data;
 
+  wire [2:0]    alu_ctrl;
+  wire [7:0]    alu_AI;
+  wire [7:0]    alu_BI;
+  wire          alu_carry;
+  wire          alu_DAA;
+
+  wire [7:0]    alu_flags;
+  wire [7:0]    alu_Y;
+
   // Create the 100MHz clock that the memory will run at
   initial begin
     clk_sys = 1'b1;
@@ -80,7 +89,27 @@ module proc_top_tb ();
                    .clk           (clk),
                    .resetn        (resetn),
                    .rd_data       (rd_data),
-                   .address       (address)
-   );
+                   .address       (address),
+
+                   .alu_flags     (alu_flags),
+                   .alu_Y         (alu_Y),
+                   .alu_ctrl      (alu_ctrl),
+                   .alu_AI        (alu_AI),
+                   .alu_BI        (alu_BI),
+                   .alu_carry     (alu_carry),
+                   .alu_DAA       (alu_DAA)
+                   );
+
+  alu
+    #(
+      ) inst_alu (
+                  .alu_ctrl       (alu_ctrl),
+                  .alu_AI         (alu_AI),
+                  .alu_BI         (alu_BI),
+                  .alu_carry      (alu_carry),
+                  .alu_DAA        (alu_DAA),
+                  .alu_flags      (alu_flags),
+                  .alu_Y          (alu_Y)
+                  );
 
 endmodule // proc_top_tb
