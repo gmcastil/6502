@@ -11,29 +11,12 @@
 
 module proc
   (
-   input             clk,
-   input             resetn,
-   input [7:0]       rd_data,
+   input         clk,
+   input         resetn,
+   input [7:0]   rd_data,
 
-   output reg [15:0] address,
-
-   // ALU Signals
-   input [7:0]       alu_flags,
-   input [7:0]       alu_Y,
-
-   output [2:0]      alu_ctrl,
-   output [7:0]      alu_AI,
-   output [7:0]      alu_BI,
-   output            alu_carry,
-   output            alu_DAA
+   output reg [15:0] address
    );
-
-  // --- ALU Control
-  parameter ALU_SUM   = 3'b000;
-  parameter ALU_OR    = 3'b001;
-  parameter ALU_XOR   = 3'b010;
-  parameter ALU_AND   = 3'b011;
-  parameter ALU_SR    = 3'b100;
 
   // --- State Machine Indices and Signals
   localparam RESET    = 0;
@@ -58,7 +41,7 @@ module proc
   reg [7:0]     IR;  // instruction register
   reg [7:0]     P;   // processor status register
 
-  // --- Index Into Processor Status Flags (shared with ALU)
+  // --- Status Registers
   localparam NEG   = 7;  // negative result
   localparam OFV   = 6;  // overflow
   localparam BREAK = 4;
@@ -175,23 +158,6 @@ module proc
 
         case ( IR )
 
-          ADC: begin
-            PC        <= PC + 16'b1;
-            address   <= PC + 16'b1;
-
-            alu_ctrl  <= ALU_SUM;
-            alu_AI    <= A;
-            alu_BI    <= rd_data;
-            alu_carry <= P[CARRY];
-            A         <= alu_Y;
-
-            P[NEG]    <= alu_flags[NEG];
-            P[OVF]    <= alu_flags[OVF];
-            P[ZERO]   <= alu_flags[ZERO];
-            P[CARRY]  <= alu_flags[CARRY];
-
-          end
-
           NOP: begin
             PC <= PC + 16'b1;
             address <= PC + 16'b1;
@@ -248,10 +214,6 @@ module proc
     dec_opcode = EMPTY;
 
     case ( IR )
-
-      ADC: begin
-        dec_opcode[FETCH] = 1'b1;
-      end
 
       NOP: begin
         dec_opcode[FETCH] = 1'b1;
