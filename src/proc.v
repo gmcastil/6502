@@ -7,15 +7,25 @@
 // Description: Main module for the MOS 6502 processor core.
 // ----------------------------------------------------------------------------
 
-`include "opcodes.vh"
+// `include "opcodes.vh"
 
 module proc
   (
-   input         clk,
-   input         resetn,
-   input [7:0]   rd_data,
+   input             clk,
+   input             resetn,
+   input [7:0]       rd_data,
 
-   output reg [15:0] address
+   output reg [15:0] address,
+
+   // ALU connections
+   input [7:0] alu_Y,
+   input [7:0] alu_flags,
+
+   output [2:0]      alu_ctrl,
+   output [7:0]      alu_AI,
+   output [7:0]      alu_BI,
+   output            alu_carry,
+   output            alu_BCD
    );
 
   // --- State Machine Indices and Signals
@@ -41,7 +51,7 @@ module proc
   reg [7:0]     IR;  // instruction register
   reg [7:0]     P;   // processor status register
 
-  // --- Status Registers
+  // --- Index Into Processor Status Register (shared with ALU)
   localparam NEG   = 7;  // negative result
   localparam OFV   = 6;  // overflow
   localparam BREAK = 4;
@@ -49,6 +59,12 @@ module proc
   localparam IRQ   = 2;  // enable or disable IRQ line
   localparam ZERO  = 1;
   localparam CARRY = 0;
+
+  // --- Opcodes and Addressing Modes
+  localparam ADC     = 8'h69;
+  localparam NOP     = 8'hEA; //
+  localparam JMP     = 8'h4C; //
+  localparam LDA     = 8'hA9; //
 
   reg [7:0]     oper_LSB;  // first operand
   wire          msb_rd_data;
@@ -58,6 +74,23 @@ module proc
 
   reg [6:0]     dec_opcode;
 
+  // --- ALU Control and Mux Signals
+  parameter SUM = 3'b000;
+  parameter OR  = 3'b001;
+  parameter XOR = 3'b010;
+  parameter AND = 3'b011;
+  parameter SR  = 3'b100;
+
+  localparam select_A = 2'b00;
+  localparam select_X = 2'b01;
+  localparam select_Y = 2'b10;
+
+  reg update_accumulator;
+
+//   reg [1:0]     alu_input_select_A;
+//   reg [1:0]     alu_input_select_B;
+
+  // --- Other Miscellaneous Signals
   assign msb_rd_data = rd_data[7];
 
   // synthesis translate_off
@@ -77,10 +110,13 @@ module proc
   end
   // synthesis translate_on
 
+  // --- Reset Logic
   always @(posedge clk) begin
     if ( resetn == 1'b0 ) begin
       state <= EMPTY;
       state[RESET] <= 1'b1;
+
+      update_accumulator <= 1'b0;
     end else begin
       state <= next;
     end
@@ -151,12 +187,25 @@ module proc
       state[FETCH]: begin
         address <= PC + 16'b1;
         IR <= rd_data;
+        if (update_accumulator == 1'b1) begin
+          // May make more sense to have a case statement here to properly infer a mux
+          A <= alu_Y;
+          update_accumulator <= 1'b0;
+        end
       end
 
       state[DECODE]: begin
         oper_LSB <= rd_data;
 
         case ( IR )
+
+          ADC: begin
+            PC <= PC + 16'b1 + 16'b1;
+            address <= PC + 16'b1 + 16'b1;
+
+
+            update_accumulator <= 1'b1;
+          end
 
           NOP: begin
             PC <= PC + 16'b1;
@@ -215,6 +264,10 @@ module proc
 
     case ( IR )
 
+      ADC: begin
+        dec_opcode[FETCH] = 1'b1;
+      end
+
       NOP: begin
         dec_opcode[FETCH] = 1'b1;
       end
@@ -235,3 +288,43 @@ module proc
   end // block: OPCODE_DECODER
 
 endmodule // proc
+
+  // always @(*) begin: ALU_INPUT_MUX_A
+
+  //   case ( alu_input_select_A )
+
+  //     select_X: begin
+  //       alu_AI = X;
+  //     end
+
+  //     select_Y: begin
+  //       alu_AI = Y;
+  //     end
+
+  //     select_A: begin
+  //       alu_AI = A;
+  //     end
+
+  //     default: begin end
+  //   endcase // case ( alu_input_select_A )
+  // end
+
+  // always @(*) begin: ALU_INPUT_MUX_B
+
+  //   case ( alu_input_select_B )
+
+  //     select_X: begin
+  //       alu_BI = X;
+  //     end
+
+  //     select_Y: begin
+  //       alu_BI = Y;
+  //     end
+
+  //     select_A: begin
+  //       alu_BI = A;
+  //     end
+
+  //     default: begin end
+  //   endcase // case ( alu_input_select_B )
+  // end

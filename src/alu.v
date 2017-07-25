@@ -7,12 +7,9 @@
 // Description: Early cut at an arithmetic logic unit (ALU) for the
 // 6502 processor. Does not completely support BCD mode yet and has
 // had virtually zero testing performed on it.
-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-  module alu
-    #(
-      // parameter
-      )
+module alu
   (
    input [2:0]      alu_ctrl,
    input [7:0]      alu_AI,
@@ -46,81 +43,81 @@
   always @(*) begin
 
     // Set default values for processor status register
-    N = 1'b0;
-    V = 1'b0;
-    Z = 1'b0;
-    CO = 1'b0;
-    HC = 1'b0;
+    alu_flags[NEG] = 1'b0;
+    alu_flags[OFV] = 1'b0;
+    alu_flags[ZERO] = 1'b0;
+    alu_flags[CARRY] = 1'b0;
+    // alu_flags[HC = 1'b0;
     result = 9'b0;
 
-    case ( ctrl )
+    case ( alu_ctrl )
 
       SUM: begin
         // Affects Flags: N V Z C
-        if (DAA) begin
+        if (alu_DAA) begin
           // BCD addition (not sure if there is a carry here)
         end else begin
           // Binary addition with carry in
-          result = {1'b0, AI} + {1'b0, BI} + CI;
-          Y = result[7:0];
-          CO = result[8];
+          result = {1'b0, alu_AI} + {1'b0, alu_BI} + alu_carry;
+          alu_Y = result[7:0];
+          alu_flags[CARRY] = result[8];
         end
       end
 
       OR: begin
         // Affects Flags: N Z
-        Y = AI | BI;
+        alu_Y = alu_AI | alu_BI;
         // Set if result is zero; else cleared
-        if (Y == 8'b0) begin
-          Z = 1'b0;
+        if (alu_Y == 8'b0) begin
+          alu_flags[ZERO] = 1'b0;
         end else begin
-          Z = 1'b1;
+          alu_flags[ZERO] = 1'b1;
         end
         // Set if MSB is set; else cleared
-        N = Y[7];
+        alu_flags[NEG] = alu_Y[7];
       end
 
-      XOR: begin
-        // Affects Flags: N Z
-        Y = AI ^ BI;
-        // Set if result is zero; else cleared
-        if (Y == 8'b0) begin
-          Z = 1'b0;
-        end else begin
-          Z = 1'b1;
-        end
-        // Set if MSB is set; else cleared
-        N = Y[7];
-      end
+//      XOR: begin
+//        // Affects Flags: N Z
+//        Y = AI ^ BI;
+//        // Set if result is zero; else cleared
+//        if (Y == 8'b0) begin
+//          Z = 1'b0;
+//        end else begin
+//          Z = 1'b1;
+//        end
+//        // Set if MSB is set; else cleared
+//        N = Y[7];
+//      end
 
-      AND: begin
-        // Affects Flags: N Z
-        Y = AI & BI;
-        // Set if result is zero; else cleared
-        if (Y == 8'b0) begin
-          Z = 1'b0;
-        end else begin
-          Z = 1'b1;
-        end
-        // Set if MSB is set; else cleared
-        N = Y[7];
-      end
+//      AND: begin
+//        // Affects Flags: N Z
+//        Y = AI & BI;
+//        // Set if result is zero; else cleared
+//        if (Y == 8'b0) begin
+//          Z = 1'b0;
+//        end else begin
+//          Z = 1'b1;
+//        end
+//        // Set if MSB is set; else cleared
+//        N = Y[7];
+//      end
 
-      SR: begin
-        // Affects Flags: N Z CO
-        Y = {CI, AI[7:1]};
-        // Low bit becomes carry: set if low bit is set; cleared if low bit was
-        // clear
-        CO = AI[0];
-        // Set if result is zero; else cleared
-        if (Y == 8'b0) begin
-          Z = 1'b0;
-        end else begin
-          Z = 1'b1;
-        end
-        // Set if MSB is set; else cleared
-        N = Y[7];
-      end
+//      SR: begin
+//        // Affects Flags: N Z CO
+//        Y = {CI, AI[7:1]};
+//        // Low bit becomes carry: set if low bit is set; cleared if low bit was
+//        // clear
+//        CO = AI[0];
+//        // Set if result is zero; else cleared
+//        if (Y == 8'b0) begin
+//          Z = 1'b0;
+//        end else begin
+//          Z = 1'b1;
+//        end
+//        // Set if MSB is set; else cleared
+//        N = Y[7];
+//      end
 
       default: begin end
 
