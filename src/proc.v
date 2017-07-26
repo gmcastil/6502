@@ -7,7 +7,7 @@
 // Description: Main module for the MOS 6502 processor core.
 // ----------------------------------------------------------------------------
 
-// `include "./include/opcodes.vh"
+`include "./include/opcodes.vh"
 
 module proc
   (
@@ -63,10 +63,10 @@ module proc
   localparam CARRY  = 0;
 
   // --- Opcodes and Addressing Modes
-  localparam ADC     = 8'h69;
-  localparam NOP     = 8'hEA; //
-  localparam JMP     = 8'h4C; //
-  localparam LDA     = 8'hA9; //
+  // localparam ADC     = 8'h69;
+  // localparam NOP     = 8'hEA; //
+  // localparam JMP     = 8'h4C; //
+  // localparam LDA     = 8'hA9; //
 
   reg [7:0]     oper_LSB;  // first operand
   wire          msb_rd_data;
@@ -104,17 +104,17 @@ module proc
     endcase
 
   end
-  
+
   reg [(8*3)-1:0] IR_ascii;
   always @(*) begin
-  
+
     case ( IR )
       8'h69: IR_ascii <= "ADC";
       8'hEA: IR_ascii <= "NOP";
       8'h4C: IR_ascii <= "JMP";
       8'hA9: IR_ascii <= "LDA";
     endcase
-  
+
   end
   // synthesis translate_on
 
@@ -125,12 +125,12 @@ module proc
       state[RESET] <= 1'b1;
 
       update_accumulator <= 1'b0;
-      
+
       X <= 8'b0;
       Y <= 8'b0;
       P <= 8'b0;
       S <= { 1'b1, 8'hFF };
-      
+
     end else begin
       state <= next;
     end

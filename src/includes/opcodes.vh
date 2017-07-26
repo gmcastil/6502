@@ -46,28 +46,24 @@
 // Also note that each instruction will affect the status of processor flags
 // These data are not included here.  See chapter 18 in [1] for details.
 
+`ifndef OPCODES
 
+`define OPCODES
+
+localparam
   //
   // Add With Carry (ADC)
   //
   //        Opcode     Addr Mode          Syntax        Bytes   Cycles   Notes    Implemented?
   //        ------     ---------          ------        ------  ------   -----    ------------
-parameter  ADC     = 8'h69;
-  // Immediate          ADC #const    2       2        1,4
-parameter  ADC_A   = 8'h6D;
-  // Absolute           ADC addr      3       4        1,4
-parameter  ADC_Z   = 8'h65;
-  // ZP                 ADC zp        2       3        1,2,4
-parameter  ADC_X   = 8'h7D;
-  // Absolute X         ADC addr, X   3       4        1,3,4
-parameter  ADC_Y   = 8'h79;
-  // Absolute Y         ADC addr, Y   3       4        1,3,4
-parameter  ADC_ZX  = 8'h75;
-  // ZP index X         ADC zp, X     2       4        1,2,4
-parameter  ADC_ZIX = 8'h61;
-  // ZP ind indirect X  ADC (zp, X)   2       6        1,2,4
-parameter  ADC_ZIY = 8'h71;  // ZP indirect ind Y  ADC (zp), Y   2       5        1,2,3,4
-
+  ADC     = 8'h69,  // Immediate          ADC #const    2       2        1,4
+  ADC_A   = 8'h6D,  // Absolute           ADC addr      3       4        1,4
+  ADC_Z   = 8'h65,  // ZP                 ADC zp        2       3        1,2,4
+  ADC_X   = 8'h7D,  // Absolute X         ADC addr, X   3       4        1,3,4
+  ADC_Y   = 8'h79,  // Absolute Y         ADC addr, Y   3       4        1,3,4
+  ADC_ZX  = 8'h75,  // ZP index X         ADC zp, X     2       4        1,2,4
+  ADC_ZIX = 8'h61,  // ZP ind indirect X  ADC (zp, X)   2       6        1,2,4
+  ADC_ZIY = 8'h71,  // ZP indirect ind Y  ADC (zp), Y   2       5        1,2,3
   //
   // And Accumulator With Memory (AND)
   //
@@ -228,8 +224,10 @@ parameter  ADC_ZIY = 8'h71;  // ZP indirect ind Y  ADC (zp), Y   2       5      
   //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
   //        ------     ---------      ------        ------  ------   -----    ------------
 
-parameter NOP = 8'hEA; //
-parameter JMP = 8'h4C; //
-parameter LDA = 8'hA9; //
+  NOP = 8'hEA, //
+  JMP = 8'h4C, //
+  LDA = 8'hA9;
+ //
 
 // -*- var-name:
+`endif //  `ifndef OPCODES
