@@ -28,14 +28,15 @@ module alu
   parameter AND = 3'b011;
   parameter SR  = 3'b100;
 
-  // --- Index Into ALU Status Flags (shared with processor)
-  localparam NEG   = 7;  // negative result
-  localparam OFV   = 6;  // overflow
-  localparam BREAK = 4;
-  localparam BCD   = 3;  // mode for add and subtract
-  localparam IRQ   = 2;  // enable or disable IRQ line
-  localparam ZERO  = 1;
-  localparam CARRY = 0;
+  // --- Indices Into ALU Status Flags (shared with processor)
+  localparam NEG    = 7;  // negative result
+  localparam OVF    = 6;  // overflow
+  localparam UNUSED = 5;
+  localparam BREAK  = 4;
+  localparam BCD    = 3;  // mode for add and subtract
+  localparam IRQ    = 2;  // enable or disable IRQ line
+  localparam ZERO   = 1;
+  localparam CARRY  = 0;
 
   // Signals used in the case statement
   reg [8:0]         result;
@@ -44,7 +45,7 @@ module alu
 
     // Set default values for processor status register
     alu_flags[NEG] = 1'b0;
-    alu_flags[OFV] = 1'b0;
+    alu_flags[OVF] = 1'b0;
     alu_flags[ZERO] = 1'b0;
     alu_flags[CARRY] = 1'b0;
     // alu_flags[HC = 1'b0;

@@ -7,7 +7,7 @@
 // Description: Main module for the MOS 6502 processor core.
 // ----------------------------------------------------------------------------
 
-// `include "opcodes.vh"
+`include "./include/opcodes.vh"
 
 module proc
   (
@@ -18,14 +18,14 @@ module proc
    output reg [15:0] address,
 
    // ALU connections
-   input [7:0] alu_Y,
-   input [7:0] alu_flags,
+   input [7:0]       alu_Y,
+   input [7:0]       alu_flags,
 
-   output [2:0]      alu_ctrl,
-   output [7:0]      alu_AI,
-   output [7:0]      alu_BI,
-   output            alu_carry,
-   output            alu_BCD
+   output reg [2:0]  alu_ctrl,
+   output reg [7:0]  alu_AI,
+   output reg [7:0]  alu_BI,
+   output reg        alu_carry,
+   output reg        alu_DAA
    );
 
   // --- State Machine Indices and Signals
@@ -37,10 +37,11 @@ module proc
   localparam EXECUTE  = 5;
   localparam DECODE   = 6;
 
-  localparam EMPTY    = 7'b0;  // Zero out the state vector more explicitly
+  reg [6:0]          next;
+  reg [6:0]          state;
 
-  reg [6:0]     next;
-  reg [6:0]     state;
+  // This allows zeroing out the state vector explicitly
+  localparam EMPTY    = 7'b0;
 
   // --- Processor Registers
   reg [7:0]     A;   // accumulator
@@ -51,14 +52,15 @@ module proc
   reg [7:0]     IR;  // instruction register
   reg [7:0]     P;   // processor status register
 
-  // --- Index Into Processor Status Register (shared with ALU)
-  localparam NEG   = 7;  // negative result
-  localparam OFV   = 6;  // overflow
-  localparam BREAK = 4;
-  localparam BCD   = 3;  // mode for add and subtract
-  localparam IRQ   = 2;  // enable or disable IRQ line
-  localparam ZERO  = 1;
-  localparam CARRY = 0;
+  // --- Indices Into Processor Status Register (shared with ALU)
+  localparam NEG    = 7;  // negative result
+  localparam OVF    = 6;  // overflow
+  localparam UNUSED = 5;
+  localparam BREAK  = 4;
+  localparam BCD    = 3;  // mode for add and subtract
+  localparam IRQ    = 2;  // enable or disable IRQ line
+  localparam ZERO   = 1;
+  localparam CARRY  = 0;
 
   // --- Opcodes and Addressing Modes
   localparam ADC     = 8'h69;
@@ -69,6 +71,7 @@ module proc
   reg [7:0]     oper_LSB;  // first operand
   wire          msb_rd_data;
 
+  // --- Reset and IRQ Vectors
   localparam RESET_LSB = 16'hFFFC;
   localparam RESET_MSB = 16'hFFFD;
 
@@ -81,14 +84,7 @@ module proc
   parameter AND = 3'b011;
   parameter SR  = 3'b100;
 
-  localparam select_A = 2'b00;
-  localparam select_X = 2'b01;
-  localparam select_Y = 2'b10;
-
   reg update_accumulator;
-
-//   reg [1:0]     alu_input_select_A;
-//   reg [1:0]     alu_input_select_B;
 
   // --- Other Miscellaneous Signals
   assign msb_rd_data = rd_data[7];
@@ -203,6 +199,11 @@ module proc
             PC <= PC + 16'b1 + 16'b1;
             address <= PC + 16'b1 + 16'b1;
 
+            alu_ctrl <= SUM;
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_carry <= P[CARRY];
+            alu_DAA <= P[BCD];
 
             update_accumulator <= 1'b1;
           end
