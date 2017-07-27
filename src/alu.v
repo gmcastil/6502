@@ -14,19 +14,19 @@ module alu
    input [2:0]      alu_ctrl,
    input [7:0]      alu_AI,
    input [7:0]      alu_BI,
-   input            alu_carry, // carry in
-   input            alu_DAA,   // BCD enable
+   input            alu_carry,
+   input            alu_BCD,
 
    output reg [7:0] alu_flags,
    output reg [7:0] alu_Y
    );
 
   // --- Control Signals
-  parameter SUM = 3'b000;
-  parameter OR  = 3'b001;
-  parameter XOR = 3'b010;
-  parameter AND = 3'b011;
-  parameter SR  = 3'b100;
+  localparam SUM    = 3'b000;
+  localparam OR     = 3'b001;
+  localparam XOR    = 3'b010;
+  localparam ALU_AND    = 3'b011;
+  localparam SR     = 3'b100;
 
   // --- Indices Into ALU Status Flags (shared with processor)
   localparam NEG    = 7;  // negative result
@@ -38,25 +38,17 @@ module alu
   localparam ZERO   = 1;
   localparam CARRY  = 0;
 
-  // Signals used in the case statement
-  reg [8:0]         result;
+  // --- Other Miscellaneous Signals
+  reg [8:0]         result;  // 9-bits
 
   always @(*) begin
-
-    // Set default values for processor status register
-    alu_flags[NEG] = 1'b0;
-    alu_flags[OVF] = 1'b0;
-    alu_flags[ZERO] = 1'b0;
-    alu_flags[CARRY] = 1'b0;
-    // alu_flags[HC = 1'b0;
-    result = 9'b0;
 
     case ( alu_ctrl )
 
       SUM: begin
         // Affects Flags: N V Z C
-        if (alu_DAA) begin
-          // BCD addition (not sure if there is a carry here)
+        if (alu_BCD == 1'b1) begin
+          // BCD addition
         end else begin
           // Binary addition with carry in
           result = {1'b0, alu_AI} + {1'b0, alu_BI} + alu_carry;
@@ -65,18 +57,18 @@ module alu
         end
       end
 
-      OR: begin
-        // Affects Flags: N Z
-        alu_Y = alu_AI | alu_BI;
-        // Set if result is zero; else cleared
-        if (alu_Y == 8'b0) begin
-          alu_flags[ZERO] = 1'b0;
-        end else begin
-          alu_flags[ZERO] = 1'b1;
-        end
-        // Set if MSB is set; else cleared
-        alu_flags[NEG] = alu_Y[7];
-      end
+      // OR: begin
+      //   // Affects Flags: N Z
+      //   alu_Y = alu_AI | alu_BI;
+      //   // Set if result is zero; else cleared
+      //   if (alu_Y == 8'b0) begin
+      //     alu_flags[ZERO] = 1'b0;
+      //   end else begin
+      //     alu_flags[ZERO] = 1'b1;
+      //   end
+      //   // Set if MSB is set; else cleared
+      //   alu_flags[NEG] = alu_Y[7];
+      // end
 
 //      XOR: begin
 //        // Affects Flags: N Z
@@ -91,18 +83,18 @@ module alu
 //        N = Y[7];
 //      end
 
-//      AND: begin
-//        // Affects Flags: N Z
-//        Y = AI & BI;
-//        // Set if result is zero; else cleared
-//        if (Y == 8'b0) begin
-//          Z = 1'b0;
-//        end else begin
-//          Z = 1'b1;
-//        end
-//        // Set if MSB is set; else cleared
-//        N = Y[7];
-//      end
+      ALU_AND: begin
+        // Affects Flags: N Z
+        alu_Y = alu_AI & alu_BI;
+        // Set if result is zero; else cleared
+        if (alu_Y == 8'b0) begin
+          alu_flags[ZERO] = 1'b1;
+        end else begin
+          alu_flags[ZERO] = 1'b0;
+        end
+        // Set if MSB is set; else cleared
+        alu_flags[NEG] = alu_Y[7];
+      end
 
 //      SR: begin
 //        // Affects Flags: N Z CO

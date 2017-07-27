@@ -7,7 +7,7 @@
 // Description: Main module for the MOS 6502 processor core.
 // ----------------------------------------------------------------------------
 
-`include "./include/opcodes.vh"
+// `include "./include/opcodes.vh"
 
 module proc
   (
@@ -25,7 +25,7 @@ module proc
    output reg [7:0]  alu_AI,
    output reg [7:0]  alu_BI,
    output reg        alu_carry,
-   output reg        alu_DAA
+   output reg        alu_BCD
    );
 
   // --- State Machine Indices and Signals
@@ -63,10 +63,11 @@ module proc
   localparam CARRY  = 0;
 
   // --- Opcodes and Addressing Modes
-  // localparam ADC     = 8'h69;
-  // localparam NOP     = 8'hEA; //
-  // localparam JMP     = 8'h4C; //
-  // localparam LDA     = 8'hA9; //
+  localparam ADC     = 8'h69;
+  localparam NOP     = 8'hEA; //
+  localparam JMP     = 8'h4C; //
+  localparam LDA     = 8'hA9; //
+  localparam AND     = 8'h29; //
 
   reg [7:0]     oper_LSB;  // first operand
   wire          msb_rd_data;
@@ -81,7 +82,7 @@ module proc
   parameter SUM = 3'b000;
   parameter OR  = 3'b001;
   parameter XOR = 3'b010;
-  parameter AND = 3'b011;
+  parameter ALU_AND = 3'b011;
   parameter SR  = 3'b100;
 
   reg update_accumulator;
@@ -109,6 +110,7 @@ module proc
   always @(*) begin
 
     case ( IR )
+      8'h29: IR_ascii <= "AND";
       8'h69: IR_ascii <= "ADC";
       8'hEA: IR_ascii <= "NOP";
       8'h4C: IR_ascii <= "JMP";
@@ -221,7 +223,18 @@ module proc
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_carry <= P[CARRY];
-            alu_DAA <= P[BCD];
+            alu_BCD <= P[BCD];
+
+            update_accumulator <= 1'b1;
+          end
+
+          AND: begin
+            PC <= PC + 16'b1 + 16'b1;
+            address <= PC + 16'b1 + 16'b1;
+
+            alu_ctrl <= ALU_AND;
+            alu_AI <= A;
+            alu_BI <= rd_data;
 
             update_accumulator <= 1'b1;
           end
@@ -287,6 +300,10 @@ module proc
         dec_opcode[FETCH] = 1'b1;
       end
 
+      AND: begin
+        dec_opcode[FETCH] = 1'b1;
+      end
+
       NOP: begin
         dec_opcode[FETCH] = 1'b1;
       end
@@ -307,43 +324,3 @@ module proc
   end // block: OPCODE_DECODER
 
 endmodule // proc
-
-  // always @(*) begin: ALU_INPUT_MUX_A
-
-  //   case ( alu_input_select_A )
-
-  //     select_X: begin
-  //       alu_AI = X;
-  //     end
-
-  //     select_Y: begin
-  //       alu_AI = Y;
-  //     end
-
-  //     select_A: begin
-  //       alu_AI = A;
-  //     end
-
-  //     default: begin end
-  //   endcase // case ( alu_input_select_A )
-  // end
-
-  // always @(*) begin: ALU_INPUT_MUX_B
-
-  //   case ( alu_input_select_B )
-
-  //     select_X: begin
-  //       alu_BI = X;
-  //     end
-
-  //     select_Y: begin
-  //       alu_BI = Y;
-  //     end
-
-  //     select_A: begin
-  //       alu_BI = A;
-  //     end
-
-  //     default: begin end
-  //   endcase // case ( alu_input_select_B )
-  // end

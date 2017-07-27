@@ -31,7 +31,7 @@ module proc_top_tb ();
   wire [7:0]    alu_AI;
   wire [7:0]    alu_BI;
   wire          alu_carry;
-  wire          alu_DAA;
+  wire          alu_BCD;
 
   wire [7:0]    alu_flags;
   wire [7:0]    alu_Y;
@@ -97,7 +97,7 @@ module proc_top_tb ();
                    .alu_AI        (alu_AI),
                    .alu_BI        (alu_BI),
                    .alu_carry     (alu_carry),
-                   .alu_DAA       (alu_DAA)
+                   .alu_BCD       (alu_BCD)
                    );
 
   alu
@@ -107,7 +107,7 @@ module proc_top_tb ();
                   .alu_AI         (alu_AI),
                   .alu_BI         (alu_BI),
                   .alu_carry      (alu_carry),
-                  .alu_DAA        (alu_DAA),
+                  .alu_BCD        (alu_BCD),
                   .alu_flags      (alu_flags),
                   .alu_Y          (alu_Y)
                   );
