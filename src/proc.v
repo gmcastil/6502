@@ -79,11 +79,11 @@ module proc
   reg [6:0]     dec_opcode;
 
   // --- ALU Control and Mux Signals
-  parameter SUM = 3'b000;
-  parameter OR  = 3'b001;
-  parameter XOR = 3'b010;
-  parameter ALU_AND = 3'b011;
-  parameter SR  = 3'b100;
+  localparam SUM = 3'b000;
+  localparam OR  = 3'b001;
+  localparam XOR = 3'b010;
+  localparam AND = 3'b011;
+  localparam SR  = 3'b100;
 
   reg update_accumulator;
 
@@ -215,11 +215,11 @@ module proc
 
         case ( IR )
 
-          ADC: begin
-            PC <= PC + 16'b1 + 16'b1;
-            address <= PC + 16'b1 + 16'b1;
+          ADC_imm: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
 
-            alu_ctrl <= SUM;
+            alu_ctrl <= ALU_SUM;
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_carry <= P[CARRY];
@@ -228,11 +228,14 @@ module proc
             update_accumulator <= 1'b1;
           end
 
-          AND: begin
-            PC <= PC + 16'b1 + 16'b1;
-            address <= PC + 16'b1 + 16'b1;
+          ADC_abs: begin
+            PC <= PC + 16'd
 
-            alu_ctrl <= ALU_AND;
+          AND: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_ctrl <= AND;
             alu_AI <= A;
             alu_BI <= rd_data;
 
@@ -240,17 +243,17 @@ module proc
           end
 
           NOP: begin
-            PC <= PC + 16'b1;
-            address <= PC + 16'b1;
+            PC <= PC + 16'd1;
+            address <= PC + 16'd1;
           end
 
           JMP: begin
-            address <= PC + 16'b1 + 16'b1;
+            address <= PC + 16'd2;
           end
 
           LDA: begin
-            PC      <= PC + 16'b1 + 16'b1;
-            address <= PC + 16'b1 + 16'b1;
+            PC      <= PC + 16'd2;
+            address <= PC + 16'd2;
             A       <= rd_data;
             P[NEG]  <= msb_rd_data;
 
@@ -296,7 +299,7 @@ module proc
 
     case ( IR )
 
-      ADC: begin
+      ADC_imm: begin
         dec_opcode[FETCH] = 1'b1;
       end
 
@@ -313,6 +316,10 @@ module proc
       end
 
       LDA: begin
+        dec_opcode[FETCH] = 1'b1;
+      end
+
+      ORA_imm: begin
         dec_opcode[FETCH] = 1'b1;
       end
 

@@ -25,7 +25,7 @@ module alu
   localparam SUM    = 3'b000;
   localparam OR     = 3'b001;
   localparam XOR    = 3'b010;
-  localparam ALU_AND    = 3'b011;
+  localparam AND    = 3'b011;
   localparam SR     = 3'b100;
 
   // --- Indices Into ALU Status Flags (shared with processor)
@@ -83,7 +83,7 @@ module alu
 //        N = Y[7];
 //      end
 
-      ALU_AND: begin
+      AND: begin
         // Affects Flags: N Z
         alu_Y = alu_AI & alu_BI;
         // Set if result is zero; else cleared
