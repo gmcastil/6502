@@ -13,23 +13,24 @@
 //
 // [1] D. Eyes and R. Lichty, Programming the 65816: Including the 6502, 65C02
 //     and 65802. New York, NY: Prentice Hall, 1986.
+//
+// [2] http://www.oxyron.de/html/opcodes02.html
 // ----------------------------------------------------------------------------
 
-// A convention for identifying addressing modes:
+// A convention for identifying addressing modes (from [2]):
 //
-// <none> Immediate or accumulator                         DEX
-// IM     Immediate                                        LDA  #55
-// A      Absolute                                         LDA  $2000
-// PCR    PC relative                                      BEQ  LABEL12
-// S      Stack                                            PHA
-// Z      Zero page                                        LDA  $81
-// X      Absolute indexed with X                          LDA  $2000, X
-// Y      Absolute indexed with Y                          LDA  $2000, Y
-// ZX     Zero page indexed with X                         LDA  $55, X
-// ZY     Zero page indexed with Y                         LDA  $55, Y
-// AI     Absolute indirect                                JMP  ($1020)
-// ZIX    Zero page indexed indirect with X (preindexed)   LDA  ($55), Y
-// ZIY    Zero page indirect indexed with Y (postindexed)  LDA  ($55, Y)
+// imm   Immediate                           #$00
+// abs   Absolute                            $0000
+// zp    Zero page                           $00
+// abx   Absolute indexed with X             $0000, X
+// aby   Absolute indexed with Y             $0000, Y
+// zpx   Zero page indexed with X            $00, X
+// zpy   Zero page indexed with Y            $00, Y
+// izx   Zero page indexed indirect with X   ($00, X)
+// izy   Zero page indirect indexed with Y   ($00), Y
+// ind   Absolute indirect                   ($0000)
+// rel   Program counter relative            $0000
+
 
 // Note that there is some asymmetry here between indexed indirect mode
 // (used only with the X register) and indirect indexed mode (used only with
@@ -38,13 +39,9 @@
 
 // Some notes on cycle counting:
 //
-// 1 -
-// 2 -
-// 3 -
-// 4 -
+// 1 - Add 1 cycle if adding index crosses a page boundary
 
 // Also note that each instruction will affect the status of processor flags
-// These data are not included here.  See chapter 18 in [1] for details.
 
 `ifndef OPCODES
 
@@ -52,182 +49,47 @@
 
 localparam
   //
-  // Add With Carry (ADC)
+  // Add With Carry
   //
-  //        Opcode     Addr Mode          Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------          ------        ------  ------   -----    ------------
-  ADC     = 8'h69,  // Immediate          ADC #const    2       2        1,4
-  ADC_A   = 8'h6D,  // Absolute           ADC addr      3       4        1,4
-  ADC_Z   = 8'h65,  // ZP                 ADC zp        2       3        1,2,4
-  ADC_X   = 8'h7D,  // Absolute X         ADC addr, X   3       4        1,3,4
-  ADC_Y   = 8'h79,  // Absolute Y         ADC addr, Y   3       4        1,3,4
-  ADC_ZX  = 8'h75,  // ZP index X         ADC zp, X     2       4        1,2,4
-  ADC_ZIX = 8'h61,  // ZP ind indirect X  ADC (zp, X)   2       6        1,2,4
-  ADC_ZIY = 8'h71,  // ZP indirect ind Y  ADC (zp), Y   2       5        1,2,3
+  // Flags Affected: n v - - - z c
   //
-  // And Accumulator With Memory (AND)
+  //        Opcode      Bytes   Cycles   Notes
+  ADC_imm = 8'h69,  //  2       2
+  ADC_abs = 8'h62,  //  3       4
+  ADC_zp  = 8'h65,  //  2       3
+  ADC_abx = 8'h7D,  //  3       4        1
+  ADC_aby = 8'h79,  //  3       4        1
+  ADC_zpx = 8'h75,  //  2       4
+  ADC_izx = 8'h61,  //  2       6
+  ADC_izy = 8'h71;  //  2       5
+
+localparam
   //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
+  // OR Accumulator with Memory
+  //
+  // Flags Affected: n - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes
+  ORA_imm = 8'h09,  //  2       2
+  ORA_abs = 8'h0D,  //  3       4
+  ORA_zp  = 8'h05,  //
+  ORA_abx = 8'h1D,  //
+  ORA_aby = 8'h19,  //
+  ORA_zpx = 8'h15,  //
+  ORA_izx = 8'h01,  //
+  ORA_izy = 8'h11;  //
 
 
-  //
-  // Shift Memory or Accumulator Left (ASL)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
 
 
-  //
-  // Branch if Carry Clear (BCC)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Branch if Carry Set (BCS)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Branch if Equal (BEQ)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Test Memory Bits Against Accumulator (BIT)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Brand if Minus (BMI)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Branch if Not Equal (BNE)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Branch if Plus (BPL)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Software Break (BRK)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Branch if Overflow Clear (BVC)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Branch if Overflow Set (BVS)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Clear Carry Flag (CLC)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Clear Decimal Mode Flag (CLD)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Clear Interrupt Disable Flag (CLI)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Clear Overflow Flag (CLV)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Compare Accumulator with Memory (CMP)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Compare Index Register X with Memory (CPX)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Compare Index Register Y with Memory (CPY)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Decrement (DEC)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Decrement Index Register X (DEX)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Decrement Index Register Y (DEY)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
-
-
-  //
-  // Jump (JMP)
-  //
-  //        Opcode     Addr Mode      Syntax        Bytes   Cycles   Notes    Implemented?
-  //        ------     ---------      ------        ------  ------   -----    ------------
+localparam
 
   NOP = 8'hEA, //
   JMP = 8'h4C, //
   LDA = 8'hA9;
  //
 
-// -*- var-name:
+
 `endif //  `ifndef OPCODES
+
+// -*- var-name:
