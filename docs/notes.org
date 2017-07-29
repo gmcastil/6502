@@ -10,3 +10,6 @@
 | JMP       | 4C     | 2         |      |
 | LDA       | 49     | 1         |      |
 |           |        |           |      |
+* Conventions
+Use 16'd1 or 16'd3 for incrementing program counter
+Use 1'b1 for things which are single bits
