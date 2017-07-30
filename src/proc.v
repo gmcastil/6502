@@ -47,6 +47,14 @@ module proc
   localparam ZERO      = 1;
   localparam CARRY     = 0;
 
+  // --- ALU Control and Mux Signals
+  localparam SUM = 3'b000;
+  localparam OR  = 3'b001;
+  localparam XOR = 3'b010;
+  localparam AND = 3'b011;
+  localparam SR  = 3'b100;
+  localparam SL  = 3'b101;
+
   // --- Reset and IRQ Vectors
   localparam RESET_LSB = 16'hFFFC;
   localparam RESET_MSB = 16'hFFFD;
@@ -87,10 +95,12 @@ module proc
   //
   reg [11:0]         update_flags;
 
-  // Also create some masks for each instruction so that we don't have to
-  // manually encode these for each opcode
+  // Also create some masks for each instruction to avoid a need to manually
+  // encode them for each opcode
   localparam ADC_MASK = 12'b1000_1100_0011;
   localparam ORA_MASK = 12'b0000_1000_0010;
+  localparam AND_MASK = 12'b0000_1000_0010;
+  localparam ASL_MASK = 12'b1000_1000_0011;
 
   reg [7:0]          operand_LSB;
   reg [7:0]          operand_MSB;
@@ -163,17 +173,18 @@ module proc
       end
 
       state[ABS_2]: begin
+        if ( IR == ASL_abs ) begin
+          next[ABS_3] = 1'b1;
         // 4 cycle instructions
-        next[FETCH] = 1'b1;
+        end else begin
+          next[FETCH] = 1'b1;
+        end
       end
 
-      // This state will be needed for instructions that take longer than 4
-      // cycles to execute (UNUSED NOW)
       state[ABS_3]: begin
         next[ABS_4] = 1'b1;
       end
 
-      // UNUSED NOW
       state[ABS_4]: begin
         // 6 cycle instructions
         next[FETCH] = 1'b1;
@@ -208,13 +219,16 @@ module proc
 
       state[DECODE]: begin
 
-        operand_LSB <= rd_data;  // PC + 1
+        operand_LSB <= rd_data;  // Read PC + 1
 
         case ( IR )
 
           ADC_abs,
+          AND_abs,
+          ASL_abs,
+          BIT_abs,
           ORA_abs: begin
-            address <= PC + 16'd2;  // PC + 2
+            address <= PC + 16'd2;
           end
 
           default: begin end
@@ -222,13 +236,17 @@ module proc
 
       end
 
+      // Absolute addressing mode transitions
       state[ABS_1]: begin
 
-        operand_MSB <= rd_data;  // PC + 2
+        operand_MSB <= rd_data;  // Read PC + 2
 
         case ( IR )
 
           ADC_abs,
+          AND_abs,
+          ASL_abs,
+          BIT_abs,
           ORA_abs: begin
             address <= { rd_data, operand_LSB };
           end
@@ -254,6 +272,38 @@ module proc
             update_flags <= ADC_UPDATE_MASK;
           end
 
+          AND_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= AND;
+
+            update_flags <= AND_UPDDATE_MASK;
+          end
+
+          ASL_abs: begin
+            // For some reason, left and right shifts require six clock cycles
+            // rather than four, so stall a couple clocks before muxing the
+            // output of the ALU
+            alu_AI <= rd_data;
+          end
+
+
+          // BIT sets the Z flag as though the value in the address tested were
+          // ANDed with the accumulator. The S and V flags are set to match bits
+          // 7 and 6 respectively in the value stored at the tested address.
+          BIT_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= AND;
+
+          end
+
           ORA_abs: begin
             PC <= PC + 16'd2;
             address <= PC + 16'd2;
@@ -265,8 +315,6 @@ module proc
             update_flags <= ORA_UPDATE_MASK;
           end
 
-
-
           default: begin end
         endcase // case ( IR )
 
@@ -276,22 +324,21 @@ module proc
       end
 
       state[ABS_4]: begin
+
+        case ( IR )
+
+          ASL_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_ctrl <= SL;
+            update_flags <= ASL_UPDATE_MASK;
+          end
+
+          default: begin end
+        endcase // case ( IR )
+
       end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   end // block: INSTRUCTION_CYCLE
 
@@ -306,9 +353,9 @@ module proc
 
     case ( IR )
 
-      ADC_abs,
-      AND_abs,
-      ASL_abs,
+      ADC_abs,  // X
+      AND_abs,  // X
+      ASL_abs,  // X
       BIT_abs,
       CMP_abs,
       CPX_abs,
@@ -322,7 +369,7 @@ module proc
       LDX_abs,
       LDY_abs,
       LSR_abs,
-      ORA_abs,
+      ORA_abs,  // X
       ROL_abs,
       ROR_abs,
       SBC_abs,

@@ -27,6 +27,7 @@ module alu
   localparam XOR    = 3'b010;
   localparam AND    = 3'b011;
   localparam SR     = 3'b100;
+  localparam SL     = 3'b101;
 
   // --- Indices Into ALU Status Flags (shared with processor)
   localparam NEG    = 7;  // negative result

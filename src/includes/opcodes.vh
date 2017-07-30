@@ -65,12 +65,40 @@ localparam
 
 localparam
   //
+  // AND Accumulator with Memory
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  AND_abs = 8'h2D;  //  3       4                Y
+
+localparam
+  //
+  // Shift Memory or Accumulator Left
+  //
+  // Flags Affected: n - - - - - z c
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  ASL_abs = 8'h0E;  //  3       6                Y
+
+localparam
+  //
+  // Test Memory Bits Against Accumulator
+  //
+  // Flags Affected: n v - - - - z - (other than immediate)
+  //                 - - - - - - z - (immediate only)
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  BIT_abs = 8'h2C;  //  3       4
+
+localparam
+  //
   // OR Accumulator with Memory
   //
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ORA_abs = 8'h0D,  //  3       4
+  ORA_abs = 8'h0D,  //  3       4                Y
 
 localparam
 
