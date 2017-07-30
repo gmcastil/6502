@@ -89,7 +89,16 @@ localparam
   //                 - - - - - - z - (immediate only)
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  BIT_abs = 8'h2C;  //  3       4
+  BIT_abs = 8'h2C;  //  3       4                No - special flags
+
+localparam
+  //
+  // Compare Accumulator with Memory
+  //
+  // Flags Affected: n - - - - - z c
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  CMP_abs = 8'hCD;  //  3       4                No - special flags
 
 localparam
   //

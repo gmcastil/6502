@@ -48,12 +48,13 @@ module proc
   localparam CARRY     = 0;
 
   // --- ALU Control and Mux Signals
-  localparam SUM = 3'b000;
+  localparam ADD = 3'b000;
   localparam OR  = 3'b001;
   localparam XOR = 3'b010;
   localparam AND = 3'b011;
   localparam SR  = 3'b100;
   localparam SL  = 3'b101;
+  localparam SUB = 3'b110;
 
   // --- Reset and IRQ Vectors
   localparam RESET_LSB = 16'hFFFC;
@@ -95,6 +96,13 @@ module proc
   //
   reg [11:0]         update_flags;
 
+  // There are some special instructions involving the ALU that use the results
+  // from the ALU in an abnormal way.  When these signals are true, the setting
+  // of the processor status flags will need to be micromanaged a bit, using the
+  // signals from the ALU.  Such is the price of pipelining.
+  reg                update_bit;
+  reg                update_compare;
+
   // Also create some masks for each instruction to avoid a need to manually
   // encode them for each opcode
   localparam ADC_MASK = 12'b1000_1100_0011;
@@ -122,8 +130,11 @@ module proc
       // Initialize the flag register used to determine what to update
       // after an instruction has been executed
       update_flags <= 12'b0;
+      // Also, clear these special bits too
+      update_bit <= 1'b0;
+      update_compare <= 1'b0;
 
-      // Finally, pipeline the reset vector
+      // Finally, pipeline the reset vector - no point in waiting
       address <= RESET_LSB;
 
     end else begin
@@ -165,7 +176,7 @@ module proc
 
       state[ABS_1]: begin
         // 3 cycle instructions
-        if ( IR == JMP ) begin
+        if ( condition ) begin
           next[FETCH] = 1'b1;
         end else begin
           next[ABS_2] = 1'b1;
@@ -213,7 +224,11 @@ module proc
         address <= PC + 16'd1;
         IR <= rd_data;
         if (update_flags != 12'd0) begin
-          // Update appropriate values from the ALU
+          // Update appropriate values from the ALU and other weirdness from
+          // special instructions that modify the P status flags in odd ways
+
+          // Also, don't forget to clear all these out after doing their
+          // business
         end
       end
 
@@ -227,6 +242,7 @@ module proc
           AND_abs,
           ASL_abs,
           BIT_abs,
+          CMP_abs,
           ORA_abs: begin
             address <= PC + 16'd2;
           end
@@ -247,6 +263,7 @@ module proc
           AND_abs,
           ASL_abs,
           BIT_abs,
+          CMP_abs,
           ORA_abs: begin
             address <= { rd_data, operand_LSB };
           end
@@ -266,7 +283,7 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= SUM;
+            alu_ctrl <= ADD;
             alu_carry <= P[CARRY];
 
             update_flags <= ADC_UPDATE_MASK;
@@ -290,10 +307,6 @@ module proc
             alu_AI <= rd_data;
           end
 
-
-          // BIT sets the Z flag as though the value in the address tested were
-          // ANDed with the accumulator. The S and V flags are set to match bits
-          // 7 and 6 respectively in the value stored at the tested address.
           BIT_abs: begin
             PC <= PC + 16'd2;
             address <= PC + 16'd2;
@@ -302,6 +315,18 @@ module proc
             alu_BI <= rd_data;
             alu_ctrl <= AND;
 
+            update_bit <= 1'b1;
+          end
+
+          CMP_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            update_compare <= 1'b1;
           end
 
           ORA_abs: begin
@@ -446,7 +471,7 @@ endmodule // proc
   reg [6:0]     dec_opcode;
 
   // --- ALU Control and Mux Signals
-  localparam SUM = 3'b000;
+  localparam ADD = 3'b000;
   localparam OR  = 3'b001;
   localparam XOR = 3'b010;
   localparam AND = 3'b011;
@@ -586,7 +611,7 @@ endmodule // proc
             PC <= PC + 16'd2;
             address <= PC + 16'd2;
 
-            alu_ctrl <= ALU_SUM;
+            alu_ctrl <= ALU_ADD;
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_carry <= P[CARRY];

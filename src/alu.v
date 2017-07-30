@@ -22,12 +22,13 @@ module alu
    );
 
   // --- Control Signals
-  localparam SUM    = 3'b000;
+  localparam ADD    = 3'b000;
   localparam OR     = 3'b001;
   localparam XOR    = 3'b010;
   localparam AND    = 3'b011;
   localparam SR     = 3'b100;
   localparam SL     = 3'b101;
+  localparam SUB    = 3'b110;
 
   // --- Indices Into ALU Status Flags (shared with processor)
   localparam NEG    = 7;  // negative result
@@ -46,7 +47,7 @@ module alu
 
     case ( alu_ctrl )
 
-      SUM: begin
+      ADD: begin
         // Affects Flags: N V Z C
         if (alu_BCD == 1'b1) begin
           // BCD addition
