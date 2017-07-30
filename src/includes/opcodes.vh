@@ -102,6 +102,15 @@ localparam
 
 localparam
   //
+  // Exclusive-Or Accumulator with Memory
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  EOR_abs = 8'h4D;  //  3       4
+
+localparam
+  //
   // OR Accumulator with Memory
   //
   // Flags Affected: n - - - - - z -

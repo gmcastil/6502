@@ -243,6 +243,7 @@ module proc
           ASL_abs,
           BIT_abs,
           CMP_abs,
+          EOR_abs,
           ORA_abs: begin
             address <= PC + 16'd2;
           end
@@ -264,6 +265,7 @@ module proc
           ASL_abs,
           BIT_abs,
           CMP_abs,
+          EOR_abs,
           ORA_abs: begin
             address <= { rd_data, operand_LSB };
           end
@@ -297,7 +299,7 @@ module proc
             alu_BI <= rd_data;
             alu_ctrl <= AND;
 
-            update_flags <= AND_UPDDATE_MASK;
+            update_flags <= AND_UPDATE_MASK;
           end
 
           ASL_abs: begin
@@ -327,6 +329,17 @@ module proc
             alu_ctrl <= SUB;
 
             update_compare <= 1'b1;
+          end
+
+          EOR_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= XOR;
+
+            update_flags = XOR_UPDATE_MASK;
           end
 
           ORA_abs: begin
