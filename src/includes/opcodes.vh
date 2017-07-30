@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 // Module:  opcodes.vh
-// Project:
+// Project: MOS 6502 Processor
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    17 July 2017
 //
@@ -90,7 +90,6 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   BIT_abs = 8'h2C;  //  3       4                No - special flags
-
 localparam
   //
   // Compare Accumulator with Memory
@@ -102,12 +101,21 @@ localparam
 
 localparam
   //
+  // Decrement
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  DEC_abs = 8'hCE;  //  3       6
+
+localparam
+  //
   // Exclusive-Or Accumulator with Memory
   //
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  EOR_abs = 8'h4D;  //  3       4
+  EOR_abs = 8'h4D;  //  3       4                Y
 
 localparam
   //

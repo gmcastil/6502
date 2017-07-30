@@ -9,6 +9,8 @@
 // had virtually zero testing performed on it.
 // ----------------------------------------------------------------------------
 
+`include "./includes/params.vh"
+
 module alu
   (
    input [2:0]      alu_ctrl,
@@ -21,27 +23,8 @@ module alu
    output reg [7:0] alu_Y
    );
 
-  // --- Control Signals
-  localparam ADD    = 3'b000;
-  localparam OR     = 3'b001;
-  localparam XOR    = 3'b010;
-  localparam AND    = 3'b011;
-  localparam SR     = 3'b100;
-  localparam SL     = 3'b101;
-  localparam SUB    = 3'b110;
-
-  // --- Indices Into ALU Status Flags (shared with processor)
-  localparam NEG    = 7;  // negative result
-  localparam OVF    = 6;  // overflow
-  localparam UNUSED = 5;
-  localparam BREAK  = 4;
-  localparam BCD    = 3;  // mode for add and subtract
-  localparam IRQ    = 2;  // enable or disable IRQ line
-  localparam ZERO   = 1;
-  localparam CARRY  = 0;
-
-  // --- Other Miscellaneous Signals
-  reg [8:0]         result;  // 9-bits
+  // --- Miscellaneous Signals
+  reg [8:0]         result;  // 9-bits to keep track of the carry
 
   always @(*) begin
 
