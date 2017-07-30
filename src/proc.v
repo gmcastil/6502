@@ -71,6 +71,30 @@ module proc
   reg [255:0]        state;
   reg [255:0]        next;
 
+  // --- Miscellaneous Signals
+
+  // This is used to identify which values need to be updated with the result
+  // from the ALU after execution of an instruction:
+  //
+  // Format:  11 - A
+  //          10 - X
+  //           9 - Y
+  //           8 - S
+  //         7-0 - P
+  //
+  // Initialized to zero and a 1 indicates an update needs to be made to that
+  // particular register or status flag.
+  //
+  reg [11:0]         update_flags;
+
+  // Also create some masks for each instruction so that we don't have to
+  // manually encode these for each opcode
+  localparam ADC_MASK = 12'b1000_1100_0011;
+  localparam ORA_MASK = 12'b0000_1000_0010;
+
+  reg [7:0]          operand_LSB;
+  reg [7:0]          operand_MSB;
+
   // --- Reset and Initialization
   always @(posedge clk) begin
     if ( resetn == 1'b0 ) begin
@@ -87,7 +111,7 @@ module proc
 
       // Initialize the flag register used to determine what to update
       // after an instruction has been executed
-      update_flags <= 8'b0;
+      update_flags <= 12'b0;
 
       // Finally, pipeline the reset vector
       address <= RESET_LSB;
@@ -99,6 +123,11 @@ module proc
 
   // --- State Machine Definition
   always @(*) begin: STATE_MACHINE
+
+    // Each of the various addressing modes has a different path through the
+    // state machine.  The ADDR_MODE_DECODER is used to determine which branch
+    // to take in the DECODE state and additional checks are made in the
+    // following states depending upon the instruction being executed.
 
     next = EMPTY;
 
@@ -124,10 +153,9 @@ module proc
         next[decoded_state] = 1'b1;
       end
 
-
       state[ABS_1]: begin
         // 3 cycle instructions
-        if ( condition ) begin
+        if ( IR == JMP ) begin
           next[FETCH] = 1'b1;
         end else begin
           next[ABS_2] = 1'b1;
@@ -136,24 +164,139 @@ module proc
 
       state[ABS_2]: begin
         // 4 cycle instructions
-        if ( condition ) begin
-          next[FETCH] = 1'b1;
-        end else begin
-          next[ABS_3] = 1'b1;
-        end
+        next[FETCH] = 1'b1;
       end
 
+      // This state will be needed for instructions that take longer than 4
+      // cycles to execute (UNUSED NOW)
       state[ABS_3]: begin
-        if ( condition ) begin
-          next[FETCH] = 1'b1;
-        end else begin
-          next[ABS_4] = 1'b1;
+        next[ABS_4] = 1'b1;
+      end
+
+      // UNUSED NOW
+      state[ABS_4]: begin
+        // 6 cycle instructions
+        next[FETCH] = 1'b1;
       end
 
       default: begin end
     endcase // case ( state )
 
   end // block: STATE_MACHINE
+
+  always @(posedge clk) begin: INSTRUCTION_CYCLE
+
+    case ( 1'b1 )
+
+      state[VECTOR_1]: begin
+        address <= RESET_MSB;
+        PC[7:0] <= rd_data;
+      end
+
+      state[VECTOR_2]: begin
+        address <= { rd_data, PC[7:0] };
+        PC[15:8] <= rd_data;
+      end
+
+      state[FETCH]: begin
+        address <= PC + 16'd1;
+        IR <= rd_data;
+        if (update_flags != 12'd0) begin
+          // Update appropriate values from the ALU
+        end
+      end
+
+      state[DECODE]: begin
+
+        operand_LSB <= rd_data;  // PC + 1
+
+        case ( IR )
+
+          ADC_abs,
+          ORA_abs: begin
+            address <= PC + 16'd2;  // PC + 2
+          end
+
+          default: begin end
+        endcase // case ( IR )
+
+      end
+
+      state[ABS_1]: begin
+
+        operand_MSB <= rd_data;  // PC + 2
+
+        case ( IR )
+
+          ADC_abs,
+          ORA_abs: begin
+            address <= { rd_data, operand_LSB };
+          end
+
+          default: begin end
+        endcase // case ( IR )
+
+      end
+
+      state[ABS_2]: begin
+
+        case ( IR )
+
+          ADC_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUM;
+            alu_carry <= P[CARRY];
+
+            update_flags <= ADC_UPDATE_MASK;
+          end
+
+          ORA_abs: begin
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= OR;
+
+            update_flags <= ORA_UPDATE_MASK;
+          end
+
+
+
+          default: begin end
+        endcase // case ( IR )
+
+      end
+
+      state[ABS_3]: begin
+      end
+
+      state[ABS_4]: begin
+      end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  end // block: INSTRUCTION_CYCLE
+
+
+
 
   always @(*) begin: ADDR_MODE_DECODER
 
@@ -193,14 +336,9 @@ module proc
       end
 
       default: begin end
-
     endcase // case ( IR )
 
-
-
-
-
-
+  end // block: ADDR_MODE_DECODER
 
 endmodule // proc
 

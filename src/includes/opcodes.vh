@@ -51,11 +51,11 @@ localparam
   //
   // Add With Carry
   //
-  // Flags Affected: n v - - - z c
+  // Flags Affected: n v - - - - z c
   //
-  //        Opcode      Bytes   Cycles   Notes
+  //        Opcode      Bytes   Cycles   Notes   Implemented
   ADC_imm = 8'h69,  //  2       2
-  ADC_abs = 8'h62,  //  3       4
+  ADC_abs = 8'h62,  //  3       4                Y
   ADC_zp  = 8'h65,  //  2       3
   ADC_abx = 8'h7D,  //  3       4        1
   ADC_aby = 8'h79,  //  3       4        1
@@ -67,9 +67,9 @@ localparam
   //
   // OR Accumulator with Memory
   //
-  // Flags Affected: n - - - - z -
+  // Flags Affected: n - - - - - z -
   //
-  //        Opcode      Bytes   Cycles   Notes
+  //        Opcode      Bytes   Cycles   Notes   Implemented
   ORA_abs = 8'h0D,  //  3       4
 
 localparam
