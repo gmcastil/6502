@@ -70,24 +70,14 @@ localparam
   // Flags Affected: n - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes
-  ORA_imm = 8'h09,  //  2       2
   ORA_abs = 8'h0D,  //  3       4
-  ORA_zp  = 8'h05,  //
-  ORA_abx = 8'h1D,  //
-  ORA_aby = 8'h19,  //
-  ORA_zpx = 8'h15,  //
-  ORA_izx = 8'h01,  //
-  ORA_izy = 8'h11;  //
-
-
-
 
 localparam
 
-  NOP = 8'hEA, //
-  JMP = 8'h4C, //
+  NOP = 8'hEA,
+  JMP = 8'h4C,
   LDA = 8'hA9;
- //
+
 
 
 `endif //  `ifndef OPCODES
