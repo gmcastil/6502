@@ -28,6 +28,155 @@ module proc
    output reg        alu_BCD
    );
 
+  // --- Processor Registers
+  reg [7:0]          A;   // accumulator
+  reg [7:0]          X;   // X index register
+  reg [7:0]          Y;   // Y index register
+  reg [8:0]          S;   // stack pointer
+  reg [15:0]         PC;  // program counter
+  reg [7:0]          IR;  // instruction register
+  reg [7:0]          P;   // processor status register
+
+  // --- Indices Into Processor Status Register (shared with ALU)
+  localparam NEG       = 7;
+  localparam OVF       = 6;
+  localparam UNUSED    = 5;
+  localparam BREAK     = 4;
+  localparam BCD       = 3;
+  localparam IRQ       = 2;
+  localparam ZERO      = 1;
+  localparam CARRY     = 0;
+
+  // --- Reset and IRQ Vectors
+  localparam RESET_LSB = 16'hFFFC;
+  localparam RESET_MSB = 16'hFFFD;
+
+  // --- State Machine Indices
+  localparam RESET     = 0;
+  localparam VECTOR_1  = 1;
+  localparam VECTOR_2  = 2;
+  localparam FETCH     = 3;
+  localparam DECODE    = 4;
+
+  // Absolute addressing mode
+  localparam ABS_1     = 5;
+  localparam ABS_2     = 6;
+  localparam ABS_3     = 7;
+  // More to come...
+
+  localparam EMPTY = 256'b0;
+
+  // State register definition - for now, we'll make this big
+  reg [255:0]        state;
+  reg [255:0]        next;
+
+  // --- Reset and Initialization
+  always @(posedge clk) begin
+    if ( resetn == 1'b0 ) begin
+      state <= EMPTY;
+      state[RESET] <= 1'b1;
+
+      // Initialize index and status registers
+      X <= 8'b0;
+      Y <= 8'b0;
+      P <= 8'b0;
+      P[UNUSED] <= 1'b1;
+      // Initialize the stack pointer in case the programmer forgets
+      S <= { 1'b1, 8'hFF };
+
+      // Initialize the flag register used to determine what to update
+      // after an instruction has been executed
+      update_flags <= 8'b0;
+
+      // Finally, pipeline the reset vector
+      address <= RESET_LSB;
+
+    end else begin
+      state <= next;
+    end
+  end
+
+  // --- State Machine Definition
+  always @(*) begin: STATE_MACHINE
+
+    next = EMPTY;
+
+    case ( state )
+
+      state[RESET]: begin
+        next[VECTOR_1] = 1'b1;
+      end
+
+      state[VECTOR_1]: begin
+        next[VECTOR_2] = 1'b1;
+      end
+
+      state[VECTOR_2]: begin
+        next[FETCH] = 1'b1;
+      end
+
+      state[FETCH]: begin
+        next[DECODE] = 1'b1;
+      end
+
+      state[DECODE]: begin
+        next[decoded_state] = 1'b1;
+      end
+
+      state[ABS_1]: begin
+        if ( condition ) begin
+          next[FETCH] = 1'b1;
+        end else begin
+          next[ABS_2] = 1'b1;
+        end
+      end
+
+      state[ABS_2]: begin
+        if ( condition ) begin
+          next[FETCH] = 1'b1;
+        end else begin
+          next[ABS_3] = 1'b1;
+        end
+      end
+
+      state[ABS_3]: begin
+        next[FETCH] = 1'b1;
+      end
+
+    endcase // case ( state )
+
+  end // block: STATE_MACHINE
+
+  always @(*) begin: ADDR_MODE_DECODER
+
+    // The contents of the instruction register are decoded to determine the
+    // path through the state machine, which in turn determines the number of
+    // additional operands that need to be read from memory
+
+    case ( IR )
+
+      ADC_abs: begin
+        decoded_state = ABS_1;
+      end
+
+      default: begin end
+
+    endcase // case ( IR )
+
+
+
+
+
+
+
+endmodule // proc
+
+
+
+
+  /* Commenting all of this out while we revamp everything, but I want to keep it
+     around for easy reference
+
   // --- State Machine Indices and Signals
   localparam RESET    = 0;
   localparam VECTOR_1 = 1;
@@ -331,3 +480,5 @@ module proc
   end // block: OPCODE_DECODER
 
 endmodule // proc
+
+   */
