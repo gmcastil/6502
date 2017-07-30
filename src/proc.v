@@ -143,6 +143,7 @@ module proc
         next[FETCH] = 1'b1;
       end
 
+      default: begin end
     endcase // case ( state )
 
   end // block: STATE_MACHINE
@@ -155,7 +156,32 @@ module proc
 
     case ( IR )
 
-      ADC_abs: begin
+      ADC_abs,
+      AND_abs,
+      ASL_abs,
+      BIT_abs,
+      CMP_abs,
+      CPX_abs,
+      CPY_abs,
+      DEC_abs,
+      EOR_abs,
+      INC_abs,
+      JMP_abs,
+      JSR_abs,
+      LDA_abs,
+      LDX_abs,
+      LDY_abs,
+      LSR_abs,
+      ORA_abs,
+      ROL_abs,
+      ROR_abs,
+      SBC_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs,
+      STZ_abs,
+      TRB_abs,
+      TSB_abs: begin
         decoded_state = ABS_1;
       end
 
