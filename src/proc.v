@@ -62,6 +62,7 @@ module proc
   localparam ABS_1     = 5;
   localparam ABS_2     = 6;
   localparam ABS_3     = 7;
+  localparam ABS_4     = 8;
   // More to come...
 
   localparam EMPTY = 256'b0;
@@ -123,7 +124,9 @@ module proc
         next[decoded_state] = 1'b1;
       end
 
+
       state[ABS_1]: begin
+        // 3 cycle instructions
         if ( condition ) begin
           next[FETCH] = 1'b1;
         end else begin
@@ -132,6 +135,7 @@ module proc
       end
 
       state[ABS_2]: begin
+        // 4 cycle instructions
         if ( condition ) begin
           next[FETCH] = 1'b1;
         end else begin
@@ -140,7 +144,10 @@ module proc
       end
 
       state[ABS_3]: begin
-        next[FETCH] = 1'b1;
+        if ( condition ) begin
+          next[FETCH] = 1'b1;
+        end else begin
+          next[ABS_4] = 1'b1;
       end
 
       default: begin end
