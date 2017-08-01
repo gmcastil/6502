@@ -6,9 +6,9 @@
 
 # Common paths and directories for scripting
 export SRC_DIR="../src/"
-export WORKING_DIR="./working/"
-export LOG_DIR="$WORKING_DIR/logs/"
-export REPORT_DIR="$WORKING_DIR/reports/"
+export BUILD_DIR="../build/"
+export LOG_DIR="$BUILD_DIR/logs/"
+export REPORT_DIR="$BUILD_DIR/reports/"
 
 # Common executable paths
 export xilinx="/opt/Xilinx/Vivado/2017.1/bin/"

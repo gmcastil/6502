@@ -15,15 +15,15 @@ if {[file exists $coe_file] == 0} {
 }
 
 # Set some environment variables
-set working_dir "./working"
-if {[file writable $working_dir] == 0} {
+set build_dir "../build"
+if {[file writable $build_dir] == 0} {
     puts "ERROR: No working directory or working directory not writable."
     exit 2
 }
 
 set module_name "memory_block"
-set module_dir "$working_dir/$module_name/"
-set managed_ip_dir "$working_dir/managed_ip_project"
+set module_dir "$build_dir/$module_name/"
+set managed_ip_dir "$build_dir/managed_ip_project"
 
 set part "xc7a35tcpg236-1"
 
@@ -38,7 +38,7 @@ create_ip \
     -library ip \
     -version 8.3 \
     -module_name $module_name \
-    -dir $working_dir
+    -dir $build_dir
 
 set_property -dict [list \
                         CONFIG.Write_Width_A {8} \
