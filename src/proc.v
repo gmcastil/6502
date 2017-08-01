@@ -7,8 +7,8 @@
 // Description: Main module for the MOS 6502 processor core.
 // ----------------------------------------------------------------------------
 
-`include "./includes/opcodes.vh"
-`include "./includes/params.vh"
+`include "opcodes.vh"
+`include "params.vh"
 
 module proc
   (

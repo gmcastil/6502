@@ -9,7 +9,7 @@
 // had virtually zero testing performed on it.
 // ----------------------------------------------------------------------------
 
-`include "./includes/params.vh"
+`include "params.vh"
 
 module alu
   (

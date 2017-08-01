@@ -124,7 +124,8 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ORA_abs = 8'h0D,  //  3       4                Y
+  ORA_abs = 8'h0D;
+  //  3       4                Y
 
 localparam
 
