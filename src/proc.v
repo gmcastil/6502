@@ -7,8 +7,6 @@
 // Description: Main module for the MOS 6502 processor core.
 // ----------------------------------------------------------------------------
 
-`include "opcodes.vh"
-`include "params.vh"
 
 module proc
   (
@@ -17,6 +15,8 @@ module proc
    input [7:0]       rd_data,
 
    output reg [15:0] address,
+   output reg [7:0]  wr_data,
+   output reg        wr_enable,
 
    // ALU connections
    input [7:0]       alu_Y,
@@ -28,6 +28,9 @@ module proc
    output reg        alu_carry,
    output reg        alu_BCD
    );
+
+`include "./includes/opcodes.vh"
+`include "./includes/params.vh"
 
   // --- Processor Registers
   reg [7:0]          A;   // accumulator
@@ -54,6 +57,11 @@ module proc
   localparam ABS_2     = 6;
   localparam ABS_3     = 7;
   localparam ABS_4     = 8;
+
+  // Opcodes get decoded and the appropriate next state index selected during
+  // the DECODE state
+  reg [31:0]         decoded_state;
+
   // More to come...
 
   localparam EMPTY = 256'b0;
@@ -103,9 +111,12 @@ module proc
       // Initialize index and status registers
       X <= 8'b0;
       Y <= 8'b0;
+
+      // Initialize processor status flags
       P <= 8'b0;
       // This one should be perpetually stuck high
       P[UNUSED] <= 1'b1;
+
       // Initialize the stack pointer in case the programmer forgets
       S <= { 1'b1, 8'hFF };
 
@@ -115,7 +126,6 @@ module proc
 
       // Also, clear these special control bits too
       update_bit <= 1'b0;
-      update_compare <= 1'b0;
 
       // Finally, pipeline the reset vector - no point in waiting
       address <= RESET_LSB;
@@ -159,7 +169,7 @@ module proc
 
       state[ABS_1]: begin
         // 3 cycle instructions
-        if ( condition ) begin
+        if ( IR == JMP_abs ) begin
           next[FETCH] = 1'b1;
         end else begin
           next[ABS_2] = 1'b1;
@@ -223,8 +233,7 @@ module proc
 
           ADC_abs,
           AND_abs,
-          ASL_abs,
-          begin
+          ASL_abs: begin
             address <= PC + 16'd2;
           end
 
@@ -242,8 +251,7 @@ module proc
 
           ADC_abs,
           AND_abs,
-          ASL_abs,
-          begin
+          ASL_abs: begin
             address <= { rd_data, operand_LSB };
           end
 
@@ -315,7 +323,6 @@ module proc
 
           default: begin end
         endcase // case ( IR )
-
       end
 
       state[ABS_4]: begin
@@ -327,10 +334,11 @@ module proc
             address <= PC + 16'd2;
           end
 
-          default: begin end
+          // default: begin end
         endcase // case ( IR )
-
       end
+
+    endcase // case ( 1'b1 )
 
   end // block: INSTRUCTION_CYCLE
 
@@ -339,6 +347,8 @@ module proc
     // The contents of the instruction register are decoded to determine the
     // path through the state machine, which in turn determines the number of
     // additional operands that need to be read from memory
+
+    decoded_state = 0;
 
     case ( IR )
 

@@ -9,7 +9,7 @@
 // had virtually zero testing performed on it.
 // ----------------------------------------------------------------------------
 
-`include "params.vh"
+
 
 module alu
   (
@@ -22,6 +22,8 @@ module alu
    output reg [7:0] alu_flags,
    output reg [7:0] alu_Y
    );
+
+`include "./includes/params.vh"
 
   // --- Miscellaneous Signals
   reg [8:0]         result;  // 9-bits to keep track of the carry

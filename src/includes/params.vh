@@ -12,22 +12,22 @@
 `define PARAMS
 
   // --- Indices Into Processor Status Register
-  localparam NEG    = 7;
-  localparam OVF    = 6;
-  localparam UNUSED = 5;
-  localparam BREAK  = 4;
-  localparam BCD    = 3;
-  localparam IRQ    = 2;
-  localparam ZERO   = 1;
-  localparam CARRY  = 0;
+  parameter NEG    = 7;
+  parameter OVF    = 6;
+  parameter UNUSED = 5;
+  parameter BREAK  = 4;
+  parameter BCD    = 3;
+  parameter IRQ    = 2;
+  parameter ZERO   = 1;
+  parameter CARRY  = 0;
 
   // --- ALU Control and Mux Signals
-  localparam ADD    = 3'b000;
-  localparam OR     = 3'b001;
-  localparam XOR    = 3'b010;
-  localparam AND    = 3'b011;
-  localparam SR     = 3'b100;
-  localparam SL     = 3'b101;
-  localparam SUB    = 3'b110;
+  parameter ADD    = 3'b000;
+  parameter OR     = 3'b001;
+  parameter XOR    = 3'b010;
+  parameter AND    = 3'b011;
+  parameter SR     = 3'b100;
+  parameter SL     = 3'b101;
+  parameter SUB    = 3'b110;
 
 `endif //  `ifndef PARAMS
