@@ -83,12 +83,10 @@ module proc
   // of the processor status flags will need to be micromanaged a bit, using the
   // signals from the ALU.  Such is the price of pipelining.
   reg                update_bit;
-  reg                update_compare;
 
   // Also create some masks for each instruction to avoid a need to manually
   // encode them for each opcode
   localparam ADC_UPDATE_MASK = 12'b1000_1100_0011;
-  localparam ORA_UPDATE_MASK = 12'b0000_1000_0010;
   localparam AND_UPDATE_MASK = 12'b0000_1000_0010;
   localparam ASL_UPDATE_MASK = 12'b1000_1000_0011;
   localparam EOR_UPDATE_MASK = 12'b1000_1000_0010;
@@ -114,7 +112,8 @@ module proc
       // Initialize the flag register used to determine what to update
       // after an instruction has been executed
       update_flags <= 12'b0;
-      // Also, clear these special bits too
+
+      // Also, clear these special control bits too
       update_bit <= 1'b0;
       update_compare <= 1'b0;
 
@@ -225,11 +224,7 @@ module proc
           ADC_abs,
           AND_abs,
           ASL_abs,
-          BIT_abs,
-          CMP_abs,
-          DEC_abs,
-          EOR_abs,
-          ORA_abs: begin
+          begin
             address <= PC + 16'd2;
           end
 
@@ -248,11 +243,7 @@ module proc
           ADC_abs,
           AND_abs,
           ASL_abs,
-          BIT_abs,
-          CMP_abs,
-          DEC_abs,
-          EOR_abs,
-          ORA_abs: begin
+          begin
             address <= { rd_data, operand_LSB };
           end
 
@@ -304,45 +295,6 @@ module proc
             update_bit <= 1'b1;
           end
 
-          CMP_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
-
-            alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_ctrl <= SUB;
-
-            update_compare <= 1'b1;
-          end
-
-          DEC_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
-            // This opcode is not working yet
-          end
-
-          EOR_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
-
-            alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_ctrl <= XOR;
-
-            update_flags = XOR_UPDATE_MASK;
-          end
-
-          ORA_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
-
-            alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_ctrl <= OR;
-
-            update_flags <= ORA_UPDATE_MASK;
-          end
-
           default: begin end
         endcase // case ( IR )
 
@@ -390,32 +342,12 @@ module proc
 
     case ( IR )
 
-      ADC_abs,  // X
-      AND_abs,  // X
-      ASL_abs,  // X
+      ADC_abs,
+      AND_abs,
+      ASL_abs,
       BIT_abs,
-      CMP_abs,
-      CPX_abs,
-      CPY_abs,
-      DEC_abs,
-      EOR_abs,  // X
-      INC_abs,
-      JMP_abs,
-      JSR_abs,
-      LDA_abs,
-      LDX_abs,
-      LDY_abs,
-      LSR_abs,
-      ORA_abs,  // X
-      ROL_abs,
-      ROR_abs,
-      SBC_abs,
-      STA_abs,
-      STX_abs,
-      STY_abs,
-      STZ_abs,
-      TRB_abs,
-      TSB_abs: begin
+      JMP_abs:
+      begin
         decoded_state = ABS_1;
       end
 
