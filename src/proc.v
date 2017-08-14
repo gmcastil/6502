@@ -32,6 +32,7 @@ module proc
 `include "./includes/opcodes.vh"
 `include "./includes/params.vh"
 
+
   // --- Processor Registers
   reg [7:0]          A;   // accumulator
   reg [7:0]          X;   // X index register
@@ -69,6 +70,8 @@ module proc
   // State register definition - for now, we'll make this big
   reg [255:0]        state;
   reg [255:0]        next;
+
+`include "./includes/ascii.vh"
 
   // --- Miscellaneous Signals
 
