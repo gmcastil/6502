@@ -148,7 +148,7 @@ module proc
 
     next = EMPTY;
 
-    case ( state )
+    case ( 1'b1 )
 
       state[RESET]: begin
         next[VECTOR_1] = 1'b1;
