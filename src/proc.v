@@ -86,13 +86,13 @@ module proc
   // Initialized to zero and a 1 indicates an update needs to be made to that
   // particular register or status flag.
   //
-  reg [11:0]         update_flags;
+  // reg [11:0]         update_flags;
 
   // There are some special instructions involving the ALU that use the results
   // from the ALU in an abnormal way.  When these signals are true, the setting
   // of the processor status flags will need to be micromanaged a bit, using the
   // signals from the ALU.  Such is the price of pipelining.
-  reg                update_bit;
+  // reg                update_bit;
 
   // Also create some masks for each instruction to avoid a need to manually
   // encode them for each opcode
@@ -124,10 +124,10 @@ module proc
 
       // Initialize the flag register used to determine what to update
       // after an instruction has been executed
-      update_flags <= 12'b0;
+      // update_flags <= 12'b0;
 
       // Also, clear these special control bits too
-      update_bit <= 1'b0;
+      // update_bit <= 1'b0;
 
       // Finally, pipeline the reset vector - no point in waiting
       address <= RESET_LSB;
@@ -218,18 +218,20 @@ module proc
       state[FETCH]: begin
         address <= PC + 16'd1;
         IR <= rd_data;
-        if (update_flags != 12'd0) begin
+        // if (update_flags != 12'd0) begin
           // Update appropriate values from the ALU and other weirdness from
           // special instructions that modify the P status flags in odd ways
 
           // Also, don't forget to clear all these out after doing their
           // business
-        end
+        // end
       end
 
       state[DECODE]: begin
 
-        operand_LSB <= rd_data;  // Read PC + 1
+        // Always read the next byte from memory and then decide what to do with
+        // it in the next state (this can include doing nothing with it)
+        operand_LSB <= rd_data;
 
         case ( IR )
 
@@ -244,7 +246,7 @@ module proc
 
       end
 
-      // Absolute addressing mode transitions
+      // -- Absolute Addressing Mode
       state[ABS_1]: begin
 
         operand_MSB <= rd_data;
