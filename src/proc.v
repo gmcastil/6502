@@ -32,7 +32,6 @@ module proc
 `include "./includes/opcodes.vh"
 `include "./includes/params.vh"
 
-
   // --- Processor Registers
   reg [7:0]          A;   // accumulator
   reg [7:0]          X;   // X index register
@@ -363,6 +362,11 @@ module proc
       begin
         decoded_state = ABS_1;
       end
+
+      NOP:
+        begin
+          decoded_state = FETCH;
+        end
 
       default: begin end
     endcase // case ( IR )
