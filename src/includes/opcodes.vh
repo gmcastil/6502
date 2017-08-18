@@ -55,7 +55,7 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   ADC_imm = 8'h69,  //  2       2
-  ADC_abs = 8'h62,  //  3       4                Y
+  ADC_abs = 8'h6D,  //  3       4                Y
   ADC_zp  = 8'h65,  //  2       3
   ADC_abx = 8'h7D,  //  3       4        1
   ADC_aby = 8'h79,  //  3       4        1
