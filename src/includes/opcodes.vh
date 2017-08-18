@@ -131,7 +131,7 @@ localparam
 
   NOP = 8'hEA,
   JMP_abs = 8'h4C,
-  LDA = 8'hA9;
+  LDA_abs = 8'hA9;
 
 
 

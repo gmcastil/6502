@@ -9,8 +9,6 @@
 // had virtually zero testing performed on it.
 // ----------------------------------------------------------------------------
 
-
-
 module alu
   (
    input [2:0]      alu_ctrl,

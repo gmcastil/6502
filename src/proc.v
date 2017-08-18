@@ -237,7 +237,8 @@ module proc
 
           ADC_abs,
           AND_abs,
-          ASL_abs: begin
+          ASL_abs,
+          LDA_abs: begin
             address <= PC + 16'd2;
           end
 
@@ -255,7 +256,8 @@ module proc
 
           ADC_abs,
           AND_abs,
-          ASL_abs: begin
+          ASL_abs,
+          LDA_abs: begin
             address <= { rd_data, operand_LSB };
           end
 
@@ -360,7 +362,8 @@ module proc
       AND_abs,
       ASL_abs,
       BIT_abs,
-      JMP_abs:
+      JMP_abs,
+      LDA_abs:
       begin
         decoded_state = ABS_1;
       end
