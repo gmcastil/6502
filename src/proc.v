@@ -277,7 +277,7 @@ module proc
             alu_ctrl <= ADD;
             alu_carry <= P[CARRY];
 
-            update_flags <= ADC_UPDATE_MASK;
+            // update_flags <= ADC_UPDATE_MASK;
           end
 
           AND_abs: begin
@@ -288,7 +288,7 @@ module proc
             alu_BI <= rd_data;
             alu_ctrl <= AND;
 
-            update_flags <= AND_UPDATE_MASK;
+            // update_flags <= AND_UPDATE_MASK;
           end
 
           ASL_abs: begin
@@ -304,7 +304,7 @@ module proc
             alu_BI <= rd_data;
             alu_ctrl <= AND;
 
-            update_bit <= 1'b1;
+            // update_bit <= 1'b1;
           end
 
           default: begin end
@@ -322,7 +322,7 @@ module proc
 
             // Address to store it to on the next clock cycle
             address <= { operand_MSB, operand_LSB };
-            update_flags = ASL_UPDATE_MASK;
+            // update_flags = ASL_UPDATE_MASK;
           end
 
           default: begin end
