@@ -298,15 +298,8 @@ module proc
             alu_ctrl <= SL;
           end
 
-          BIT_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
+          LDA_abs: begin
 
-            alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_ctrl <= AND;
-
-            // update_bit <= 1'b1;
           end
 
           default: begin end
