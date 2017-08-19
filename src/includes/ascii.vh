@@ -31,11 +31,12 @@
   always @(*) begin
 
     case ( IR )
-      8'h29: IR_ascii <= "AND";
-      8'h69: IR_ascii <= "ADC";
+      8'h6D: IR_ascii <= "AND";
+      8'h2D: IR_ascii <= "ADC";
       8'hEA: IR_ascii <= "NOP";
       8'h4C: IR_ascii <= "JMP";
-      8'hA9: IR_ascii <= "LDA";
+      8'hAD: IR_ascii <= "LDA";
+      8'h0E: IR_ascii <= "ASL";
     endcase
 
   end

@@ -55,7 +55,7 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   ADC_imm = 8'h69,  //  2       2
-  ADC_abs = 8'h6D,  //  3       4                Y
+  ADC_abs = 8'h6D,  //  3       4
   ADC_zp  = 8'h65,  //  2       3
   ADC_abx = 8'h7D,  //  3       4        1
   ADC_aby = 8'h79,  //  3       4        1
@@ -70,7 +70,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  AND_abs = 8'h2D;  //  3       4                Y
+  AND_abs = 8'h2D;  //  3       4
 
 localparam
   //
@@ -79,7 +79,7 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ASL_abs = 8'h0E;  //  3       6                Y
+  ASL_abs = 8'h0E;  //  3       6
 
 localparam
   //
@@ -89,7 +89,7 @@ localparam
   //                 - - - - - - z - (immediate only)
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  BIT_abs = 8'h2C;  //  3       4                No - special flags
+  BIT_abs = 8'h2C;  //  3       4
 localparam
   //
   // Compare Accumulator with Memory
@@ -97,7 +97,7 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  CMP_abs = 8'hCD;  //  3       4                No - special flags
+  CMP_abs = 8'hCD;  //  3       4
 
 localparam
   //
@@ -115,7 +115,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  EOR_abs = 8'h4D;  //  3       4                Y
+  EOR_abs = 8'h4D;  //  3       4
 
 localparam
   //
@@ -124,14 +124,13 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ORA_abs = 8'h0D;
-  //  3       4                Y
+  ORA_abs = 8'h0D;  //  3       4
 
 localparam
 
   NOP = 8'hEA,
   JMP_abs = 8'h4C,
-  LDA_abs = 8'hA9;
+  LDA_abs = 8'hAD;
 
 
 

@@ -218,13 +218,6 @@ module proc
       state[FETCH]: begin
         address <= PC + 16'd1;
         IR <= rd_data;
-        // if (update_flags != 12'd0) begin
-          // Update appropriate values from the ALU and other weirdness from
-          // special instructions that modify the P status flags in odd ways
-
-          // Also, don't forget to clear all these out after doing their
-          // business
-        // end
       end
 
       state[DECODE]: begin
@@ -240,6 +233,11 @@ module proc
           ASL_abs,
           LDA_abs: begin
             address <= PC + 16'd2;
+          end
+
+          NOP: begin
+            address <= PC + 16'd1;
+            PC <= PC + 16'd1;
           end
 
           default: begin end
@@ -279,7 +277,6 @@ module proc
             alu_ctrl <= ADD;
             alu_carry <= P[CARRY];
 
-            // update_flags <= ADC_UPDATE_MASK;
           end
 
           AND_abs: begin
@@ -290,7 +287,6 @@ module proc
             alu_BI <= rd_data;
             alu_ctrl <= AND;
 
-            // update_flags <= AND_UPDATE_MASK;
           end
 
           ASL_abs: begin
@@ -299,7 +295,9 @@ module proc
           end
 
           LDA_abs: begin
-
+            A <= rd_data;
+            address <= PC + 16'd3;
+            PC <= PC + 16'd3;
           end
 
           default: begin end
@@ -354,7 +352,6 @@ module proc
       ADC_abs,
       AND_abs,
       ASL_abs,
-      BIT_abs,
       JMP_abs,
       LDA_abs:
       begin
