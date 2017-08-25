@@ -79,7 +79,7 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ASL_abs = 8'h0E;  //  3       6
+  ASL_abs = 8'h0E;  //  3       6                Y
 
 localparam
   //

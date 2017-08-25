@@ -72,6 +72,7 @@ module proc
 
 `include "./includes/ascii.vh"
 
+  // --- Other Sinals
   reg [7:0]          operand_LSB;
   reg [7:0]          operand_MSB;
 
@@ -79,6 +80,9 @@ module proc
   reg [7:0]          A_next;
   reg [7:0]          updated_status;
   reg [31:0]         decoded_state;
+
+  reg [7:0]          temp_result;
+  reg [15:0]         temp_address;
 
   // --- Reset and Initialization
   always @(posedge clk) begin
@@ -299,9 +303,8 @@ module proc
             wr_data <= alu_result;
             wr_enable <= 1'b1;
 
-            // Address to store it to on the next clock cycle
+            // Address to store the result to on the next clock cycle
             address <= { operand_MSB, operand_LSB };
-            // update_flags = ASL_UPDATE_MASK;
           end
 
           default: begin end
@@ -317,7 +320,7 @@ module proc
             address <= PC + 16'd2;
           end
 
-          // default: begin end
+          default: begin end
         endcase // case ( IR )
       end
 
@@ -373,6 +376,12 @@ module proc
       AND_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
+      end
+
+      ASL_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
       end
 
       default: begin end
