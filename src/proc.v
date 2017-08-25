@@ -19,7 +19,7 @@ module proc
    output reg        wr_enable,
 
    // ALU connections
-   input [7:0]       alu_result,
+   input [7:0]       alu_Y,
    input [7:0]       alu_flags,
 
    output reg [2:0]  alu_ctrl,
@@ -58,9 +58,7 @@ module proc
   localparam ABS_3     = 7;
   localparam ABS_4     = 8;
 
-  // Opcodes get decoded and the appropriate next state index selected during
-  // the DECODE state
-  reg [31:0]         decoded_state;
+  localparam ERROR     = 255;
 
   // More to come...
 
@@ -76,13 +74,15 @@ module proc
   reg [7:0]          operand_LSB;
   reg [7:0]          operand_MSB;
 
+  // Accumulator updates and control
   reg                update_accumulator;
   reg [7:0]          A_next;
-  reg [7:0]          updated_status;
-  reg [31:0]         decoded_state;
 
-  reg [7:0]          temp_result;
-  reg [15:0]         temp_address;
+  reg [7:0]          updated_status;
+
+  // Opcodes get decoded and the appropriate next state index selected during
+  // the DECODE state
+  reg [31:0]         decoded_state;
 
   // --- Reset and Initialization
   always @(posedge clk) begin
@@ -103,8 +103,8 @@ module proc
       S <= { 1'b1, 8'hFF };
 
       // Also, clear these special control bits too
-      update_accumulator = 1'b0;
-      decoded_state = 0;
+      update_accumulator <= 1'b0;
+      decoded_state <= 0;
 
       // Finally, pipeline the reset vector - no point in waiting
       address <= RESET_LSB;
@@ -174,6 +174,10 @@ module proc
         next[FETCH] = 1'b1;
       end
 
+      state[ERROR]: begin
+        next[ERROR] = 1'b1;
+      end
+
       default: begin end
     endcase // case ( state )
 
@@ -203,7 +207,7 @@ module proc
 
         if (update_accumulator == 1'b1) begin
           A <= A_next;
-          update_accumulator = 1'b0;
+          update_accumulator <= 1'b0;
         end
       end
 
@@ -256,8 +260,8 @@ module proc
         case ( IR )
 
           ADC_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
 
             alu_AI <= A;
             alu_BI <= rd_data;
@@ -265,19 +269,19 @@ module proc
             alu_carry <= P[CARRY];
 
             update_accumulator <= 1'b1;
-            A_next <= alu_result;
+            A_next <= alu_Y;
           end
 
           AND_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
 
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_ctrl <= AND;
 
             update_accumulator <= 1'b1;
-            A_next <= alu_result;
+            A_next <= alu_Y;
           end
 
           ASL_abs: begin
@@ -286,8 +290,8 @@ module proc
           end
 
           LDA_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
 
             update_accumulator <= 1'b1;
             A_next <= rd_data;
@@ -303,7 +307,7 @@ module proc
         case ( IR )
 
           ASL_abs: begin
-            wr_data <= alu_result;
+            wr_data <= alu_Y;
             wr_enable <= 1'b1;
 
             // Address to store the result to on the next clock cycle
@@ -319,8 +323,8 @@ module proc
         case ( IR )
 
           ASL_abs: begin
-            PC <= PC + 16'd2;
-            address <= PC + 16'd2;
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
           end
 
           default: begin end
@@ -336,8 +340,6 @@ module proc
     // The contents of the instruction register are decoded to determine the
     // path through the state machine, which in turn determines the number of
     // additional operands that need to be read from memory
-
-    decoded_state = 0;
 
     case ( IR )
 
@@ -355,7 +357,9 @@ module proc
           decoded_state = FETCH;
         end
 
-      default: begin end
+      default: begin
+        decoded_state = ERROR;
+      end
     endcase // case ( IR )
 
   end // block: ADDR_MODE_DECODER
