@@ -203,6 +203,7 @@ module proc
 
         if (update_accumulator == 1'b1) begin
           A <= A_next;
+          update_accumulator = 1'b0;
         end
       end
 
@@ -285,9 +286,11 @@ module proc
           end
 
           LDA_abs: begin
-            A <= rd_data;
-            address <= PC + 16'd3;
-            PC <= PC + 16'd3;
+            PC <= PC + 16'd2;
+            address <= PC + 16'd2;
+
+            update_accumulator <= 1'b1;
+            A_next <= rd_data;
           end
 
           default: begin end
@@ -373,7 +376,9 @@ module proc
         updated_status[CARRY] = alu_flags[CARRY];
       end
 
-      AND_abs: begin
+      AND_abs,
+      LDA_abs:
+      begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
       end
