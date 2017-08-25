@@ -19,7 +19,7 @@ module proc
    output reg        wr_enable,
 
    // ALU connections
-   input [7:0]       alu_Y,
+   input [7:0]       alu_result,
    input [7:0]       alu_flags,
 
    output reg [2:0]  alu_ctrl,
@@ -72,37 +72,12 @@ module proc
 
 `include "./includes/ascii.vh"
 
-  // --- Miscellaneous Signals
-
-  // This is used to identify which values need to be updated with the result
-  // from the ALU after execution of an instruction:
-  //
-  // Format:  11 - A
-  //          10 - X
-  //           9 - Y
-  //           8 - S
-  //         7-0 - P
-  //
-  // Initialized to zero and a 1 indicates an update needs to be made to that
-  // particular register or status flag.
-  //
-  // reg [11:0]         update_flags;
-
-  // There are some special instructions involving the ALU that use the results
-  // from the ALU in an abnormal way.  When these signals are true, the setting
-  // of the processor status flags will need to be micromanaged a bit, using the
-  // signals from the ALU.  Such is the price of pipelining.
-  // reg                update_bit;
-
-  // Also create some masks for each instruction to avoid a need to manually
-  // encode them for each opcode
-  localparam ADC_UPDATE_MASK = 12'b1000_1100_0011;
-  localparam AND_UPDATE_MASK = 12'b0000_1000_0010;
-  localparam ASL_UPDATE_MASK = 12'b1000_1000_0011;
-  localparam EOR_UPDATE_MASK = 12'b1000_1000_0010;
-
   reg [7:0]          operand_LSB;
   reg [7:0]          operand_MSB;
+
+  reg                update_accumulator;
+  reg [7:0]          updated_status;
+  reg [31:0]         decoded_state;
 
   // --- Reset and Initialization
   always @(posedge clk) begin
@@ -122,12 +97,9 @@ module proc
       // Initialize the stack pointer in case the programmer forgets
       S <= { 1'b1, 8'hFF };
 
-      // Initialize the flag register used to determine what to update
-      // after an instruction has been executed
-      // update_flags <= 12'b0;
-
       // Also, clear these special control bits too
-      // update_bit <= 1'b0;
+      update_accumulator = 1'b0;
+      decoded_state = 0;
 
       // Finally, pipeline the reset vector - no point in waiting
       address <= RESET_LSB;
@@ -169,6 +141,7 @@ module proc
         next[decoded_state] = 1'b1;
       end
 
+      // --- Absolute Addressing Mode
       state[ABS_1]: begin
         // 3 cycle instructions
         if ( IR == JMP_abs ) begin
@@ -218,6 +191,14 @@ module proc
       state[FETCH]: begin
         address <= PC + 16'd1;
         IR <= rd_data;
+
+        // Processor status register is updated after every instruction but
+        // determined using a combinational logic block
+        P <= updated_status;
+
+        if (update_accumulator == 1'b1) begin
+          A <= A_next;
+        end
       end
 
       state[DECODE]: begin
@@ -277,6 +258,8 @@ module proc
             alu_ctrl <= ADD;
             alu_carry <= P[CARRY];
 
+            update_accumulator <= 1'b1;
+            A_next <= alu_result;
           end
 
           AND_abs: begin
@@ -286,7 +269,6 @@ module proc
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_ctrl <= AND;
-
           end
 
           ASL_abs: begin
@@ -310,7 +292,7 @@ module proc
         case ( IR )
 
           ASL_abs: begin
-            wr_data <= alu_Y;
+            wr_data <= alu_result;
             wr_enable <= 1'b1;
 
             // Address to store it to on the next clock cycle
@@ -367,5 +349,30 @@ module proc
     endcase // case ( IR )
 
   end // block: ADDR_MODE_DECODER
+
+  always @(*) begin: PROCESSOR_STATUS_UPDATE
+
+    // Processor status register will be updated upon entry into the FETCH
+    // state.
+
+    updated_status = P;
+
+    case ( IR )
+
+      ADC_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[OVF] = alu_flags[OVF];
+        updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      AND_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+      end
+
+      default: begin end
+    endcase // case ( IR )
+  end // block: PROCESSOR_STATUS_UPDATE
 
 endmodule // proc
