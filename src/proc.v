@@ -76,6 +76,7 @@ module proc
   reg [7:0]          operand_MSB;
 
   reg                update_accumulator;
+  reg [7:0]          A_next;
   reg [7:0]          updated_status;
   reg [31:0]         decoded_state;
 
@@ -269,6 +270,9 @@ module proc
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_ctrl <= AND;
+
+            update_accumulator <= 1'b1;
+            A_next <= alu_result;
           end
 
           ASL_abs: begin

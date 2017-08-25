@@ -70,7 +70,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  AND_abs = 8'h2D;  //  3       4
+  AND_abs = 8'h2D;  //  3       4                Y
 
 localparam
   //
