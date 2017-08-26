@@ -70,14 +70,12 @@ module proc
 
 `include "./includes/ascii.vh"
 
-  // --- Other Sinals
+  // --- Other Signals
   reg [7:0]          operand_LSB;
   reg [7:0]          operand_MSB;
 
-  // Accumulator updates and control
+  // Accumulator and processor status updates
   reg                update_accumulator;
-  reg [7:0]          A_next;
-
   reg [7:0]          updated_status;
 
   // Opcodes get decoded and the appropriate next state index selected during
@@ -204,9 +202,8 @@ module proc
         // Processor status register is updated after every instruction but
         // determined using a combinational logic block
         P <= updated_status;
-
         if (update_accumulator == 1'b1) begin
-          A <= A_next;
+          A <= alu_Y;
           update_accumulator <= 1'b0;
         end
       end
@@ -223,6 +220,10 @@ module proc
           AND_abs,
           ASL_abs,
           LDA_abs: begin
+            address <= PC + 16'd2;
+          end
+
+          JMP_abs: begin
             address <= PC + 16'd2;
           end
 
@@ -250,6 +251,11 @@ module proc
             address <= { rd_data, operand_LSB };
           end
 
+          JMP_abs: begin
+            address <= { rd_data, operand_LSB };
+            PC <= { rd_data, operand_LSB };
+          end
+
           default: begin end
         endcase // case ( IR )
 
@@ -269,7 +275,6 @@ module proc
             alu_carry <= P[CARRY];
 
             update_accumulator <= 1'b1;
-            A_next <= alu_Y;
           end
 
           AND_abs: begin
@@ -281,7 +286,6 @@ module proc
             alu_ctrl <= AND;
 
             update_accumulator <= 1'b1;
-            A_next <= alu_Y;
           end
 
           ASL_abs: begin
@@ -293,8 +297,7 @@ module proc
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
 
-            update_accumulator <= 1'b1;
-            A_next <= rd_data;
+            A <= rd_data;
           end
 
           default: begin end
@@ -325,6 +328,7 @@ module proc
           ASL_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
+            wr_enable <= 1'b0;
           end
 
           default: begin end
@@ -347,15 +351,13 @@ module proc
       AND_abs,
       ASL_abs,
       JMP_abs,
-      LDA_abs:
-      begin
+      LDA_abs: begin
         decoded_state = ABS_1;
       end
 
-      NOP:
-        begin
-          decoded_state = FETCH;
-        end
+      NOP: begin
+        decoded_state = FETCH;
+      end
 
       default: begin
         decoded_state = ERROR;
@@ -381,8 +383,7 @@ module proc
       end
 
       AND_abs,
-      LDA_abs:
-      begin
+      LDA_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
       end
