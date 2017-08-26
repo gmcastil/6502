@@ -13,3 +13,4 @@
 * Conventions
 Use 16'd1 or 16'd3 for incrementing program counter
 Use 1'b1 for things which are single bits
+Increment PC immediately prior to returning to the FETCH state

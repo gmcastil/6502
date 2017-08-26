@@ -22,10 +22,10 @@ module proc_top_tb ();
   reg          clk;
   reg          resetn;
   reg          enable;
-  reg          wr_enable;
+  wire         wr_enable;
   wire [15:0]  address;
   wire [7:0]   rd_data;
-  reg [7:0]    wr_data;
+  wire [7:0]   wr_data;
 
   wire [2:0]    alu_ctrl;
   wire [7:0]    alu_AI;
@@ -57,7 +57,6 @@ module proc_top_tb ();
   // Set some parameters to remain constant throughout (at least for now)
   initial begin
     enable = 1'b1;
-    wr_enable = 1'b0;
   end
 
   // Initiate the global reset (for now, synchronize both edges to both
@@ -89,7 +88,10 @@ module proc_top_tb ();
                    .clk           (clk),
                    .resetn        (resetn),
                    .rd_data       (rd_data),
+
                    .address       (address),
+                   .wr_data       (wr_data),
+                   .wr_enable     (wr_enable),
 
                    .alu_flags     (alu_flags),
                    .alu_Y         (alu_Y),
