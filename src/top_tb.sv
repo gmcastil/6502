@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Module:  top_tb.v
+// Module:  top_tb.sv
 // Project: MOS 6502
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    28 August 2017
@@ -12,6 +12,8 @@
 `timescale 1ns / 1ps
 
 module proc_top_tb ();
+
+`include "./includes/params.vh"
 
   localparam T = 10;
   localparam P = 100;
@@ -111,5 +113,13 @@ module proc_top_tb ();
                   .alu_flags      (alu_flags),
                   .alu_Y          (alu_Y)
                   );
+
+  initial begin
+    // Wait until reset is deasserted
+    #(P*6)
+    // clc - 2 cycles
+    #(P*2)
+    inst_proc.P['CARRY']
+  end
 
 endmodule // proc_top_tb
