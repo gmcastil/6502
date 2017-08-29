@@ -16,7 +16,7 @@ module proc_top_tb ();
 `include "./includes/params.vh"
 
   localparam T = 10;
-  localparam P = 100;
+  localparam R = 100;
 
   reg          clk_sys;       // Memory will be clocked 10X relative to processor
   reg          clk;
@@ -49,7 +49,7 @@ module proc_top_tb ();
   initial begin
     clk = 1'b1;
     forever begin
-      #(P/2);
+      #(R/2);
       clk = ~clk;
     end
   end
@@ -63,11 +63,11 @@ module proc_top_tb ();
   // clocks, but later this will be performed by the porf block)
   initial begin
     resetn = 1'b1;
-    #(P*2)
+    #(R*2)
     resetn = 1'b0;
-    #(P*4)
+    #(R*4)
     resetn = 1'b1;
-    #(P*100);
+    #(R*100);
   end
 
   // Instantiate the memory block using the example from the generated
@@ -114,12 +114,32 @@ module proc_top_tb ();
                   .alu_Y          (alu_Y)
                   );
 
+  // --- Processor Registers
+  wire [7:0]  A;   // accumulator
+  wire [15:0] PC;
+  wire [7:0]  X;   // X index register
+  wire [7:0]  Y;   // Y index register
+  wire [8:0]  S;   // stack pointer
+  wire [7:0]  IR;  // instruction register
+  wire [7:0]  P;   // processor status register
+
+  assign A  = inst_proc.A;
+  assign PC = inst_proc.PC;
+  assign X  = inst_proc.X;
+  assign Y  = inst_proc.Y;
+  assign S  = inst_proc.S;
+  assign P  = inst_proc.P;
+
   initial begin
     // Wait until reset is deasserted
-    #(P*6)
-    // clc - 2 cycles
-    #(P*2)
-    inst_proc.P['CARRY']
+    #(R*6)
+    // Wait for PC to be initialized
+    #(R*2.1)
+    if (PC == 16'h8000) begin
+      $display("Correct PC - %h", PC);
+    end else begin
+      $display("Wrong PC - %h", PC);
+    end
   end
 
 endmodule // proc_top_tb
