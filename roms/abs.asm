@@ -4,18 +4,28 @@
 
         ;; -- Add With Carry (ADC)
 
-        clc                     ; 1 + 1 = 2, returns C = 0, V = 0
+        ;; 1 + 1 = 2, returns C = 0, V = 0
+        clc
+        clv
         lda     #$01
         adc     $9001           ; $9001 = #$01
 
-        clc                     ; 1 + (-1) = 0, returns C = 1
+        ;; 1 + (-1) = 0, returns C = 1, V = 0, N = 0, Z = 1
+        clc
+        clv
         lda     #$01
         adc     $9002           ; $9002 = #$ff
 
-        clc                     ; 127 + 1 = 128, returns C = 0, V = 1
+        ;; 127 + 1 = 128, returns C = 0, V = 1, N = 1, Z = 0
+        clc
+        clv
         lda     #$7f
         adc     $9001           ; $9001 = #$01
 
-        clc                     ; -128 + -1 = -129, returns C = 1, V = 1
+        ;; -128 + -1 = -129, returns C = 1, V = 1, N = 0, Z = 0
+        clc
+        clv
         lda     #$80
         adc     $9002           ; $9002 = #$ff
+
+        ;; -- And Accumulator with Memory (AND)
