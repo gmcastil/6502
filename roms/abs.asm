@@ -1,3 +1,7 @@
+;;; The purpose of this file is to describe the set of instructions used in
+;;; testing absolute addressing mode.  At this point, each instruction is hand
+;;; assembled from this file and then placed into a ROM used by the testbench
+;;; for testing absolute addressing mode.
 
         org     $8000
         lda     $9000           ; $9000 = #$00
@@ -29,3 +33,15 @@
         adc     $9002           ; $9002 = #$ff
 
         ;; -- And Accumulator with Memory (AND)
+
+        ;; 0x55 & 0xaa = 0x00, returns Z = 1, N = 0
+        lda     #$55
+        and     $9003           ; $9003 = $aa
+
+        ;; 0xff & 0xaa = 0xaa, returns Z = 0, N = 1
+        lda     #$ff
+        and     $9004           ; $9004 = $aa
+
+        ;; 0x22 & 0x22 = 0x22, returns Z = 0, N = 0
+        lda     #$22
+        and     $9005           ; $9005 = $22
