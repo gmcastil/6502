@@ -4,7 +4,7 @@
 ;;; for testing absolute addressing mode.
 
         org     $8000
-        lda     $9000           ; $9000 = #$00
+        lda     $9000           ; $9000 = $00
 
         ;; -- Add With Carry (ADC)
 
@@ -12,25 +12,25 @@
         clc
         clv
         lda     #$01
-        adc     $9001           ; $9001 = #$01
+        adc     $9001           ; $9001 = $01
 
         ;; 1 + (-1) = 0, returns C = 1, V = 0, N = 0, Z = 1
         clc
         clv
         lda     #$01
-        adc     $9002           ; $9002 = #$ff
+        adc     $9002           ; $9002 = $ff
 
         ;; 127 + 1 = 128, returns C = 0, V = 1, N = 1, Z = 0
         clc
         clv
         lda     #$7f
-        adc     $9001           ; $9001 = #$01
+        adc     $9001           ; $9001 = $01
 
         ;; -128 + -1 = -129, returns C = 1, V = 1, N = 0, Z = 0
         clc
         clv
         lda     #$80
-        adc     $9002           ; $9002 = #$ff
+        adc     $9002           ; $9002 = $ff
 
         ;; -- And Accumulator with Memory (AND)
 
@@ -45,3 +45,17 @@
         ;; 0x22 & 0x22 = 0x22, returns Z = 0, N = 0
         lda     #$22
         and     $9005           ; $9005 = $22
+
+        ;; -- Shift Memory Left (ASL)
+
+        ;; 0x55 << returns A = $aa, Z = 1, C = 0
+        clc
+        asl     $9006           ; $9006 = $ff
+        lda     $9006
+
+        ;; 0xaa << returns A = $fe, Z = 1, C = 1
+        sec
+        asl     $9006           ; $9006 = $fe
+        lda     $9006
+
+        ;; -- Test Memory Bits Against Accumulator (BIT)
