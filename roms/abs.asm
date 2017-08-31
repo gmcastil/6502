@@ -56,7 +56,6 @@
         ;; 0xaa << returns A = $fe, Z = 1, C = 1
         sec
         asl     $9006           ; $9006 = $fe
-        lda     $9006
 
         ;; -- Test Memory Bits Against Accumulator (BIT)
 
@@ -119,8 +118,6 @@
         ;; $55 XOR $55 = $00, returns Z = 1, N = 0
         lda     #$55
         eor     $900a           ; $900a = $55
-        lda     $900a
         ;; $55 XOR $aa = $ff, returns Z = 0, N = 1
         lda     #$55
         eor     $900b           ; $900b = $aa
-        lda     $900b
