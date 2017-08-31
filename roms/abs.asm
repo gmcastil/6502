@@ -59,3 +59,68 @@
         lda     $9006
 
         ;; -- Test Memory Bits Against Accumulator (BIT)
+
+        ;; $ff & $aa returns Z = 0, N = 1, V = 1
+        lda     #$ff
+        bit     $9007           ; $9007 = $aa
+
+        ;; $ff & $00 returns Z = 1, N = 1, V = 0
+        clv
+        lda     #$00
+        bit     $9007           ; $9007 = $aa
+
+        ;; -- Compare Accumulator with Memory (CMP)
+
+        ;; $00 - $aa returns Z = 0, N = 0, C = 0
+        lda     #$00
+        cmp     $9008           ; $9008 = $aa
+        ;; $ff - $aa returns Z = 0, N = 0, C = 0
+        lda     #$ff
+        cmp     $9008
+        ;; $80 - $aa returns Z = 0, N = 1, C = 0
+        lda     #$80
+        cmp     $9008
+
+        ;; -- Compare Index Register X with Memory
+
+        ;; $00 - $aa returns Z = 0, N = 0, C = 0
+        ldx     #$00
+        cpx     $9008           ; $9008 = $aa
+        ;; $ff - $aa returns Z = 0, N = 0, C = 0
+        ldx     #$ff
+        cpx     $9008           ; $9008 = $aa
+        ;; $80 - $aa returns Z = 0, N = 1, C = 0
+        ldx     #$80
+        cpx     $9008           ; $9008 = $aa
+
+        ;; -- Compare Index Register X with Memory
+
+        ;; $00 - $aa returns Z = 0, N = 0, C = 0
+        ldy     #$00
+        cpy     $9008           ; $9008 = $aa
+        ;; $ff - $aa returns Z = 0, N = 0, C = 0
+        ldy     #$ff
+        cpy     $9008
+        ;; $80 - $aa returns Z = 0, N = 1, C = 0
+        ldy     #$80
+        cpy     $9008
+
+        ;; -- Decrement
+
+        ;; $02 - $01 = $01, returns Z = 0, N = 0
+        dec     $9009           ; $9009 = $02
+        ;; $01 - $01 = $00, returns Z = 1, N = 0
+        dec     $9009
+        ;; $00 - $01 = $ff, returns Z = 0, N = 1
+        dec     $9009
+
+        ;; -- Exclusive-OR Accumulator with Memory
+
+        ;; $55 XOR $55 = $00, returns Z = 1, N = 0
+        lda     #$55
+        eor     $900a           ; $900a = $55
+        lda     $900a
+        ;; $55 XOR $aa = $ff, returns Z = 0, N = 1
+        lda     #$55
+        eor     $900b           ; $900b = $aa
+        lda     $900b
