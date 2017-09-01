@@ -51,7 +51,6 @@
         ;; 0x55 << returns A = $aa, Z = 1, C = 0
         clc
         asl     $9006           ; $9006 = $ff
-        lda     $9006
 
         ;; 0xaa << returns A = $fe, Z = 1, C = 1
         sec
@@ -121,3 +120,64 @@
         ;; $55 XOR $aa = $ff, returns Z = 0, N = 1
         lda     #$55
         eor     $900b           ; $900b = $aa
+
+        ;; -- Increment
+
+        ;; $fe + $01 = $ff, returns Z = 0, N = 1
+        inc     $900c
+        ;; $ff + $01 = $00, returns Z = 1, N = 0
+        inc     $900c
+
+        ;; -- Load Accumulator from Memory
+
+        ;; Returns A = $00, Z = 1, N = 0
+        lda     $900d           ; $900d = $00
+        ;; Returns A = $ff, Z = 0, N = 1
+        lda     $900e           ; $900e = $ff
+
+        ;; -- Load Index Register X from Memory
+
+        ;; Returns A = $00, Z = 1, N = 0
+        ldx     $900f           ; $900f = $00
+        ;; Returns A = $ff, Z = 0, N = 1
+        ldx     $9010           ; $9010 = $ff
+
+        ;; -- Load Index Register Y from Memory
+
+        ;; Returns A = $00, Z = 1, N = 0
+        ldy     $9011           ; $9011 = $00
+        ;; Returns A = $ff, Z = 0, N = 1
+        ldy     $9012           ; $9012 = $ff
+
+
+        ;; -- Logical Shift Memory or Accumulator Right (LSR)
+
+        ;; 0x55 >> returns $9013 = $2a, Z = 0, C = 1
+        clc
+        lsr     $9013           ; $9013 = $55
+
+        ;; 0x01 >> returns $9014 = $00, Z = 1, C = 1
+        clc
+        lsr     $9014           ; $9014 = $01
+
+        ;; -- OR Accumulator with Memory
+
+        ;; $55 OR $55 = $55, returns Z = 0, N = 0
+        lda     #$55
+        or      $9015           ; $9015 = $55
+        ;; $55 OR $aa = $ff, returns Z = 1, N = 1
+        lda     #$55
+        or      $9016           ; $9016 = $aa
+
+        ;; -- Rotate Memory or Accumulator Left
+
+        rol     $9017           ; $9017 = $55 -> $aa, returns C = 0, N = 1
+        rol     $9018           ; $9018 = $aa -> $54, returns C = 1, N = 0
+
+        ;; -- Rotate Memory or Accumulator Right
+
+        ror     $9019           ; $9019 = $55 -> $2a, returns Z = 0, C = 1, N = 0
+        ror     $901a           ; $901a = $aa -> $55, returns Z = 0, C = 0, N = 0
+        ror     $901b           ; $901b = $01 -> $00, returns Z = 1, C = 1, N = 0
+
+        ;; -- Subtract with Borrow from Accumulator
