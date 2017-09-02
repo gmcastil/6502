@@ -132,6 +132,14 @@ localparam
   JMP_abs = 8'h4C,
   LDA_abs = 8'hAD;
 
+localparam
+
+  LDA_imm = 8'hA9;
+
+localparam
+  CLC = 8'h18,
+  CLV = 8'hB8;
+
 
 
 `endif //  `ifndef OPCODES

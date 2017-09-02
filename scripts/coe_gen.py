@@ -38,7 +38,7 @@ PAGE_SIZE = 2**12  # 4096 addresses per page
 ROW_SIZE = 2**6  # number of rows per page
 COL_SIZE = 2**6  # number of cols per page
 
-OPCODE = "EA"  # opcode to fill COE file with
+OPCODE = "ea"  # opcode to fill COE file with
 
 def make_page():
     """Constructs a range of addresses for writing a page to a COE file
