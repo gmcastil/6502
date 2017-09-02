@@ -247,6 +247,7 @@ module proc
           ADC_abs,
           AND_abs,
           ASL_abs,
+          BIT_abs,
           LDA_abs: begin
             address <= { rd_data, operand_LSB };
           end
@@ -291,6 +292,10 @@ module proc
           ASL_abs: begin
             alu_AI <= rd_data;
             alu_ctrl <= SL;
+          end
+
+          BIT_abs: begin
+
           end
 
           LDA_abs: begin
