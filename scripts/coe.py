@@ -54,6 +54,19 @@ absolute = {
     'sbc' : 'ed'
     }
 
+
+def chunker(iterable, n, factory=tuple):
+    """Helper function to make it easier to create proper length lines"""
+    i = iter(iterable)
+    r = range(n)
+    while True:
+        t = factory(next(i) for _ in r)
+        if len(t) > 0:
+            yield t
+        else:
+            break
+
+
 def from_asm(filename):
     """Builds a COE file from a 6502 assembly source file
 
@@ -65,16 +78,9 @@ def from_asm(filename):
 
     """
     instructions = tokenizer(filename)
-    offset = 0
-    for instruction in instructions:
-        to_add = decode(instruction)
-        # Need to keep track of how many bytes are being added
-        offset += len(to_add)
-        if offset % 64 == 0:
-            to_add.append('\n')
-        else:
-            to_add.append('')
-        sys.stdout.write(' '.join(to_add))
+    assembled = ' '.join([decode(instruction) for instruction in instructions])
+    formatted = '\n'.join(' '.join(x) for x in chunker(assembled.split(), 64))
+    sys.stdout.write(formatted)
 
 
 def tokenizer(filename):
@@ -99,25 +105,25 @@ def tokenizer(filename):
                 yield tokens
 
 def decode(token):
-    """Returns opcode and any operand
+    """Returns opcode and any operands
 
     """
     if len(token) == 1:
         # Implied addressing mode
         opcode = implied[token[0]]
-        return [opcode]
+        return opcode
     else:
         if token[1].startswith('#'):
             opcode = immediate[token[0]]
-            operand_1 = token[1].strip('#')
-            return [opcode, operand_1]
+            operand_1 = token[1].strip('#$')
+            return ' '.join([opcode, operand_1])
         else:
             # Absolute addressing mode
             opcode = absolute[token[0]]
             operand = token[1].strip('$')
             operand_1 = operand[2:4]
             operand_2 = operand[0:2]
-            return [opcode, operand_1, operand_2]
+            return ' '.join([opcode, operand_1, operand_2])
 
 def main(args):
     if len(args) == 1:
