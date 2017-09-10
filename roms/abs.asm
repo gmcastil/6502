@@ -3,7 +3,7 @@
 ;;; assembled from this file and then placed into a ROM used by the testbench
 ;;; for testing absolute addressing mode.
 
-        org     $8000
+        .org     $8000
 0:      lda     $9000           ; $9000 = $00
 
         ;; -- Add With Carry (ADC)
@@ -164,10 +164,10 @@
 
         ;; $55 OR $55 = $55, returns Z = 0, N = 0
 161:    lda     #$55
-163:    or      $9015           ; $9015 = $55
+163:    ora     $9015           ; $9015 = $55
         ;; $55 OR $aa = $ff, returns Z = 1, N = 1
 166:    lda     #$55
-168:    or      $9016           ; $9016 = $aa
+168:    ora     $9016           ; $9016 = $aa
 
         ;; -- Rotate Memory or Accumulator Left
 
@@ -181,4 +181,3 @@
 183:    ror     $901b           ; $901b = $01 -> $00, returns Z = 1, C = 1, N = 0
 
         ;; -- Subtract with Borrow from Accumulator
-186:
