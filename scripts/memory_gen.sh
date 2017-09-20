@@ -36,10 +36,9 @@ else
 fi
 
 if [[ -d $BUILD_DIR ]]; then
-    rm -rf $BUILD_DIR
+    rm -rf $BUILD_DIR/memory_block/
+    mkdir -pv $BUILD_DIR
 fi
-
-mkdir -pv $BUILD_DIR
 
 # Create the memory block and read out the EDIF netlist (from the Tcl script)
 $vivado -verbose \
