@@ -128,7 +128,7 @@ localparam
 
 localparam
 
-  NOP = 8'hEA,
+  NOP_imp = 8'hEA,
   JMP_abs = 8'h4C,
   LDA_abs = 8'hAD;
 
@@ -137,10 +137,22 @@ localparam
   LDA_imm = 8'hA9;
 
 localparam
-  CLC = 8'h18,
-  CLV = 8'hB8;
+  //
+  // Clear Carry Flag
+  //
+  // Flags Affected: - - - - - - - c
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  CLC_imm = 8'h18;  //  1       2                Y
 
-
+localparam
+  //
+  // Clear Overflow Flag
+  //
+  // Flags Affected: - v - - - - - -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  CLV_imm = 8'hB8;  //  1       2                Y
 
 `endif //  `ifndef OPCODES
 

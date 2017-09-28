@@ -227,9 +227,12 @@ module proc
             address <= PC + 16'd2;
           end
 
-          NOP: begin
+          CLC_imm,
+          CLV_imm,
+          NOP_imp: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
+            update_accumulator <= 1'b1;
           end
 
           default: begin end
@@ -360,7 +363,7 @@ module proc
         decoded_state = ABS_1;
       end
 
-      NOP: begin
+      NOP_imp: begin
         decoded_state = FETCH;
       end
 
@@ -397,6 +400,19 @@ module proc
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      CLC_imm: begin
+        updated_status[CARRY] = 1'b0;
+      end
+
+      CLV_imm: begin
+        updated_status[OVF] = 1'b0;
+      end
+
+      // Explicitly ensure that NOP does not touch processor status
+      NOP_imp: begin
+        updated_status = P;
       end
 
       default: begin end
