@@ -126,7 +126,7 @@
         ;; $fe + $01 = $ff, returns Z = 0, N = 1
 129:    inc     $900c
         ;; $ff + $01 = $00, returns Z = 1, N = 0
-132:    inc     $900c
+132:    inc     $900c           ; $900c = $fe
 
         ;; -- Load Accumulator from Memory
 
