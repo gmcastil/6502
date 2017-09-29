@@ -227,8 +227,8 @@ module proc
             address <= PC + 16'd2;
           end
 
-          CLC_imm,
-          CLV_imm,
+          CLC_imp,
+          CLV_imp,
           NOP_imp: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
@@ -402,11 +402,11 @@ module proc
         updated_status[CARRY] = alu_flags[CARRY];
       end
 
-      CLC_imm: begin
+      CLC_imp: begin
         updated_status[CARRY] = 1'b0;
       end
 
-      CLV_imm: begin
+      CLV_imp: begin
         updated_status[OVF] = 1'b0;
       end
 

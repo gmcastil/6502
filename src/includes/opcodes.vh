@@ -143,7 +143,7 @@ localparam
   // Flags Affected: - - - - - - - c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  CLC_imm = 8'h18;  //  1       2                Y
+  CLC_imp = 8'h18;  //  1       2                Y
 
 localparam
   //
@@ -152,7 +152,7 @@ localparam
   // Flags Affected: - v - - - - - -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  CLV_imm = 8'hB8;  //  1       2                Y
+  CLV_imp = 8'hB8;  //  1       2                Y
 
 `endif //  `ifndef OPCODES
 
