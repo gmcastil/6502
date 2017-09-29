@@ -36,7 +36,7 @@ else
 fi
 
 if [[ -d $BUILD_DIR ]]; then
-    rm -rf $BUILD_DIR/memory_block/
+    rm -rf $BUILD_DIR/
     mkdir -pv $BUILD_DIR
 fi
 
