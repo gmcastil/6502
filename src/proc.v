@@ -181,7 +181,13 @@ module proc
 
   end // block: STATE_MACHINE
 
+  // --- Instruction Cycle Description
   always @(posedge clk) begin: INSTRUCTION_CYCLE
+
+    // Defines instruction execution, interaction with address and data bus,
+    // manipulation of the program counter, and all other processor operations.
+    // Note that other than manipulation of the program counter and address
+    // values, arithmetic operations are all routed through the ALU.
 
     case ( 1'b1 )
 
@@ -347,6 +353,7 @@ module proc
 
   end // block: INSTRUCTION_CYCLE
 
+  // --- Address Mode Decoder
   always @(*) begin: ADDR_MODE_DECODER
 
     // The contents of the instruction register are decoded to determine the
@@ -363,6 +370,8 @@ module proc
         decoded_state = ABS_1;
       end
 
+      CLC_imp,
+      CLV_imp,
       NOP_imp: begin
         decoded_state = FETCH;
       end
@@ -374,6 +383,7 @@ module proc
 
   end // block: ADDR_MODE_DECODER
 
+  // --- Processor Status Update
   always @(*) begin: PROCESSOR_STATUS_UPDATE
 
     // Processor status register will be updated upon entry into the FETCH

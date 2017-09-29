@@ -133,8 +133,13 @@ localparam
   LDA_abs = 8'hAD;
 
 localparam
-
-  LDA_imm = 8'hA9;
+  //
+  // Load Accumulator from Memory
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  LDA_abs = 8'hAD;  //  3       4
 
 localparam
   //
