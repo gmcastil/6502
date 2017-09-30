@@ -13,3 +13,5 @@ work/
 sim/
 # Also ignore the temporary files that emacs and such make
 .\#*
+# In general, ignore any transcripts that get produced anywhere
+transcript
