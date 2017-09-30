@@ -13,7 +13,7 @@
 
 `timescale 1ns / 1ps
 
-module proc_top_tb ();
+module proc_tb ();
 
   localparam T = 10;
   localparam P = 100;
