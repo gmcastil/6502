@@ -8,6 +8,9 @@ working/
 work/
 build/
 work/
+# Ignore simulation directories because they get build automatically and
+# will contain Xilinx IP
+proc_lib/
 # Also ignore the temporary files that emacs and such make
 .\#*
 # In general, ignore any transcripts that get produced anywhere
