@@ -1,9 +1,0 @@
-Model Technology ModelSim - Intel FPGA Edition vlog 10.5c Compiler 2017.01 Jan 23 2017
-Start time: 18:00:49 on Sep 30,2017
-vlog -work proc_lib -l alu.log "+incdir+../includes/" ../src/alu.v 
--- Compiling module alu
-
-Top level modules:
-	alu
-End time: 18:00:49 on Sep 30,2017, Elapsed time: 0:00:00
-Errors: 0, Warnings: 0

@@ -1,9 +1,0 @@
-Model Technology ModelSim - Intel FPGA Edition vlog 10.5c Compiler 2017.01 Jan 23 2017
-Start time: 15:19:40 on Oct 01,2017
-vlog -work proc_lib -l glbl.log /opt/Xilinx/Vivado/2017.1/data/verilog/src/glbl.v 
--- Compiling module glbl
-
-Top level modules:
-	glbl
-End time: 15:19:40 on Oct 01,2017, Elapsed time: 0:00:00
-Errors: 0, Warnings: 0
