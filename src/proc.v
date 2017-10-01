@@ -68,7 +68,7 @@ module proc
   reg [255:0]        state;
   reg [255:0]        next;
 
-`include "./includes/ascii.vh"
+ `include "./includes/ascii.vh"
 
   // --- Other Signals
   reg [7:0]          operand_LSB;
