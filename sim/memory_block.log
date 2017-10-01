@@ -1,0 +1,31 @@
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5c Compiler 2017.01 Jan 23 2017
+Start time: 15:19:40 on Oct 01,2017
+vlog -work proc_lib -novopt -l memory_block.log ../build/memory_block/memory_block_sim_netlist.v 
+-- Compiling module memory_block
+-- Compiling module memory_block_blk_mem_gen_generic_cstr
+-- Compiling module memory_block_blk_mem_gen_prim_width
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized0
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized1
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized2
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized3
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized4
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized5
+-- Compiling module memory_block_blk_mem_gen_prim_width__parameterized6
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized0
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized1
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized2
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized3
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized4
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized5
+-- Compiling module memory_block_blk_mem_gen_prim_wrapper_init__parameterized6
+-- Compiling module memory_block_blk_mem_gen_top
+-- Compiling module memory_block_blk_mem_gen_v8_3_6
+-- Compiling module memory_block_blk_mem_gen_v8_3_6_synth
+-- Compiling module glbl
+
+Top level modules:
+	memory_block
+	glbl
+End time: 15:19:40 on Oct 01,2017, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0

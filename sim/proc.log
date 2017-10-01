@@ -1,0 +1,18 @@
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5c Compiler 2017.01 Jan 23 2017
+Start time: 15:19:40 on Oct 01,2017
+vlog -work proc_lib -novopt -l proc.log -y ../src -y /opt/Xilinx/Vivado/2017.1/data/verilog/src/unisims -y /opt/Xilinx/Vivado/2017.1/data/verilog/src/unifast -y /opt/Xilinx/Vivado/2017.1/data/verilog/src/unimacro "+libext+.v" "+libext+.vh" "+incdir+../src/includes/" ../src/proc_tb.v 
+-- Compiling module proc_tb
+-- Scanning library directory '../src'
+-- Compiling module proc
+-- Compiling module alu
+-- Scanning library directory '/opt/Xilinx/Vivado/2017.1/data/verilog/src/unisims'
+-- Scanning library directory '/opt/Xilinx/Vivado/2017.1/data/verilog/src/unifast'
+-- Scanning library directory '/opt/Xilinx/Vivado/2017.1/data/verilog/src/unimacro'
+
+Referenced (but uncompiled) modules or primitives:
+	memory_block
+
+Top level modules:
+	proc_tb
+End time: 15:19:40 on Oct 01,2017, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0
