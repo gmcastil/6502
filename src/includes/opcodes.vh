@@ -43,10 +43,6 @@
 
 // Also note that each instruction will affect the status of processor flags
 
-`ifndef OPCODES
-
-`define OPCODES
-
 localparam
   //
   // Add With Carry
@@ -157,7 +153,3 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   CLV_imp = 8'hB8;  //  1       2                Y
-
-`endif //  `ifndef OPCODES
-
-// -*- var-name:
