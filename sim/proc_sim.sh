@@ -8,8 +8,7 @@ IFS=$'\n\t'
 sim_dir="./proc_lib/"
 
 if [[ -d $sim_dir ]]; then
-    rm -rf $sim_dir/
-    mkdir -pv $sim_dir
+    rm -rf $sim_dir
 fi
 
 vsim -c -do proc_sim.tcl
