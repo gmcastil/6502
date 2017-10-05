@@ -15,3 +15,5 @@ proc_lib/
 .\#*
 # In general, ignore any transcripts that get produced anywhere
 transcript
+# The initial contents of the memory block are not under revision control - use a ROM
+*.mif
