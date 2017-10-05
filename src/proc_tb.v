@@ -47,7 +47,6 @@ module proc_tb ();
 
   // Create the 10MHz clock that the processor will run at
   initial begin
-    clk = 1'b1;
     forever begin
       #(P/2);
       clk = ~clk;
@@ -70,7 +69,42 @@ module proc_tb ();
     #(P*100);
   end
 
-  // Instantiate the memory block using the example from the generated
+  // Bring processor status register bits up to the top and break them out
+  // into individual signals to aide in simulation
+  wire sim_proc_carry;
+  wire sim_proc_zero;
+  wire sim_proc_irq;
+  wire sim_proc_decimal;
+  wire sim_proc_break_inst;
+  wire sim_proc_overflow;
+  wire sim_proc_negative;
+
+  assign sim_proc_carry      = inst_proc.P[0];
+  assign sim_proc_zero       = inst_proc.P[1];
+  assign sim_proc_irq        = inst_proc.P[2];
+  assign sim_proc_decimal    = inst_proc.P[3];
+  assign sim_proc_break_inst = inst_proc.P[4];
+  assign sim_proc_overflow   = inst_proc.P[6];
+  assign sim_proc_negative   = inst_proc.P[7];
+
+  // Break out ALU flags into individual signals to aide in simulation
+  wire sim_alu_carry;
+  wire sim_alu_zero;
+  wire sim_alu_irq;
+  wire sim_alu_decimal;
+  wire sim_alu_break_inst;
+  wire sim_alu_overflow;
+  wire sim_alu_negative;
+
+  assign sim_alu_carry      = alu_flags[0];
+  assign sim_alu_zero       = alu_flags[1];
+  assign sim_alu_irq        = alu_flags[2];
+  assign sim_alu_decimal    = alu_flags[3];
+  assign sim_alu_break_inst = alu_flags[4];
+  assign sim_alu_overflow   = alu_flags[6];
+  assign sim_alu_negative   = alu_flags[7];
+
+  // -- Instantiations
   memory_block
     #(
       ) inst_memory_block (
