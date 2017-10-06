@@ -47,6 +47,7 @@ module proc_tb ();
 
   // Create the 10MHz clock that the processor will run at
   initial begin
+    clk = 1'b1;
     forever begin
       #(P/2);
       clk = ~clk;
