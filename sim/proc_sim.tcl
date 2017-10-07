@@ -50,12 +50,12 @@ $vlog \
    +incdir+${includes_dir} \
    ${src_dir}/proc_tb.v
 
-$vsim \
-   -t 1ps \
-   -c \
-   proc_lib.proc_tb \
-   -wlf proc_sim.wlf \
-   -do "log -r /*" \
-   -do "do ${dofiles}/proc_sim_wave.do" \
-   -do "do ${dofiles}/runsim.do" \
-   -do "quit -sim"
+# $vsim \
+#    -t 1ps \
+#    -c \
+#    proc_lib.proc_tb \
+#    -wlf proc_sim.wlf \
+#    -do "log -r /*" \
+#    -do "do ${dofiles}/proc_sim_wave.do" \
+#    -do "do ${dofiles}/runsim.do" \
+#    -do "quit -sim"
