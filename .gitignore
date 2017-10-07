@@ -17,3 +17,5 @@ proc_lib/
 transcript
 # The initial contents of the memory block are not under revision control - use a ROM
 *.mif
+*.log
+*.wlf
