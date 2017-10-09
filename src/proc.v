@@ -222,17 +222,21 @@ module proc
 
         case ( IR )
 
+          // 4 cycle absolute addressing mode
           ADC_abs,
           AND_abs,
           ASL_abs,
-          LDA_abs: begin
+          LDA_abs,
+          ROL_abs: begin
             address <= PC + 16'd2;
           end
 
+          // 3 cycle absolute addressing mode
           JMP_abs: begin
             address <= PC + 16'd2;
           end
 
+          // 2-cycle implied addressing mode
           CLC_imp,
           CLV_imp,
           NOP_imp: begin
@@ -257,7 +261,8 @@ module proc
           AND_abs,
           ASL_abs,
           BIT_abs,
-          LDA_abs: begin
+          LDA_abs,
+          ROL_abs: begin
             address <= { rd_data, operand_LSB };
           end
 
@@ -314,6 +319,11 @@ module proc
             A <= rd_data;
           end
 
+          ROL_abs: begin
+            ALU_AI <= rd_data;
+            alu_ctrl <= SR;
+          end
+
           default: begin end
         endcase // case ( IR )
 
@@ -331,6 +341,11 @@ module proc
             address <= { operand_MSB, operand_LSB };
           end
 
+          ROL_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+          end
+
           default: begin end
         endcase // case ( IR )
       end
@@ -342,6 +357,12 @@ module proc
           ASL_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
+            wr_enable <= 1'b0;
+          end
+
+          ROL_abs: begin
+            PC <= PC + 16'd3;
+            addres <= PC + 16'd3;
             wr_enable <= 1'b0;
           end
 
