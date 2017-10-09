@@ -262,33 +262,6 @@ localparam
 
 localparam
   //
-  // Store Zero to Memory
-  //
-  // Flags Affected: - - - - - - - -
-  //
-  //        Opcode      Bytes   Cycles   Notes   Implemented
-  STY_abs = 8'h9Z;  //  3       4
-
-localparam
-  //
-  // Test and Reset Memory Bits Against Accumulator
-  //
-  // Flags Affected: - - - - - - z -
-  //
-  //        Opcode      Bytes   Cycles   Notes   Implemented
-  TRB_abs = 8'h1C;  //  3       6
-
-localparam
-  //
-  // Test and Set Memory Bits Against Acumulator
-  //
-  // Flags Affected: - - - - - - z -
-  //
-  //        Opcode      Bytes   Cycles   Notes   Implemented
-  TSB_abs = 8'h9Z;  //  3       6
-
-localparam
-  //
   // Clear Carry Flag
   //
   // Flags Affected: - - - - - - - c
