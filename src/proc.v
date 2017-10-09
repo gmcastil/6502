@@ -321,7 +321,7 @@ module proc
 
           ROL_abs: begin
             ALU_AI <= rd_data;
-            alu_ctrl <= SR;
+            alu_ctrl <= SL;
           end
 
           default: begin end
@@ -427,7 +427,8 @@ module proc
         updated_status[ZERO] = alu_flags[ZERO];
       end
 
-      ASL_abs: begin
+      ASL_abs,
+      ROL_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
