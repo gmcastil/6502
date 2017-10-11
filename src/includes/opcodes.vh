@@ -44,14 +44,16 @@
 
 // Notes to myself
 //
-// Absolute status:
+// Absolute addressing mode status:
 
 // ADC - Done
 // AND - Done
 // ASL - Done
 // BIT - Done
-// CMP
-// CPX
+// CMP - Done, but I'm not sure that the ALU implements SUB correctly to perform
+//       this operation properly, or that the flag assignment in the processor
+//       logic is correct.  Might need to fix this later.
+// CPX -
 // CPY
 // DEC
 // EOR

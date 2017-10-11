@@ -229,6 +229,7 @@ module proc
           AND_abs,
           ASL_abs,
           BIT_abs,
+          CMP_abs,
           LDA_abs,
           ROL_abs,
           ROR_abs: begin
@@ -265,6 +266,7 @@ module proc
           AND_abs,
           ASL_abs,
           BIT_abs,
+          CMP_abs,
           LDA_abs,
           LDX_abs,
           LDY_abs,
@@ -321,6 +323,16 @@ module proc
             alu_ctrl <= AND;
 
             // BIT instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end
+
+          CMP_abs: begin
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            // CMP instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
             update_accumulator <= 1'b0;
           end
@@ -426,6 +438,7 @@ module proc
       AND_abs,
       ASL_abs,
       BIT_abs,
+      CMP_abs,
       JMP_abs,
       LDA_abs,
       LDX_abs,
@@ -490,6 +503,12 @@ module proc
         updated_status[OVF] = rd_data[6];
       end
 
+      CMP_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
+      end
+
       CLC_imp: begin
         updated_status[CARRY] = 1'b0;
       end
@@ -498,7 +517,8 @@ module proc
         updated_status[OVF] = 1'b0;
       end
 
-      // Explicitly ensure that NOP does not touch processor status
+      // Explicitly ensure these instructions do not touch processor status
+      JMP_abs,
       NOP_imp: begin
         updated_status = P;
       end
