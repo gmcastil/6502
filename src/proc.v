@@ -146,18 +146,20 @@ module proc
 
       // --- Absolute Addressing Mode
       state[ABS_1]: begin
-        // 3 cycle instructions
+        // 3-cycle instructions return
         if ( IR == JMP_abs ) begin
           next[FETCH] = 1'b1;
+        // 4 and 6-cycle instructions continue
         end else begin
           next[ABS_2] = 1'b1;
         end
       end
 
       state[ABS_2]: begin
+        // 6-cycle instructions continue
         if ( IR == ASL_abs ) begin
           next[ABS_3] = 1'b1;
-        // 4 cycle instructions
+        // 4-cycle instructions return
         end else begin
           next[FETCH] = 1'b1;
         end
@@ -168,7 +170,7 @@ module proc
       end
 
       state[ABS_4]: begin
-        // 6 cycle instructions
+        // 6 cycle instructions return
         next[FETCH] = 1'b1;
       end
 
@@ -227,7 +229,8 @@ module proc
           AND_abs,
           ASL_abs,
           LDA_abs,
-          ROL_abs: begin
+          ROL_abs,
+          ROR_abs: begin
             address <= PC + 16'd2;
           end
 
@@ -262,7 +265,10 @@ module proc
           ASL_abs,
           BIT_abs,
           LDA_abs,
-          ROL_abs: begin
+          LDX_abs,
+          LDY_abs,
+          ROL_abs,
+          ROR_abs: begin
             address <= { rd_data, operand_LSB };
           end
 
@@ -319,9 +325,29 @@ module proc
             A <= rd_data;
           end
 
+          LDX_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            X <= rd_data;
+          end
+
+          LDY_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            Y <= rd_data;
+          end
+
+
           ROL_abs: begin
             ALU_AI <= rd_data;
             alu_ctrl <= SL;
+          end
+
+          ROL_abs: begin
+            ALU_AI <= rd_data;
+            alu_ctrl <= SR;
           end
 
           default: begin end
@@ -346,6 +372,11 @@ module proc
             wr_enable <= 1'b1;
           end
 
+          ROL_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+          end
+
           default: begin end
         endcase // case ( IR )
       end
@@ -360,9 +391,10 @@ module proc
             wr_enable <= 1'b0;
           end
 
-          ROL_abs: begin
+          ROL_abs,
+          ROR_abs: begin
             PC <= PC + 16'd3;
-            addres <= PC + 16'd3;
+            address <= PC + 16'd3;
             wr_enable <= 1'b0;
           end
 
@@ -387,7 +419,11 @@ module proc
       AND_abs,
       ASL_abs,
       JMP_abs,
-      LDA_abs: begin
+      LDA_abs,
+      LDX_abs,
+      LDY_abs,
+      ROL_abs,
+      ROR_abs: begin
         decoded_state = ABS_1;
       end
 
@@ -422,13 +458,16 @@ module proc
       end
 
       AND_abs,
-      LDA_abs: begin
+      LDA_abs,
+      LDX_abs,
+      LDY_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
       end
 
       ASL_abs,
-      ROL_abs: begin
+      ROL_abs,
+      ROR_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];

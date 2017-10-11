@@ -31,7 +31,6 @@
 // ind   Absolute indirect                   ($0000)
 // rel   Program counter relative            $0000
 
-
 // Note that there is some asymmetry here between indexed indirect mode
 // (used only with the X register) and indirect indexed mode (used only with
 // the Y register).  These modes are distinct with respect to each other and
@@ -42,6 +41,34 @@
 // 1 - Add 1 cycle if adding index crosses a page boundary
 
 // Also note that each instruction will affect the status of processor flags
+
+// Notes to myself
+//
+// Absolute status:
+
+// ADC - Done
+// AND - Done
+// ASL - Done
+// BIT
+// CMP
+// CPX
+// CPY
+// DEC
+// EOR
+// INC
+// JMP - Done
+// JSR
+// LDA - Done
+// LDX - Done
+// LDY - Done
+// LSR
+// ORA
+// ROL - Done
+// ROR - Done
+// SBC
+// STA
+// STX
+// STY
 
 localparam
   //
@@ -213,7 +240,7 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ROL_abs = 8'h2E;  //  3       6
+  ROL_abs = 8'h2E;  //  3       6                Y
 
 localparam
   //
