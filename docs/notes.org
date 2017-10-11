@@ -1,22 +1,26 @@
-* Development Plan
-- [X] Script to generate the memory block IP using the included COE file
-- [X] Script to simulate looping through the memory array reading each address
-- [ ] Script to simulate testing of the processor with the memory array
-- [ ] Design the processor module so that it can actually
-* Opcodes
-| Mneumonic | Opcode | Arguments | Mode |
-|-----------+--------+-----------+------|
-| NOP       | EA     | 0         |      |
-| JMP       | 4C     | 2         |      |
-| LDA       | 49     | 1         |      |
-|           |        |           |      |
 * Conventions
-- Use 16'd1 or 16'd3 for incrementing program counter
-- Use 1'b1 for things which are single bits
-- Increment PC immediately prior to returning to the FETCH state
-Register ALU results and processor status flags on the return to the FETCH state
-(i.e., the rising edge of clock in the state prior to FETCH).  This means
-registering the new value on the preceeding state of the FSM
+** Numerical Consistency
+- In general, use 16'd1 or 16'd3 for actions that inrement or change multi-bit
+  signals (e.g., incrementing the PC)
+- Use 1'b1 or 1'b0 for one-bit signals (e.g., processor status flag)
+** Addressing Modes
+- Every addressing mode has a distinct path through the state machine (e.g.,
+  only opcodes in the absolute-addressing family appear in the execution of that
+  set of states in the FSM, such as ABS_1)
+- Two-cycle instructions are exceptions to this rule
+** Coding Conventions
+- The PC should be incremented on the rising edge of the state immediately
+  before the FETCH state
+- Updaes to the processor status flags and the accumulator are registered on the
+  rising edge of clock while in hte FETCH state.
+- Increment PC immediately prior to returning to the FETCH state (e.g., on the
+  rising edge of the clock during the state immediately prior to FETCH.
+- Register ALU results and processor status flags on the return to the FETCH
+  state (i.e., the rising edge of clock in the state prior to FETCH). This means
+  registering the new value on the preceeding state of the FSM.
 - When using the ALU with the accumulator, A should be placed on the AI input
   with X, Y, or memory on the BI input.  This should simplify implementation and
   make it easier on the synthesis engine.
+- Any instruction implementation that uses the accumulator should explicitly set
+  the update_accumulator flag to 1 or 0 depending upon whether an instruction
+  affects the accumulator.
