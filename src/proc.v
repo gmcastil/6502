@@ -228,6 +228,7 @@ module proc
           ADC_abs,
           AND_abs,
           ASL_abs,
+          BIT_abs,
           LDA_abs,
           ROL_abs,
           ROR_abs: begin
@@ -315,7 +316,13 @@ module proc
           end
 
           BIT_abs: begin
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= AND;
 
+            // BIT instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
           end
 
           LDA_abs: begin
@@ -471,6 +478,15 @@ module proc
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      BIT_abs: begin
+        // Negative flag comes from high bit of operand provided to ALU
+        updated_status[NEG] = rd_data[7];
+        // Zero flag is normal, but with accumulator and memory unaffected
+        updated_status[ZERO] = alu_flags[ZERO];
+        // Overflow flag comes from next highest bit of operand provided to ALU
+        updated_status[OVF] = rd_data[6];
       end
 
       CLC_imp: begin

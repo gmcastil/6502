@@ -49,7 +49,7 @@
 // ADC - Done
 // AND - Done
 // ASL - Done
-// BIT
+// BIT - Done
 // CMP
 // CPX
 // CPY
