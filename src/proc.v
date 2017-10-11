@@ -230,6 +230,8 @@ module proc
           ASL_abs,
           BIT_abs,
           CMP_abs,
+          CPX_abs,
+          CPY_abs,
           LDA_abs,
           ROL_abs,
           ROR_abs: begin
@@ -267,6 +269,8 @@ module proc
           ASL_abs,
           BIT_abs,
           CMP_abs,
+          CPX_abs,
+          CPY_abs,
           LDA_abs,
           LDX_abs,
           LDY_abs,
@@ -318,6 +322,9 @@ module proc
           end
 
           BIT_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_ctrl <= AND;
@@ -328,11 +335,40 @@ module proc
           end
 
           CMP_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_ctrl <= SUB;
 
             // CMP instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end
+
+          CPX_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= X;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            // CPX instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end
+
+          CPY_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= Y;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            // CPY instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
             update_accumulator <= 1'b0;
           end
@@ -439,6 +475,8 @@ module proc
       ASL_abs,
       BIT_abs,
       CMP_abs,
+      CPX_abs,
+      CPY_abs,
       JMP_abs,
       LDA_abs,
       LDX_abs,
@@ -504,6 +542,21 @@ module proc
       end
 
       CMP_abs: begin
+        // TODO: Not sure these are set correctly
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      CPX_abs: begin
+        // TODO: Not sure these are set correctly
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      CPY_abs: begin
+        // TODO: Not sure these are set correctly
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
