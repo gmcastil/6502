@@ -232,6 +232,7 @@ module proc
           CMP_abs,
           CPX_abs,
           CPY_abs,
+          DEC_abs,
           LDA_abs,
           ROL_abs,
           ROR_abs: begin
@@ -271,6 +272,8 @@ module proc
           CMP_abs,
           CPX_abs,
           CPY_abs,
+          DEC_abs,
+          EOR_abs,
           LDA_abs,
           LDX_abs,
           LDY_abs,
@@ -371,6 +374,20 @@ module proc
             // CPY instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
             update_accumulator <= 1'b0;
+          end // case: CPY_abs
+
+          DEC_abs: begin
+            alu_AI <= rd_data;
+            alu_BI <= 8'd1;
+            alu_ctrl <= SUB;
+          end
+
+          EOR_abs: begin
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= XOR;
+
+            update_accumulator <= 1'b1;
           end
 
           LDA_abs: begin
@@ -393,7 +410,6 @@ module proc
 
             Y <= rd_data;
           end
-
 
           ROL_abs: begin
             ALU_AI <= rd_data;
@@ -422,6 +438,14 @@ module proc
             address <= { operand_MSB, operand_LSB };
           end
 
+          DEC_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+
+            // Address to store the result to on the next clock cycle
+            address <= { operand_MSB, operand_LSB };
+          end
+
           ROL_abs: begin
             wr_data <= alu_Y;
             wr_enable <= 1'b1;
@@ -441,6 +465,12 @@ module proc
         case ( IR )
 
           ASL_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+            wr_enable <= 1'b0;
+          end
+
+          DEC_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
             wr_enable <= 1'b0;
@@ -477,6 +507,8 @@ module proc
       CMP_abs,
       CPX_abs,
       CPY_abs,
+      DEC_abs,
+      EOR_abs,
       JMP_abs,
       LDA_abs,
       LDX_abs,
@@ -517,6 +549,8 @@ module proc
       end
 
       AND_abs,
+      DEC_abs,
+      EOR_abs,
       LDA_abs,
       LDX_abs,
       LDY_abs: begin
@@ -542,21 +576,21 @@ module proc
       end
 
       CMP_abs: begin
-        // TODO: Not sure these are set correctly
+        // TODO: Not sure these are set correctly, can probably be combined
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
       end
 
       CPX_abs: begin
-        // TODO: Not sure these are set correctly
+        // TODO: Not sure these are set correctly, can probably be combined
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
       end
 
       CPY_abs: begin
-        // TODO: Not sure these are set correctly
+        // TODO: Not sure these are set correctly, can probably be combined
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
