@@ -11,9 +11,12 @@
 | LDA       | 49     | 1         |      |
 |           |        |           |      |
 * Conventions
-Use 16'd1 or 16'd3 for incrementing program counter
-Use 1'b1 for things which are single bits
-Increment PC immediately prior to returning to the FETCH state
+- Use 16'd1 or 16'd3 for incrementing program counter
+- Use 1'b1 for things which are single bits
+- Increment PC immediately prior to returning to the FETCH state
 Register ALU results and processor status flags on the return to the FETCH state
 (i.e., the rising edge of clock in the state prior to FETCH).  This means
-registering the new
+registering the new value on the preceeding state of the FSM
+- When using the ALU with the accumulator, A should be placed on the AI input
+  with X, Y, or memory on the BI input.  This should simplify implementation and
+  make it easier on the synthesis engine.
