@@ -239,6 +239,9 @@ module proc
           INX_abs,
           INY_abs,
           LDA_abs,
+          LDX_abs,
+          LDY_abs,
+          LSR_abs,
           ROL_abs,
           ROR_abs: begin
             address <= PC + 16'd2;
@@ -287,6 +290,7 @@ module proc
           LDA_abs,
           LDX_abs,
           LDY_abs,
+          LSR_abs,
           ROL_abs,
           ROR_abs: begin
             address <= { rd_data, operand_LSB };
@@ -451,6 +455,11 @@ module proc
             Y <= rd_data;
           end
 
+          LSR_abs: begin
+            alu_AI <= rd_data;
+            alu_ctrl <= SL;
+          end
+
           ROL_abs: begin
             ALU_AI <= rd_data;
             alu_ctrl <= SL;
@@ -487,6 +496,14 @@ module proc
             address <= { operand_MSB, operand_LSB };
           end
 
+          LSR_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+
+            // Address to store the result to on the next clock cycle
+            address <= { operand_MSB, operand_LSB };
+          end
+
           ROL_abs: begin
             wr_data <= alu_Y;
             wr_enable <= 1'b1;
@@ -513,6 +530,12 @@ module proc
 
           DEC_abs,
           INC_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+            wr_enable <= 1'b0;
+          end
+
+          LSR_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
             wr_enable <= 1'b0;
@@ -556,6 +579,7 @@ module proc
       LDA_abs,
       LDX_abs,
       LDY_abs,
+      LSR_abs,
       ROL_abs,
       ROR_abs: begin
         decoded_state = ABS_1;
@@ -603,6 +627,7 @@ module proc
       end
 
       ASL_abs,
+      LSR_abs,
       ROL_abs,
       ROR_abs: begin
         updated_status[NEG] = alu_flags[NEG];
