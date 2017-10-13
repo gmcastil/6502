@@ -233,6 +233,11 @@ module proc
           CPX_abs,
           CPY_abs,
           DEC_abs,
+          DEX_abs,
+          DEY_abs,
+          INC_abs,
+          INX_abs,
+          INY_abs,
           LDA_abs,
           ROL_abs,
           ROR_abs: begin
@@ -273,6 +278,11 @@ module proc
           CPX_abs,
           CPY_abs,
           DEC_abs,
+          DEX_abs,
+          DEY_abs
+          INC_abs,
+          INX_abs,
+          INY_abs,
           EOR_abs,
           LDA_abs,
           LDX_abs,
@@ -382,6 +392,36 @@ module proc
             alu_ctrl <= SUB;
           end
 
+          DEX_abs: begin
+            alu_AI <= X;
+            alu_BI <= 8'd1;
+            alu_ctrl <= SUB;
+          end
+
+          DEY_abs: begin
+            alu_AI <= Y;
+            alu_BI <= 8'd1;
+            alu_ctrl <= SUB;
+          end
+
+          INC_abs: begin
+            alu_AI <= rd_data;
+            alu_BI <= 8'd1;
+            alu_ctrl <= ADD;
+          end
+
+          INX_abs: begin
+            alu_AI <= X;
+            alu_BI <= 8'd1;
+            alu_ctrl <= ADD;
+          end
+
+          INY_abs: begin
+            alu_AI <= Y;
+            alu_BI <= 8'd1;
+            alu_ctrl <= ADD;
+          end
+
           EOR_abs: begin
             alu_AI <= A;
             alu_BI <= rd_data;
@@ -438,7 +478,8 @@ module proc
             address <= { operand_MSB, operand_LSB };
           end
 
-          DEC_abs: begin
+          DEC_abs,
+          INC_abs: begin
             wr_data <= alu_Y;
             wr_enable <= 1'b1;
 
@@ -470,7 +511,8 @@ module proc
             wr_enable <= 1'b0;
           end
 
-          DEC_abs: begin
+          DEC_abs,
+          INC_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
             wr_enable <= 1'b0;
@@ -508,6 +550,7 @@ module proc
       CPX_abs,
       CPY_abs,
       DEC_abs,
+      INC_abs,
       EOR_abs,
       JMP_abs,
       LDA_abs,
@@ -551,6 +594,7 @@ module proc
       AND_abs,
       DEC_abs,
       EOR_abs,
+      INC_abs,
       LDA_abs,
       LDX_abs,
       LDY_abs: begin

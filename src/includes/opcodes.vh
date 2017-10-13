@@ -60,8 +60,12 @@
 //       this operation properly, or that the flag assignment in the processor
 //       logic is correct.  Might need to fix this later.
 // DEC - Done, assuming my write logic is correct
+// DEX - Done, assuming my write logic is correct
+// DEY - Done, assuming my write logic is correct
 // EOR
-// INC
+// INC - Done, assuming my write logic is correct
+// INX - Done, assuming my write logic is correct
+// INY - Done, assuming my write logic is correct
 // JMP - Done
 // JSR
 // LDA - Done
@@ -151,6 +155,24 @@ localparam
 
 localparam
   //
+  // Decrement Index X
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  DEX_abs = 8'hCA;  //  3       6
+
+localparam
+  //
+  // Decrement Index Y
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  DEY_abs = 8'h88;  //  3       6
+
+localparam
+  //
   // Exclusive-Or Accumulator with Memory
   //
   // Flags Affected: n - - - - - z -
@@ -160,12 +182,30 @@ localparam
 
 localparam
   //
-  // Decrement
+  // Increment
   //
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   INC_abs = 8'hEE;  //  3       6
+
+localparam
+  //
+  // Increment Index X
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  INX_abs = 8'hE8;  //  3       6
+
+localparam
+  //
+  // Increment Index Y
+  //
+  // Flags Affected: n - - - - - z -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  INY_abs = 8'hC8;  //  3       6
 
 localparam
   //
