@@ -62,7 +62,7 @@
 // DEC - Done, assuming my write logic is correct
 // DEX - Done, assuming my write logic is correct
 // DEY - Done, assuming my write logic is correct
-// EOR
+// EOR - Done
 // INC - Done, assuming my write logic is correct
 // INX - Done, assuming my write logic is correct
 // INY - Done, assuming my write logic is correct

@@ -235,6 +235,7 @@ module proc
           DEC_abs,
           DEX_abs,
           DEY_abs,
+          EOR_abs,
           INC_abs,
           INX_abs,
           INY_abs,
@@ -283,11 +284,11 @@ module proc
           CPY_abs,
           DEC_abs,
           DEX_abs,
-          DEY_abs
+          DEY_abs,
+          EOR_abs,
           INC_abs,
           INX_abs,
           INY_abs,
-          EOR_abs,
           LDA_abs,
           LDX_abs,
           LDY_abs,
@@ -410,6 +411,17 @@ module proc
             alu_ctrl <= SUB;
           end
 
+          EOR_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= XOR;
+
+            update_accumulator <= 1'b1;
+          end
+
           INC_abs: begin
             alu_AI <= rd_data;
             alu_BI <= 8'd1;
@@ -426,14 +438,6 @@ module proc
             alu_AI <= Y;
             alu_BI <= 8'd1;
             alu_ctrl <= ADD;
-          end
-
-          EOR_abs: begin
-            alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_ctrl <= XOR;
-
-            update_accumulator <= 1'b1;
           end
 
           LDA_abs: begin
@@ -462,7 +466,7 @@ module proc
             alu_ctrl <= SL;
           end
 
-          OR_abs: begin
+          ORA_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
 
