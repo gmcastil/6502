@@ -71,8 +71,8 @@
 // LDA - Done
 // LDX - Done
 // LDY - Done
-// LSR
-// ORA
+// LSR - Done
+// ORA - Done
 // ROL - Done
 // ROR - Done
 // SBC

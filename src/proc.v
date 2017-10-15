@@ -242,6 +242,7 @@ module proc
           LDX_abs,
           LDY_abs,
           LSR_abs,
+          ORA_abs,
           ROL_abs,
           ROR_abs: begin
             address <= PC + 16'd2;
@@ -291,6 +292,7 @@ module proc
           LDX_abs,
           LDY_abs,
           LSR_abs,
+          ORA_abs,
           ROL_abs,
           ROR_abs: begin
             address <= { rd_data, operand_LSB };
@@ -460,6 +462,17 @@ module proc
             alu_ctrl <= SL;
           end
 
+          OR_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= OR;
+
+            update_accumulator <= 1'b1;
+          end
+
           ROL_abs: begin
             ALU_AI <= rd_data;
             alu_ctrl <= SL;
@@ -580,6 +593,7 @@ module proc
       LDX_abs,
       LDY_abs,
       LSR_abs,
+      ORA_abs,
       ROL_abs,
       ROR_abs: begin
         decoded_state = ABS_1;
@@ -621,7 +635,8 @@ module proc
       INC_abs,
       LDA_abs,
       LDX_abs,
-      LDY_abs: begin
+      LDY_abs,
+      ORA_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
       end
