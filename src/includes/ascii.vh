@@ -42,7 +42,8 @@
       8'hEE: IR_ascii <= "INC";
       8'h4C: IR_ascii <= "JMP";
       8'h20: IR_ascii <= "JSR";
-      8'hAD: IR_ascii <= "LDA";
+      8'hAD,
+      8'hA9: IR_ascii <= "LDA";
       8'hAE: IR_ascii <= "LDX";
       8'hAC: IR_ascii <= "LDY";
       8'h4E: IR_ascii <= "LSR";

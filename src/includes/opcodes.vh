@@ -75,10 +75,10 @@
 // ORA - Done
 // ROL - Done
 // ROR - Done
-// SBC
-// STA
-// STX
-// STY
+// SBC - Done
+// STA - Done
+// STX - Done
+// STY - Done
 
 localparam
   //
@@ -232,6 +232,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  LDA_imm = 8'hA9,  //  2       2
   LDA_abs = 8'hAD;  //  3       4
 
 localparam

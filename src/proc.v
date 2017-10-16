@@ -233,8 +233,6 @@ module proc
           CPX_abs,
           CPY_abs,
           DEC_abs,
-          DEX_abs,
-          DEY_abs,
           EOR_abs,
           INC_abs,
           INX_abs,
@@ -245,7 +243,11 @@ module proc
           LSR_abs,
           ORA_abs,
           ROL_abs,
-          ROR_abs: begin
+          ROR_abs,
+          SBC_abs,
+          STA_abs,
+          STX_abs,
+          STY_abs: begin
             address <= PC + 16'd2;
           end
 
@@ -261,6 +263,13 @@ module proc
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
             update_accumulator <= 1'b1;
+          end
+
+          // -- Immediate Addressing Mode (2-cycle)
+          LDA_imm: begin
+            address <= PC + 16'd2;
+            PC <= PC + 16'd2;
+            A <= rd_data;
           end
 
           default: begin end
@@ -287,16 +296,33 @@ module proc
           DEY_abs,
           EOR_abs,
           INC_abs,
-          INX_abs,
-          INY_abs,
           LDA_abs,
           LDX_abs,
           LDY_abs,
           LSR_abs,
           ORA_abs,
           ROL_abs,
-          ROR_abs: begin
+          ROR_abs,
+          SBC_abs: begin
             address <= { rd_data, operand_LSB };
+          end // case: ADC_abs,...
+
+          STA_abs: begin
+            address <= { rd_data, operand_LSB };
+            wr_data <= A;
+            wr_enable <= 1'b1;
+          end
+
+          STX_abs: begin
+            address <= { rd_data, operand_LSB };
+            wr_data <= X;
+            wr_enable <= 1'b1;
+          end
+
+          STY_abs: begin
+            address <= { rd_data, operand_LSB };
+            wr_data <= Y;
+            wr_enable <= 1'b1;
           end
 
           JMP_abs: begin
@@ -478,13 +504,31 @@ module proc
           end
 
           ROL_abs: begin
-            ALU_AI <= rd_data;
+            alu_AI <= rd_data;
             alu_ctrl <= SL;
           end
 
-          ROL_abs: begin
-            ALU_AI <= rd_data;
+          ROR_abs: begin
+            alu_AI <= rd_data;
             alu_ctrl <= SR;
+          end
+
+          SBC_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            update_accumulator <= 1'b1;
+          end
+
+          STA_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            wr_enable <= 1'b0;
           end
 
           default: begin end
@@ -524,11 +568,15 @@ module proc
           ROL_abs: begin
             wr_data <= alu_Y;
             wr_enable <= 1'b1;
+
+            address <= { operand_MSB, operand_LSB };
           end
 
-          ROL_abs: begin
+          ROR_abs: begin
             wr_data <= alu_Y;
             wr_enable <= 1'b1;
+
+            address <= { operand_MSB, operand_LSB };
           end
 
           default: begin end
@@ -582,6 +630,7 @@ module proc
 
     case ( IR )
 
+      // -- Absolute Addressing Mode
       ADC_abs,
       AND_abs,
       ASL_abs,
@@ -590,22 +639,33 @@ module proc
       CPX_abs,
       CPY_abs,
       DEC_abs,
-      INC_abs,
       EOR_abs,
+      INC_abs,
       JMP_abs,
+      JSR_abs,
       LDA_abs,
       LDX_abs,
       LDY_abs,
       LSR_abs,
       ORA_abs,
       ROL_abs,
-      ROR_abs: begin
+      ROR_abs,
+      SBC_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs: begin
         decoded_state = ABS_1;
       end
 
+      // -- Implied Addressing Mode
       CLC_imp,
       CLV_imp,
       NOP_imp: begin
+        decoded_state = FETCH;
+      end
+
+      // -- Immediate Addressing Mode
+      LDA_imm: begin
         decoded_state = FETCH;
       end
 
@@ -626,6 +686,13 @@ module proc
 
     case ( IR )
 
+      // -- Immediate Addressing mode
+      LDA_imm: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+      end
+
+      // -- Absolute Addressing Mode
       ADC_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
@@ -663,27 +730,22 @@ module proc
         updated_status[OVF] = rd_data[6];
       end
 
-      CMP_abs: begin
-        // TODO: Not sure these are set correctly, can probably be combined
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[CARRY] = alu_flags[CARRY];
-      end
-
-      CPX_abs: begin
-        // TODO: Not sure these are set correctly, can probably be combined
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[CARRY] = alu_flags[CARRY];
-      end
-
+      CMP_abs,
+      CPX_abs,
       CPY_abs: begin
-        // TODO: Not sure these are set correctly, can probably be combined
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
       end
 
+      JMP_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs: begin
+        updated_status = P;
+      end
+
+      // -- Implied Addressing Mode
       CLC_imp: begin
         updated_status[CARRY] = 1'b0;
       end
@@ -692,8 +754,6 @@ module proc
         updated_status[OVF] = 1'b0;
       end
 
-      // Explicitly ensure these instructions do not touch processor status
-      JMP_abs,
       NOP_imp: begin
         updated_status = P;
       end
