@@ -259,10 +259,10 @@ module proc
           // 2-cycle implied addressing mode
           CLC_imp,
           CLV_imp,
-          NOP_imp: begin
+          NOP_imp,
+          SEC_imp: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
-            update_accumulator <= 1'b1;
           end
 
           // -- Immediate Addressing Mode (2-cycle)
@@ -660,7 +660,8 @@ module proc
       // -- Implied Addressing Mode
       CLC_imp,
       CLV_imp,
-      NOP_imp: begin
+      NOP_imp,
+      SEC_imp: begin
         decoded_state = FETCH;
       end
 
@@ -752,6 +753,10 @@ module proc
 
       CLV_imp: begin
         updated_status[OVF] = 1'b0;
+      end
+
+      SEC_imp: begin
+        updated_status[CARRY] = 1'b1;
       end
 
       NOP_imp: begin
