@@ -52,6 +52,7 @@
       8'h2E: IR_ascii <= "ROL";
       8'h6E: IR_ascii <= "ROR";
       8'hED: IR_ascii <= "SBC";
+      8'h38: IR_ascii <= "SEC";
       8'h8D: IR_ascii <= "STA";
       8'h8E: IR_ascii <= "STX";
       8'h8C: IR_ascii <= "STY";

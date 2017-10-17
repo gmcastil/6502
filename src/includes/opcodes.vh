@@ -351,3 +351,12 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   CLV_imp = 8'hB8;  //  1       2
+
+localparam
+  //
+  // Set Carry Flag
+  //
+  // Flags Affected: - - - - - - - c
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  SEC_imp = 8'h38;  //  1       2
