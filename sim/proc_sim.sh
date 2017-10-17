@@ -15,4 +15,5 @@ if [[ -d $sim_dir ]]; then
     rm -rf $sim_dir
 fi
 
-vsim -c -do proc_sim.tcl
+# vsim -c -do proc_sim.tcl
+vsim -c -do absolute_sim.tcl
