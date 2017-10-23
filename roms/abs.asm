@@ -4,15 +4,15 @@
 ;;; for testing absolute addressing mode.
 
         .org     $8000
-0:      lda     $9000           ; $9000 = $00
+8000:   lda     $9000           ; $9000 = $00
 
         ;; -- Add With Carry (ADC)
 
         ;; 1 + 1 = 2, returns C = 0, V = 0
-3:      clc
-4:      clv
-5:      lda     #$01
-7:      adc     $9001           ; $9001 = $01
+8003:   clc
+8004    clv
+8005:   lda     #$01
+8007:   adc     $9001           ; $9001 = $01
 
         ;; 1 + (-1) = 0, returns C = 1, V = 0, N = 0, Z = 1
 10:     clc
