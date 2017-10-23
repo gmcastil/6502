@@ -160,7 +160,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  DEX_abs = 8'hCA;  //  3       6
+  DEX_imp = 8'hCA;  //  3       6
 
 localparam
   //
@@ -169,7 +169,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  DEY_abs = 8'h88;  //  3       6
+  DEY_imp = 8'h88;  //  3       6
 
 localparam
   //
@@ -196,7 +196,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  INX_abs = 8'hE8;  //  3       6
+  INX_imp = 8'hE8;  //  3       6
 
 localparam
   //
@@ -205,7 +205,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  INY_abs = 8'hC8;  //  3       6
+  INY_imp = 8'hC8;  //  3       6
 
 localparam
   //
@@ -237,20 +237,22 @@ localparam
 
 localparam
   //
-  // Load Accumulator from Memory
+  // Load Index Register X from Memory
   //
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  LDX_imm = 8'hA2,  //  2       2
   LDX_abs = 8'hAE;  //  3       4
 
 localparam
   //
-  // Load Accumulator from Memory
+  // Load Index Register Y from Memory
   //
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  LDY_imm = 8'hA0,  //  2       2
   LDY_abs = 8'hAC;  //  3       4
 
 localparam
