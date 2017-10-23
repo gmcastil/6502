@@ -235,8 +235,6 @@ module proc
           DEC_abs,
           EOR_abs,
           INC_abs,
-          INX_abs,
-          INY_abs,
           LDA_abs,
           LDX_abs,
           LDY_abs,
@@ -272,6 +270,18 @@ module proc
             A <= rd_data;
           end
 
+          LDX_imm: begin
+            address <= PC + 16'd2;
+            PC <= PC + 16'd2;
+            X <= rd_data;
+          end
+
+          LDY_imm: begin
+            address <= PC + 16'd2;
+            PC <= PC + 16'd2;
+            Y <= rd_data;
+          end
+
           default: begin end
         endcase // case ( IR )
 
@@ -292,8 +302,6 @@ module proc
           CPX_abs,
           CPY_abs,
           DEC_abs,
-          DEX_abs,
-          DEY_abs,
           EOR_abs,
           INC_abs,
           LDA_abs,
@@ -425,18 +433,6 @@ module proc
             alu_ctrl <= SUB;
           end
 
-          DEX_abs: begin
-            alu_AI <= X;
-            alu_BI <= 8'd1;
-            alu_ctrl <= SUB;
-          end
-
-          DEY_abs: begin
-            alu_AI <= Y;
-            alu_BI <= 8'd1;
-            alu_ctrl <= SUB;
-          end
-
           EOR_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
@@ -450,18 +446,6 @@ module proc
 
           INC_abs: begin
             alu_AI <= rd_data;
-            alu_BI <= 8'd1;
-            alu_ctrl <= ADD;
-          end
-
-          INX_abs: begin
-            alu_AI <= X;
-            alu_BI <= 8'd1;
-            alu_ctrl <= ADD;
-          end
-
-          INY_abs: begin
-            alu_AI <= Y;
             alu_BI <= 8'd1;
             alu_ctrl <= ADD;
           end
@@ -666,7 +650,9 @@ module proc
       end
 
       // -- Immediate Addressing Mode
-      LDA_imm: begin
+      LDA_imm,
+      LDX_imm,
+      LDY_imm: begin
         decoded_state = FETCH;
       end
 
@@ -688,7 +674,9 @@ module proc
     case ( IR )
 
       // -- Immediate Addressing mode
-      LDA_imm: begin
+      LDA_imm,
+      LDX_imm,
+      LDY_imm: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
       end
