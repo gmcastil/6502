@@ -1,22 +1,22 @@
 // ----------------------------------------------------------------------------
-// Module:  proc_tb.v
-// Project: MOS 6502 Processor
+// Module:  top_tb.sv
+// Project: MOS 6502
 // Author:  George Castillo <gmcastil@gmail.com>
-// Date:    09 July 2017
+// Date:    28 August 2017
 //
-// Description: Testbench for the MOS 6502 processor core.  Currently requires a
-// 64KB memory block to be generated (scripts to do this are in the project's
-// scripts directory) with desired machine instructions manually placed within
-// the memory array.  The processor simulation scripts can then be used to
-// verify functionality as it is implemented.
+// Description: Testbench for testing entire processor.  Uses a memory block
+// loaded with instructions and data and sequentially tests the entire
+// instruction set, while verifying values in the X and Y index registers, the
+// accumulator, and the processor status registers.
 // ----------------------------------------------------------------------------
-
 `timescale 1ns / 1ps
 
-module proc_tb ();
+module proc_top_tb ();
+
+`include "./includes/params.vh"
 
   localparam T = 10;
-  localparam P = 100;
+  localparam R = 100;
 
   reg          clk_sys;       // Memory will be clocked 10X relative to processor
   reg          clk;
@@ -49,7 +49,7 @@ module proc_tb ();
   initial begin
     clk = 1'b1;
     forever begin
-      #(P/2);
+      #(R/2);
       clk = ~clk;
     end
   end
@@ -63,49 +63,14 @@ module proc_tb ();
   // clocks, but later this will be performed by the porf block)
   initial begin
     resetn = 1'b1;
-    #(P*2)
+    #(R*2)
     resetn = 1'b0;
-    #(P*4)
+    #(R*4)
     resetn = 1'b1;
-    #(P*100);
+    #(R*100);
   end
 
-  // Bring processor status register bits up to the top and break them out
-  // into individual signals to aide in simulation
-  wire sim_proc_carry;
-  wire sim_proc_zero;
-  wire sim_proc_irq;
-  wire sim_proc_decimal;
-  wire sim_proc_break_inst;
-  wire sim_proc_overflow;
-  wire sim_proc_negative;
-
-  assign sim_proc_carry      = inst_proc.P[0];
-  assign sim_proc_zero       = inst_proc.P[1];
-  assign sim_proc_irq        = inst_proc.P[2];
-  assign sim_proc_decimal    = inst_proc.P[3];
-  assign sim_proc_break_inst = inst_proc.P[4];
-  assign sim_proc_overflow   = inst_proc.P[6];
-  assign sim_proc_negative   = inst_proc.P[7];
-
-  // Break out ALU flags into individual signals to aide in simulation
-  wire sim_alu_carry;
-  wire sim_alu_zero;
-  wire sim_alu_irq;
-  wire sim_alu_decimal;
-  wire sim_alu_break_inst;
-  wire sim_alu_overflow;
-  wire sim_alu_negative;
-
-  assign sim_alu_carry      = alu_flags[0];
-  assign sim_alu_zero       = alu_flags[1];
-  assign sim_alu_irq        = alu_flags[2];
-  assign sim_alu_decimal    = alu_flags[3];
-  assign sim_alu_break_inst = alu_flags[4];
-  assign sim_alu_overflow   = alu_flags[6];
-  assign sim_alu_negative   = alu_flags[7];
-
-  // -- Instantiations
+  // Instantiate the memory block using the example from the generated
   memory_block
     #(
       ) inst_memory_block (
@@ -148,5 +113,33 @@ module proc_tb ();
                   .alu_flags      (alu_flags),
                   .alu_Y          (alu_Y)
                   );
+
+  // --- Processor Registers
+  wire [7:0]  A;   // accumulator
+  wire [15:0] PC;
+  wire [7:0]  X;   // X index register
+  wire [7:0]  Y;   // Y index register
+  wire [8:0]  S;   // stack pointer
+  wire [7:0]  IR;  // instruction register
+  wire [7:0]  P;   // processor status register
+
+  assign A  = inst_proc.A;
+  assign PC = inst_proc.PC;
+  assign X  = inst_proc.X;
+  assign Y  = inst_proc.Y;
+  assign S  = inst_proc.S;
+  assign P  = inst_proc.P;
+
+  initial begin
+    // Wait until reset is deasserted
+    #(R*6)
+    // Wait for PC to be initialized
+    #(R*2.1)
+    if (PC == 16'h8000) begin
+      $display("Correct PC - %h", PC);
+    end else begin
+      $display("Wrong PC - %h", PC);
+    end
+  end
 
 endmodule // proc_top_tb

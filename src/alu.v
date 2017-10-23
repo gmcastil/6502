@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Module:  alu.sv
+// Module:  alu.s
 // Project: MOS 6502 Processor
 // Author:  George Castillo
 // Date:    Sat Jul  8 15:31:17 2017

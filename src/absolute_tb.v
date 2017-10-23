@@ -1,19 +1,17 @@
 // ----------------------------------------------------------------------------
-// Module:  proc_tb.v
-// Project: MOS 6502 Processor
+// Module:  absolute_tb.v
+// Project:
 // Author:  George Castillo <gmcastil@gmail.com>
-// Date:    09 July 2017
+// Date:    15 October 2017
 //
-// Description: Testbench for the MOS 6502 processor core.  Currently requires a
-// 64KB memory block to be generated (scripts to do this are in the project's
-// scripts directory) with desired machine instructions manually placed within
-// the memory array.  The processor simulation scripts can then be used to
-// verify functionality as it is implemented.
+// Description: Testbench for implementation of the MOS 6502 processor core.
+// Requires a .mif file containing memory contents from the abs.asm program in
+// the /roms directory.
 // ----------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
 
-module proc_tb ();
+module absolute_tb ();
 
   localparam T = 10;
   localparam P = 100;
@@ -88,6 +86,10 @@ module proc_tb ();
   assign sim_proc_overflow   = inst_proc.P[6];
   assign sim_proc_negative   = inst_proc.P[7];
 
+  wire [15:0] sim_proc_PC;
+
+  assign sim_proc_PC         = inst_proc.PC;
+
   // Break out ALU flags into individual signals to aide in simulation
   wire sim_alu_carry;
   wire sim_alu_zero;
@@ -104,6 +106,36 @@ module proc_tb ();
   assign sim_alu_break_inst = alu_flags[4];
   assign sim_alu_overflow   = alu_flags[6];
   assign sim_alu_negative   = alu_flags[7];
+
+  // -- Testing Cycle Accuracy
+  integer cycle_counter = 0;
+
+  localparam RESET_CYCLE = 6;  // cycles until end of reset
+  localparam PROGRAM_START = 16'h8000;
+
+  initial begin
+    cycle_counter = 0;
+    forever begin
+      #P
+      cycle_counter = cycle_counter + 1;
+    end
+  end
+
+  initial begin
+    #(P*(RESET_CYCLE + 3));  // Fetch of first instruction
+    if (sim_proc_PC == PROGRAM_START) begin
+      $display("Found program starting address of %h...OK", PROGRAM_START);
+    end else begin
+      $display("Program not found...FAIL");
+    end
+
+    #(P*4)
+    if (sim_proc_PC == PROGRAM_START + 16'h0003) begin
+      $display("LDA instruction took three cycles...OK");
+    end else begin
+      $display("LDA instruction took three cycles...FAIL");
+    end
+  end
 
   // -- Instantiations
   memory_block

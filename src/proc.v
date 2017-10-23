@@ -68,7 +68,7 @@ module proc
   reg [255:0]        state;
   reg [255:0]        next;
 
-`include "./includes/ascii.vh"
+ `include "./includes/ascii.vh"
 
   // --- Other Signals
   reg [7:0]          operand_LSB;
@@ -146,18 +146,20 @@ module proc
 
       // --- Absolute Addressing Mode
       state[ABS_1]: begin
-        // 3 cycle instructions
+        // 3-cycle instructions return
         if ( IR == JMP_abs ) begin
           next[FETCH] = 1'b1;
+        // 4 and 6-cycle instructions continue
         end else begin
           next[ABS_2] = 1'b1;
         end
       end
 
       state[ABS_2]: begin
+        // 6-cycle instructions continue
         if ( IR == ASL_abs ) begin
           next[ABS_3] = 1'b1;
-        // 4 cycle instructions
+        // 4-cycle instructions return
         end else begin
           next[FETCH] = 1'b1;
         end
@@ -168,7 +170,7 @@ module proc
       end
 
       state[ABS_4]: begin
-        // 6 cycle instructions
+        // 6 cycle instructions return
         next[FETCH] = 1'b1;
       end
 
@@ -181,7 +183,13 @@ module proc
 
   end // block: STATE_MACHINE
 
+  // --- Instruction Cycle Description
   always @(posedge clk) begin: INSTRUCTION_CYCLE
+
+    // Defines instruction execution, interaction with address and data bus,
+    // manipulation of the program counter, and all other processor operations.
+    // Note that other than manipulation of the program counter and address
+    // values, arithmetic operations are all routed through the ALU.
 
     case ( 1'b1 )
 
@@ -216,20 +224,62 @@ module proc
 
         case ( IR )
 
+          // 4 cycle absolute addressing mode
           ADC_abs,
           AND_abs,
           ASL_abs,
-          LDA_abs: begin
+          BIT_abs,
+          CMP_abs,
+          CPX_abs,
+          CPY_abs,
+          DEC_abs,
+          EOR_abs,
+          INC_abs,
+          LDA_abs,
+          LDX_abs,
+          LDY_abs,
+          LSR_abs,
+          ORA_abs,
+          ROL_abs,
+          ROR_abs,
+          SBC_abs,
+          STA_abs,
+          STX_abs,
+          STY_abs: begin
             address <= PC + 16'd2;
           end
 
+          // 3 cycle absolute addressing mode
           JMP_abs: begin
             address <= PC + 16'd2;
           end
 
-          NOP: begin
+          // 2-cycle implied addressing mode
+          CLC_imp,
+          CLV_imp,
+          NOP_imp,
+          SEC_imp: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
+          end
+
+          // -- Immediate Addressing Mode (2-cycle)
+          LDA_imm: begin
+            address <= PC + 16'd2;
+            PC <= PC + 16'd2;
+            A <= rd_data;
+          end
+
+          LDX_imm: begin
+            address <= PC + 16'd2;
+            PC <= PC + 16'd2;
+            X <= rd_data;
+          end
+
+          LDY_imm: begin
+            address <= PC + 16'd2;
+            PC <= PC + 16'd2;
+            Y <= rd_data;
           end
 
           default: begin end
@@ -247,8 +297,40 @@ module proc
           ADC_abs,
           AND_abs,
           ASL_abs,
-          LDA_abs: begin
+          BIT_abs,
+          CMP_abs,
+          CPX_abs,
+          CPY_abs,
+          DEC_abs,
+          EOR_abs,
+          INC_abs,
+          LDA_abs,
+          LDX_abs,
+          LDY_abs,
+          LSR_abs,
+          ORA_abs,
+          ROL_abs,
+          ROR_abs,
+          SBC_abs: begin
             address <= { rd_data, operand_LSB };
+          end // case: ADC_abs,...
+
+          STA_abs: begin
+            address <= { rd_data, operand_LSB };
+            wr_data <= A;
+            wr_enable <= 1'b1;
+          end
+
+          STX_abs: begin
+            address <= { rd_data, operand_LSB };
+            wr_data <= X;
+            wr_enable <= 1'b1;
+          end
+
+          STY_abs: begin
+            address <= { rd_data, operand_LSB };
+            wr_data <= Y;
+            wr_enable <= 1'b1;
           end
 
           JMP_abs: begin
@@ -293,11 +375,144 @@ module proc
             alu_ctrl <= SL;
           end
 
+          BIT_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= AND;
+
+            // BIT instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end
+
+          CMP_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            // CMP instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end
+
+          CPX_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= X;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            // CPX instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end
+
+          CPY_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= Y;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            // CPY instruction affects only processor status register and does
+            // not touch memory or the accumulator - explicitly ignore it here
+            update_accumulator <= 1'b0;
+          end // case: CPY_abs
+
+          DEC_abs: begin
+            alu_AI <= rd_data;
+            alu_BI <= 8'd1;
+            alu_ctrl <= SUB;
+          end
+
+          EOR_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= XOR;
+
+            update_accumulator <= 1'b1;
+          end
+
+          INC_abs: begin
+            alu_AI <= rd_data;
+            alu_BI <= 8'd1;
+            alu_ctrl <= ADD;
+          end
+
           LDA_abs: begin
             PC <= PC + 16'd3;
             address <= PC + 16'd3;
 
             A <= rd_data;
+          end
+
+          LDX_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            X <= rd_data;
+          end
+
+          LDY_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            Y <= rd_data;
+          end
+
+          LSR_abs: begin
+            alu_AI <= rd_data;
+            alu_ctrl <= SL;
+          end
+
+          ORA_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= OR;
+
+            update_accumulator <= 1'b1;
+          end
+
+          ROL_abs: begin
+            alu_AI <= rd_data;
+            alu_ctrl <= SL;
+          end
+
+          ROR_abs: begin
+            alu_AI <= rd_data;
+            alu_ctrl <= SR;
+          end
+
+          SBC_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            alu_AI <= A;
+            alu_BI <= rd_data;
+            alu_ctrl <= SUB;
+
+            update_accumulator <= 1'b1;
+          end
+
+          STA_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+
+            wr_enable <= 1'b0;
           end
 
           default: begin end
@@ -317,6 +532,37 @@ module proc
             address <= { operand_MSB, operand_LSB };
           end
 
+          DEC_abs,
+          INC_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+
+            // Address to store the result to on the next clock cycle
+            address <= { operand_MSB, operand_LSB };
+          end
+
+          LSR_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+
+            // Address to store the result to on the next clock cycle
+            address <= { operand_MSB, operand_LSB };
+          end
+
+          ROL_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+
+            address <= { operand_MSB, operand_LSB };
+          end
+
+          ROR_abs: begin
+            wr_data <= alu_Y;
+            wr_enable <= 1'b1;
+
+            address <= { operand_MSB, operand_LSB };
+          end
+
           default: begin end
         endcase // case ( IR )
       end
@@ -331,6 +577,26 @@ module proc
             wr_enable <= 1'b0;
           end
 
+          DEC_abs,
+          INC_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+            wr_enable <= 1'b0;
+          end
+
+          LSR_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+            wr_enable <= 1'b0;
+          end
+
+          ROL_abs,
+          ROR_abs: begin
+            PC <= PC + 16'd3;
+            address <= PC + 16'd3;
+            wr_enable <= 1'b0;
+          end
+
           default: begin end
         endcase // case ( IR )
       end
@@ -339,6 +605,7 @@ module proc
 
   end // block: INSTRUCTION_CYCLE
 
+  // --- Address Mode Decoder
   always @(*) begin: ADDR_MODE_DECODER
 
     // The contents of the instruction register are decoded to determine the
@@ -347,15 +614,45 @@ module proc
 
     case ( IR )
 
+      // -- Absolute Addressing Mode
       ADC_abs,
       AND_abs,
       ASL_abs,
+      BIT_abs,
+      CMP_abs,
+      CPX_abs,
+      CPY_abs,
+      DEC_abs,
+      EOR_abs,
+      INC_abs,
       JMP_abs,
-      LDA_abs: begin
+      JSR_abs,
+      LDA_abs,
+      LDX_abs,
+      LDY_abs,
+      LSR_abs,
+      ORA_abs,
+      ROL_abs,
+      ROR_abs,
+      SBC_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs: begin
         decoded_state = ABS_1;
       end
 
-      NOP: begin
+      // -- Implied Addressing Mode
+      CLC_imp,
+      CLV_imp,
+      NOP_imp,
+      SEC_imp: begin
+        decoded_state = FETCH;
+      end
+
+      // -- Immediate Addressing Mode
+      LDA_imm,
+      LDX_imm,
+      LDY_imm: begin
         decoded_state = FETCH;
       end
 
@@ -366,6 +663,7 @@ module proc
 
   end // block: ADDR_MODE_DECODER
 
+  // --- Processor Status Update
   always @(*) begin: PROCESSOR_STATUS_UPDATE
 
     // Processor status register will be updated upon entry into the FETCH
@@ -375,6 +673,15 @@ module proc
 
     case ( IR )
 
+      // -- Immediate Addressing mode
+      LDA_imm,
+      LDX_imm,
+      LDY_imm: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+      end
+
+      // -- Absolute Addressing Mode
       ADC_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
@@ -383,15 +690,65 @@ module proc
       end
 
       AND_abs,
-      LDA_abs: begin
+      DEC_abs,
+      EOR_abs,
+      INC_abs,
+      LDA_abs,
+      LDX_abs,
+      LDY_abs,
+      ORA_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
       end
 
-      ASL_abs: begin
+      ASL_abs,
+      LSR_abs,
+      ROL_abs,
+      ROR_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      BIT_abs: begin
+        // Negative flag comes from high bit of operand provided to ALU
+        updated_status[NEG] = rd_data[7];
+        // Zero flag is normal, but with accumulator and memory unaffected
+        updated_status[ZERO] = alu_flags[ZERO];
+        // Overflow flag comes from next highest bit of operand provided to ALU
+        updated_status[OVF] = rd_data[6];
+      end
+
+      CMP_abs,
+      CPX_abs,
+      CPY_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
+      end
+
+      JMP_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs: begin
+        updated_status = P;
+      end
+
+      // -- Implied Addressing Mode
+      CLC_imp: begin
+        updated_status[CARRY] = 1'b0;
+      end
+
+      CLV_imp: begin
+        updated_status[OVF] = 1'b0;
+      end
+
+      SEC_imp: begin
+        updated_status[CARRY] = 1'b1;
+      end
+
+      NOP_imp: begin
+        updated_status = P;
       end
 
       default: begin end

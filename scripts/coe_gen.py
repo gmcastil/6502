@@ -29,7 +29,7 @@ text editor and then another script can be written which will write those
 contents into memory.
 
 """
-COE_FILE = "./basic.coe"
+import sys
 
 HIGH_ADDRESS = 2**16  # 64k address space
 MAX_ADDRESS = 2**16  # this is the largest that the memory generator accepts
@@ -38,7 +38,7 @@ PAGE_SIZE = 2**12  # 4096 addresses per page
 ROW_SIZE = 2**6  # number of rows per page
 COL_SIZE = 2**6  # number of cols per page
 
-OPCODE = "EA"  # opcode to fill COE file with
+OPCODE = "ea"  # opcode to fill COE file with
 
 def make_page():
     """Constructs a range of addresses for writing a page to a COE file
@@ -66,7 +66,7 @@ def make_row(opcode=OPCODE):
     row = [opcode for addr in range(COL_SIZE)]
     return " ".join(row)
 
-def main():
+def main(args):
     """Builds a COE file with the supplied dimensions filled with `opcode`
 
     Args:
@@ -76,13 +76,18 @@ def main():
         None
 
     """
+    if len(args) == 1:
+        print("Usage: coe_gen.py <filename>")
+        return 1
+
     if (ROW_SIZE * COL_SIZE != PAGE_SIZE):
         print("Page dimensions are incorrect. Check row and column sizes")
-        return None
+        return 2
     if (HIGH_ADDRESS > MAX_ADDRESS):
         print("Requested dimensions are too large.  Check address space size")
-        return None
-    with open(COE_FILE, 'w') as coe_file:
+        return 2
+
+    with open(args[1], 'w') as coe_file:
         header = [";; Distributed Memory Generator COE file\n",
                   ";; \tAddress Size = {HIGH_ADDRESS}\n".format(HIGH_ADDRESS=HIGH_ADDRESS),
                   ";; \tPage Size = {PAGE_SIZE}\n".format(PAGE_SIZE=PAGE_SIZE),
@@ -98,4 +103,4 @@ def main():
             coe_file.writelines(lines)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main(sys.argv))
