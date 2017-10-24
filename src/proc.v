@@ -58,15 +58,15 @@ module proc
   localparam ABS_3     = 7;
   localparam ABS_4     = 8;
 
-  localparam ERROR     = 255;
+  localparam ERROR     = 31;
 
   // More to come...
 
-  localparam EMPTY = 256'b0;
+  localparam EMPTY = 32'd0;
 
   // State register definition - for now, we'll make this big
-  reg [255:0]        state;
-  reg [255:0]        next;
+  reg [31:0]        state;
+  reg [31:0]        next;
 
  `include "./includes/ascii.vh"
 
@@ -156,13 +156,25 @@ module proc
       end
 
       state[ABS_2]: begin
-        // 6-cycle instructions continue
-        if ( IR == ASL_abs ) begin
-          next[ABS_3] = 1'b1;
-        // 4-cycle instructions return
-        end else begin
-          next[FETCH] = 1'b1;
-        end
+
+        case ( IR )
+
+          // 6-cycle instructions continue
+          ASL_abs,
+          DEC_abs,
+          INC_abs,
+          LSR_abs,
+          ROL_abs,
+          ROR_abs: begin
+            next[ABS_3] = 1'b1;
+
+          end
+
+          // 4-cycle instructions return - not sure this is right
+          default: begin
+            next[FETCH] = 1'b1;
+          end
+        endcase
       end
 
       state[ABS_3]: begin
@@ -224,7 +236,7 @@ module proc
 
         case ( IR )
 
-          // 4 cycle absolute addressing mode
+          // absolute addressing mode
           ADC_abs,
           AND_abs,
           ASL_abs,
