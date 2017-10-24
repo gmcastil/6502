@@ -32,18 +32,21 @@ if [[ -z "$coe_file" ]]; then
     echo "Usage: $0 filename"
     exit 1
 else
-    coe_file=`readlink -f $coe_file`
+    coe_file=$(readlink -f "$coe_file")
 fi
 
-if [[ -d $BUILD_DIR ]]; then
-    rm -rf $BUILD_DIR/
-    mkdir -pv $BUILD_DIR
+# Delete the old version, if it exists
+if [[ -d "$BUILD_DIR" ]]; then
+    rm -rf "$BUILD_DIR"
 fi
+
+mkdir -pv "$BUILD_DIR"
 
 # Create the memory block and read out the EDIF netlist (from the Tcl script)
 $vivado -verbose \
-       -mode batch -source memory_gen.tcl \
-       -tclargs $coe_file | $COLORIZE
+        -notrace \
+        -mode batch -source memory_gen.tcl \
+        -tclargs "$coe_file" | $COLORIZE
 
 # The memory block is now located inside $BUILD_DIR/memory_block/
 if [[ ! -f "$BUILD_DIR/memory_block/memory_block.edf" ]]; then
