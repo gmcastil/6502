@@ -12,16 +12,17 @@
   reg [(8*8)-1:0] state_ascii;
   always @(*) begin
     case ( state )
-      256'd00: state_ascii  <= "   EMPTY";
-      256'd01: state_ascii  <= "   RESET";
-      256'd02: state_ascii  <= "VECTOR_1";
-      256'd04: state_ascii  <= "VECTOR_2";
-      256'd08: state_ascii  <= "   FETCH";
-      256'd16: state_ascii  <= "  DECODE";
-      256'd32: state_ascii  <= "   ABS_1";
-      256'd64: state_ascii  <= "   ABS_2";
-      256'd128: state_ascii <= "   ABS_3";
-      256'd256: state_ascii <= "   ABS_4";
+      32'h00: state_ascii       <= "   EMPTY";
+      32'h01: state_ascii       <= "   RESET";
+      32'h02: state_ascii       <= "VECTOR_1";
+      32'h04: state_ascii       <= "VECTOR_2";
+      32'h08: state_ascii       <= "   FETCH";
+      32'h10: state_ascii       <= "  DECODE";
+      32'h20: state_ascii       <= "   ABS_1";
+      32'h40: state_ascii       <= "   ABS_2";
+      32'h80: state_ascii       <= "   ABS_3";
+      32'h100: state_ascii      <= "   ABS_4";
+      32'h80000000: state_ascii <= "   ERROR";
     endcase
   end
 
@@ -37,16 +38,19 @@
       8'hCD: IR_ascii <= "CMP";
       8'hEC: IR_ascii <= "CPX";
       8'hCC: IR_ascii <= "CPY";
+
       8'hCE: IR_ascii <= "DEC";
+      8'hCA: IR_ascii <= "DEX";
+      8'h88: IR_ascii <= "DEY";
       8'h4D: IR_ascii <= "EOR";
       8'hEE: IR_ascii <= "INC";
       8'h4C: IR_ascii <= "JMP";
       8'h20: IR_ascii <= "JSR";
-      8'hAD,
-      8'hA9: IR_ascii <= "LDA";
+      8'hA9,
+      8'hAD: IR_ascii <= "LDA";
       8'hA2,
       8'hAE: IR_ascii <= "LDX";
-      8'hAC,
+      8'hA0,
       8'hAC: IR_ascii <= "LDY";
       8'h4E: IR_ascii <= "LSR";
       8'hEA: IR_ascii <= "NOP";
