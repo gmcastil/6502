@@ -24,3 +24,14 @@
 - Any instruction implementation that uses the accumulator should explicitly set
   the update_accumulator flag to 1 or 0 depending upon whether an instruction
   affects the accumulator.
+* Arithmetic Logic Unit (ALU)
+** Operations
+*** Addition (3'b000)
+*** Boolean OR (3'b001)
+*** Boolean XOR (3'b010)
+*** Boolean AND (3'b011)
+*** Shift Right (3'b100)
+** Flags
+*** Overflow (OVF)
+*** Carry (CARRY)
+** Instructions
