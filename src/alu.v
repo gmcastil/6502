@@ -22,14 +22,14 @@
 
 module alu
   (
-   input [2:0]      control
-   input [7:0]      AI,
-   input [7:0]      BI,
-   input            carry_in,
+   input [2:0]      alu_control
+   input [7:0]      alu_AI,
+   input [7:0]      alu_BI,
+   input            alu_carry_in,
 
-   output reg [7:0] Y,
-   output reg       carry_out,
-   output reg       overflow
+   output reg [7:0] alu_Y,
+   output reg       alu_carry_out,
+   output reg       alu_overflow
    );
 
 `include "./includes/params.vh"

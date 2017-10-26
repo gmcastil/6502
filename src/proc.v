@@ -16,21 +16,20 @@ module proc
 
    output reg [15:0] address,
    output reg [7:0]  wr_data,
-   output reg        wr_enable,
-
-   // ALU connections
-   input [7:0]       alu_Y,
-   input [7:0]       alu_flags,
-
-   output reg [2:0]  alu_ctrl,
-   output reg [7:0]  alu_AI,
-   output reg [7:0]  alu_BI,
-   output reg        alu_carry,
-   output reg        alu_BCD
+   output reg        wr_enable
    );
 
 `include "./includes/opcodes.vh"
 `include "./includes/params.vh"
+
+   // --- ALU Connections
+  reg [2:0]          alu_control;
+  reg [7:0]          alu_AI;
+  reg [7:0]          alu_BI;
+  reg                alu_carry_in;
+  reg [7:0]          alu_Y;
+  reg                alu_carry_out;
+  reg                alu_overflow;
 
   // --- Processor Registers
   reg [7:0]          A;   // accumulator
@@ -365,7 +364,7 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= ADD;
+            alu_control <= ADD;
             alu_carry <= P[CARRY];
 
             update_accumulator <= 1'b1;
@@ -377,14 +376,14 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= AND;
+            alu_control <= AND;
 
             update_accumulator <= 1'b1;
           end
 
           ASL_abs: begin
             alu_AI <= rd_data;
-            alu_ctrl <= SL;
+            alu_control <= SL;
           end
 
           BIT_abs: begin
@@ -393,7 +392,7 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= AND;
+            alu_control <= AND;
 
             // BIT instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -406,7 +405,7 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= SUB;
+            alu_control <= SUB;
 
             // CMP instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -419,7 +418,7 @@ module proc
 
             alu_AI <= X;
             alu_BI <= rd_data;
-            alu_ctrl <= SUB;
+            alu_control <= SUB;
 
             // CPX instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -432,7 +431,7 @@ module proc
 
             alu_AI <= Y;
             alu_BI <= rd_data;
-            alu_ctrl <= SUB;
+            alu_control <= SUB;
 
             // CPY instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -442,7 +441,7 @@ module proc
           DEC_abs: begin
             alu_AI <= rd_data;
             alu_BI <= 8'd1;
-            alu_ctrl <= SUB;
+            alu_control <= SUB;
           end
 
           EOR_abs: begin
@@ -451,7 +450,7 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= XOR;
+            alu_control <= XOR;
 
             update_accumulator <= 1'b1;
           end
@@ -459,7 +458,7 @@ module proc
           INC_abs: begin
             alu_AI <= rd_data;
             alu_BI <= 8'd1;
-            alu_ctrl <= ADD;
+            alu_control <= ADD;
           end
 
           LDA_abs: begin
@@ -485,7 +484,7 @@ module proc
 
           LSR_abs: begin
             alu_AI <= rd_data;
-            alu_ctrl <= SL;
+            alu_control <= SL;
           end
 
           ORA_abs: begin
@@ -494,19 +493,19 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= OR;
+            alu_control <= OR;
 
             update_accumulator <= 1'b1;
           end
 
           ROL_abs: begin
             alu_AI <= rd_data;
-            alu_ctrl <= SL;
+            alu_control <= SL;
           end
 
           ROR_abs: begin
             alu_AI <= rd_data;
-            alu_ctrl <= SR;
+            alu_control <= SR;
           end
 
           SBC_abs: begin
@@ -515,7 +514,7 @@ module proc
 
             alu_AI <= A;
             alu_BI <= rd_data;
-            alu_ctrl <= SUB;
+            alu_control <= SUB;
 
             update_accumulator <= 1'b1;
           end
@@ -678,8 +677,7 @@ module proc
   // --- Processor Status Update
   always @(*) begin: PROCESSOR_STATUS_UPDATE
 
-    // Processor status register will be updated upon entry into the FETCH
-    // state.
+    // Processor status register will be updated when  in the FETCH state.
 
     updated_status = P;
 
@@ -771,12 +769,13 @@ module proc
   alu
     #(
       ) inst_alu (
-                  .alu_control  (alu_control),
-                  .alu_AI (alu_AI),
-                  .alu_BI (alu_BI),
-                  .alu_carry_in (alu_carry_in),
+                  .alu_control   (alu_control),
+                  .alu_AI        (alu_AI),
+                  .alu_BI        (alu_BI),
+                  .alu_carry_in  (alu_carry_in),
+                  .alu_Y         (alu_Y),
                   .alu_carry_out (alu_carry_out),
-                  .alu_overflow (alu_overflow)
+                  .alu_overflow  (alu_overflow)
                   );
 
 endmodule // proc
