@@ -767,4 +767,16 @@ module proc
     endcase // case ( IR )
   end // block: PROCESSOR_STATUS_UPDATE
 
+  // -- ALU Instantiation
+  alu
+    #(
+      ) inst_alu (
+                  .alu_control  (alu_control),
+                  .alu_AI (alu_AI),
+                  .alu_BI (alu_BI),
+                  .alu_carry_in (alu_carry_in),
+                  .alu_carry_out (alu_carry_out),
+                  .alu_overflow (alu_overflow)
+                  );
+
 endmodule // proc
