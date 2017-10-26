@@ -1,12 +1,10 @@
 // ----------------------------------------------------------------------------
-// Module:  alu.s
+// Module:  alu.v
 // Project: MOS 6502 Processor
 // Author:  George Castillo
 // Date:    Sat Jul  8 15:31:17 2017
 //
-// Description: Early cut at an arithmetic logic unit (ALU) for the
-// 6502 processor. Does not completely support BCD mode yet and has
-// had virtually zero testing performed on it.
+// Description: Arithmetic-logic unit for the MOS 6502 processor.
 //
 // Usage: The ALU is used by the processor to perform the majority of its
 // arithmetic functions.  Some details about the implementation follow.
@@ -17,11 +15,9 @@
 //   XOR = 3'b010
 //   AND = 3'b011
 //   SR  = 3'b100
-//   SL  = 3'b101
-//   SUB = 3'b110
 //
-// Logical operations do not distinguish between the A and B inputs.  Shift
-// operations however only support the A input.
+// Logical operations do not distinguish between the A and B inputs.  The right
+// shift operation however only supports the A input.
 // ----------------------------------------------------------------------------
 
 module alu

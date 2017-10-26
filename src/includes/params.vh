@@ -23,5 +23,3 @@ localparam OR     = 3'b001;
 localparam XOR    = 3'b010;
 localparam AND    = 3'b011;
 localparam SR     = 3'b100;
-localparam SL     = 3'b101;
-localparam SUB    = 3'b110;
