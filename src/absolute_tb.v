@@ -25,15 +25,6 @@ module absolute_tb ();
   wire [7:0]   rd_data;
   wire [7:0]   wr_data;
 
-  wire [2:0]    alu_ctrl;
-  wire [7:0]    alu_AI;
-  wire [7:0]    alu_BI;
-  wire          alu_carry;
-  wire          alu_BCD;
-
-  wire [7:0]    alu_flags;
-  wire [7:0]    alu_Y;
-
   // Create the 100MHz clock that the memory will run at
   initial begin
     clk_sys = 1'b1;
@@ -90,23 +81,6 @@ module absolute_tb ();
 
   assign sim_proc_PC         = inst_proc.PC;
 
-  // Break out ALU flags into individual signals to aide in simulation
-  wire sim_alu_carry;
-  wire sim_alu_zero;
-  wire sim_alu_irq;
-  wire sim_alu_decimal;
-  wire sim_alu_break_inst;
-  wire sim_alu_overflow;
-  wire sim_alu_negative;
-
-  assign sim_alu_carry      = alu_flags[0];
-  assign sim_alu_zero       = alu_flags[1];
-  assign sim_alu_irq        = alu_flags[2];
-  assign sim_alu_decimal    = alu_flags[3];
-  assign sim_alu_break_inst = alu_flags[4];
-  assign sim_alu_overflow   = alu_flags[6];
-  assign sim_alu_negative   = alu_flags[7];
-
   // -- Testing Cycle Accuracy
   integer cycle_counter = 0;
 
@@ -159,26 +133,6 @@ module absolute_tb ();
                    .address       (address),
                    .wr_data       (wr_data),
                    .wr_enable     (wr_enable),
-
-                   .alu_flags     (alu_flags),
-                   .alu_Y         (alu_Y),
-                   .alu_ctrl      (alu_ctrl),
-                   .alu_AI        (alu_AI),
-                   .alu_BI        (alu_BI),
-                   .alu_carry     (alu_carry),
-                   .alu_BCD       (alu_BCD)
                    );
-
-  alu
-    #(
-      ) inst_alu (
-                  .alu_ctrl       (alu_ctrl),
-                  .alu_AI         (alu_AI),
-                  .alu_BI         (alu_BI),
-                  .alu_carry      (alu_carry),
-                  .alu_BCD        (alu_BCD),
-                  .alu_flags      (alu_flags),
-                  .alu_Y          (alu_Y)
-                  );
 
 endmodule // proc_top_tb
