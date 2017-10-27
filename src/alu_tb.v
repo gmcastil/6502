@@ -12,19 +12,16 @@
 
 module alu_tb ();
 
-  logic [3:0] ctrl;
-  logic [7:0] AI;
-  logic [7:0] BI;
-  logic       CI;
-  logic       D;
+  reg [3:0] alu_control;
+  reg [7:0] alu_AI;
+  reg [7:0] alu_BI;
+  reg       alu_carry_in;
 
-  logic       N;
-  logic       V;
-  logic       Z;
-  logic       CO;
-  logic       HC;
+  reg [7:0] alu_Y;
+  reg       alu_carry_out;
+  reg       alu_overflow;
 
-  logic [7:0] out;
+`include "./includes/params.vh"
 
   alu #(
         ) dut (
@@ -44,19 +41,18 @@ module alu_tb ();
                );
 
   initial begin
-    // Let the simulator get caught up before starting to add
+    // Let the simulator get caught up before starting
     #10ns;
-    AI = 8'hFF;
-    BI = 8'hFF;
-    CI = 1'b1;
-    D = 1'b0;
-    ctrl = 4'b0000;
+
+    alu_AI = 8'hff;
+    alu_BI = 8'hff;
+    alu_carry_in = 1'b1;
+    alu_control = 4'
     #10ns;
-    AI = 8'hFF;
-    BI = 8'hFF;
-    CI = 1'b0;
-    D = 1'b0;
-    ctrl = 4'b0000;
+    alu_AI = 8'hff;
+    alu_BI = 8'hff;
+    alu_carry_in = 1'b0;
+    alu_control = 4'b0000;
     #10ns;
   end
 
