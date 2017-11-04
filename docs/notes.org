@@ -37,5 +37,24 @@
 ** Instructions
 * Simulations
 ** ALU Simulation
-To run the ALU simulation from a bash shell, change to the `/6502/sim` directory
+To run the ALU simulation from a bash shell, change to the /6502/sim directory
+and run the alu_sim.sh script.  This will call the alu_sim.tcl script which
+simulates the ALU testbench and RTL.  Each operation supported by the ALU will
+be checked and verified by the simulator with a series of pass / fail results
+being echoed to the console.  Note that no waveforms will be generated.
 ** Processor Simulation
+Because this is still very much under development, processor simulation is a bit
+more involved.  The general idea is the following:
+- For each addressing mode, the following files will be created:
+  * A testbench incorporating the name of the addressing mode (e.g.,
+    absolute_tb.v)
+  * A 6502 assembly language source file in //roms/ (e.g., absolute.asm)
+  * A simulation script in //sim/ (e.g., absolute_sim.tcl)
+- To run a simulation from a bash shell, change to the /6502/sim directory and
+  run the proc_sim.sh script with the appropriate addressing modeas the first
+  command line argument.
+- I still have no idea how I want to verify that the design is working as it
+  should, but this is my first cut for now.
+- Also, for now, each addressing mode will be tested and verified independently.
+  Eventually, I want the default behavior to be running a comprehensive
+  testbench that tests everything.
