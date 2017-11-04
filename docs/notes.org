@@ -35,3 +35,7 @@
 *** Overflow (OVF)
 *** Carry (CARRY)
 ** Instructions
+* Simulations
+** ALU Simulation
+To run the ALU simulation from a bash shell, change to the `/6502/sim` directory
+** Processor Simulation
