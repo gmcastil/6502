@@ -22,7 +22,7 @@
 
 module alu
   (
-   input [2:0]      alu_control
+   input [2:0]      alu_control,
    input [7:0]      alu_AI,
    input [7:0]      alu_BI,
    input            alu_carry_in,
@@ -32,7 +32,8 @@ module alu
    output reg       alu_overflow
    );
 
-`include "./includes/params.vh"
+//`include "./includes/params.vh"
+`include "../src/includes/params.vh"
 
   // --- Miscellaneous Signals
   reg [8:0]         result;  // 9-bits to keep track of the carry

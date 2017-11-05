@@ -4,15 +4,15 @@
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    09 July 2017
 //
-// Description: Testbench for the MOS 6502 ALU.  Does not really attempt to do
-// much more than instantiate the ALU and add a couple of numbers together.
+// Description: Testbench for the MOS 6502 ALU.  Intended to be fairly
+// exhaustive with good coverage.
 // ----------------------------------------------------------------------------
 
-`timescale 1ns / 1ps;
+`timescale 1ns / 1ps
 
 module alu_tb ();
 
-  reg [3:0] alu_control;
+  reg [2:0] alu_control;
   reg [7:0] alu_AI;
   reg [7:0] alu_BI;
   reg       alu_carry_in;
@@ -34,30 +34,22 @@ module alu_tb ();
                  .alu_overflow  (alu_overflow)
                );
 
-  // initial begin
-  //   // Let the simulator get caught up before starting
-  //   #100ns;
-  //   for (A=0, A<256, A=A+1) begin
-  //     for (B=0, B<256, B=B+1) begin
-  //       $display("A = %b, B = %b", A, B);
-  //       #10ns;
-  //     end
-  //   end
-  // end
+  integer   tests_failed = 0;
+  integer   tests_passed = 0;
+  integer   A;
+  integer   B;
 
   initial begin
     // Let the simulator get caught up before starting
     #100ns;
 
-    tests_passed = 0;
-    tests_failed = 0;
-
+    // -- Test Addition Operation
     // Testing addition without a carry in
     alu_control = ADD;
     alu_carry_in = 1'b0;
 
-    for (A=0, A<256, A=A+1) begin
-      for (B=0, B<256, B=B+1) begin
+    for (A=0; A<256; A=A+1) begin
+      for (B=0; B<256; B=B+1) begin
         alu_AI = A;
         alu_BI = B;
         #10ns;
@@ -132,8 +124,22 @@ module alu_tb ();
           end
         end // else: !if(A + B > 255)
 
-      end
+      end // for (B=0, B<256, B=B+1)
+    end // for (A=0, A<256, A=A+1)
+
+    // -- Addition Summary
+    if (tests_failed == 0) begin
+      $display("Addition...OK");
+    end else begin
+      $display("Addition...%d failures.", tests_failed);
     end
+
+    // -- Testing Right Shift Operation
+    #100ns;
+
+    tests_failed = 0;
+    tests_passed = 0;
+
   end
 
 endmodule // alu_tb
