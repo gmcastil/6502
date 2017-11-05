@@ -18,8 +18,8 @@ localparam ZERO   = 1;
 localparam CARRY  = 0;
 
 // --- ALU Control and Mux Signals
-localparam ADD    = 3'b000;
-localparam OR     = 3'b001;
-localparam XOR    = 3'b010;
-localparam AND    = 3'b011;
-localparam SR     = 3'b100;
+localparam ADD = 3'b000;
+localparam SR  = 3'b001;
+localparam AND = 3'b010;
+localparam OR  = 3'b011;
+localparam XOR = 3'b100;
