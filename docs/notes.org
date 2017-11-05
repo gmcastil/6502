@@ -42,6 +42,34 @@ and run the alu_sim.sh script.  This will call the alu_sim.tcl script which
 simulates the ALU testbench and RTL.  Each operation supported by the ALU will
 be checked and verified by the simulator with a series of pass / fail results
 being echoed to the console.  Note that no waveforms will be generated.
+
+*** Logic for testing the ALU addition function
+
+#+HEADER: :exports both :results output
+#+BEGIN_SRC python
+for A in range(0, 256):
+    for B in range(0, 256):
+        carry_in = 1
+        # Add with carry
+        C, carry_out, overflow = add(A, B, carry_in)
+        if not A[7] and not B[7] and carry_in:
+            assert C[7] == 1
+            assert overflow == 1
+            assert carry_out == 0
+        else if A[7] and B[7] and not carry_in:
+            assert C[7] == 0
+            assert overflow == 1
+            assert carry_out == 1
+        else:
+            assert overflow == 0
+
+        assert C == A + B
+        if C > 255:
+            assert carry_out == 1
+#+END_SRC
+
+
+
 ** Processor Simulation
 Because this is still very much under development, processor simulation is a bit
 more involved.  The general idea is the following:
@@ -51,7 +79,7 @@ more involved.  The general idea is the following:
   * A 6502 assembly language source file in //roms/ (e.g., absolute.asm)
   * A simulation script in //sim/ (e.g., absolute_sim.tcl)
 - To run a simulation from a bash shell, change to the /6502/sim directory and
-  run the proc_sim.sh script with the appropriate addressing modeas the first
+  run the proc_sim.sh script with the appropriate addressing mode as the first
   command line argument.
 - I still have no idea how I want to verify that the design is working as it
   should, but this is my first cut for now.
