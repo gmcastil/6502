@@ -11,10 +11,10 @@
 //
 // Control Signals:
 //   ADD = 3'b000
-//   OR  = 3'b001
-//   XOR = 3'b010
-//   AND = 3'b011
-//   SR  = 3'b100
+//   SR  = 3'b001
+//   AND = 3'b010
+//   OR  = 3'b011
+//   XOR = 3'b100
 //
 // Logical operations do not distinguish between the A and B inputs.  The right
 // shift operation however only supports the A input.

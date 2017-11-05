@@ -44,7 +44,6 @@ be checked and verified by the simulator with a series of pass / fail results
 being echoed to the console.  Note that no waveforms will be generated.
 
 *** Logic for testing the ALU addition function
-
 #+HEADER: :exports both :results output
 #+BEGIN_SRC python
 for A in range(0, 256):
@@ -67,8 +66,6 @@ for A in range(0, 256):
         if C > 255:
             assert carry_out == 1
 #+END_SRC
-
-
 
 ** Processor Simulation
 Because this is still very much under development, processor simulation is a bit

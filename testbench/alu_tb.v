@@ -5,10 +5,10 @@
 // Date:    09 July 2017
 //
 // Description: Testbench for the MOS 6502 ALU.  Does not really attempt to do
-// much more than instantiate teh ALU and add a couple of numbers together.
+// much more than instantiate the ALU and add a couple of numbers together.
 // ----------------------------------------------------------------------------
 
-`timescale 10ns / 1ps;
+`timescale 1ns / 1ps;
 
 module alu_tb ();
 
@@ -21,39 +21,91 @@ module alu_tb ();
   reg       alu_carry_out;
   reg       alu_overflow;
 
-`include "./includes/params.vh"
+`include "../src/includes/params.vh"
 
   alu #(
-        ) dut (
-               .ctrl (ctrl),
-               .AI   (AI),
-               .BI   (BI),
-               .CI   (CI),
-               .D    (D),
-
-               .N    (N),
-               .V    (V),
-               .Z    (Z),
-               .CO   (CO),
-               .HC   (HC),
-
-               .out  (out)
+        ) u_alu (
+                 .alu_control   (alu_control),
+                 .alu_AI        (alu_AI),
+                 .alu_BI        (alu_BI),
+                 .alu_carry_in  (alu_carry_in),
+                 .alu_Y         (alu_Y),
+                 .alu_carry_out (alu_carry_out),
+                 .alu_overflow  (alu_overflow)
                );
+
+  // initial begin
+  //   // Let the simulator get caught up before starting
+  //   #100ns;
+  //   for (A=0, A<256, A=A+1) begin
+  //     for (B=0, B<256, B=B+1) begin
+  //       $display("A = %b, B = %b", A, B);
+  //       #10ns;
+  //     end
+  //   end
+  // end
 
   initial begin
     // Let the simulator get caught up before starting
-    #10ns;
+    #100ns;
 
-    alu_AI = 8'hff;
-    alu_BI = 8'hff;
-    alu_carry_in = 1'b1;
-    alu_control = 4'
-    #10ns;
-    alu_AI = 8'hff;
-    alu_BI = 8'hff;
+    tests_passed = 0;
+    tests_failed = 0;
+
+    // Testing addition without a carry in
+    alu_control = ADD;
     alu_carry_in = 1'b0;
-    alu_control = 4'b0000;
-    #10ns;
+
+    for (A=0, A<256, A=A+1) begin
+      for (B=0, B<256, B=B+1) begin
+        alu_AI = A;
+        alu_BI = B;
+        #10ns;
+
+        // Test carry out with no overflow
+        if (!alu_AI[7] && !alu_BI[7] && alu_carry_in) begin
+
+          if (alu_Y[7] == 1'b1) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+          if (alu_overflow == 1'b1) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+          if (carry_out == 1'b0) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+
+        // Test carry out with overflow
+        end else if (alu_AI[7] && alu_BI[7] && !alu_carry_in) begin
+
+          if (alu_Y[7] == 1'b1) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+          if (alu_overflow == 1'b1) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+          if (carry_out == 1'b0) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+        end // if (alu_AI[7] && alu_BI[7] && !alu_carry_in)
+
+      end
+    end
   end
+
+
+
 
 endmodule // alu_tb
