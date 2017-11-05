@@ -12,14 +12,14 @@
 
 module alu_tb ();
 
-  reg [2:0] alu_control;
-  reg [7:0] alu_AI;
-  reg [7:0] alu_BI;
-  reg       alu_carry_in;
+  reg [2:0]  alu_control;
+  reg [7:0]  alu_AI;
+  reg [7:0]  alu_BI;
+  reg        alu_carry_in;
 
-  reg [7:0] alu_Y;
-  reg       alu_carry_out;
-  reg       alu_overflow;
+  wire [7:0] alu_Y;
+  wire       alu_carry_out;
+  wire       alu_overflow;
 
 `include "../src/includes/params.vh"
 
@@ -36,6 +36,7 @@ module alu_tb ();
 
   integer   tests_failed = 0;
   integer   tests_passed = 0;
+  integer   result;
   integer   A;
   integer   B;
 
@@ -67,7 +68,7 @@ module alu_tb ();
           end else begin
             tests_failed = tests_failed + 1;
           end
-          if (carry_out == 1'b0) begin
+          if (alu_carry_out == 1'b0) begin
             tests_passed = tests_passed + 1;
           end else begin
             tests_failed = tests_failed + 1;
@@ -86,7 +87,7 @@ module alu_tb ();
           end else begin
             tests_failed = tests_failed + 1;
           end
-          if (carry_out == 1'b0) begin
+          if (alu_carry_out == 1'b0) begin
             tests_passed = tests_passed + 1;
           end else begin
             tests_failed = tests_failed + 1;
@@ -131,7 +132,7 @@ module alu_tb ();
     if (tests_failed == 0) begin
       $display("Addition...OK");
     end else begin
-      $display("Addition...%d failures.", tests_failed);
+      $display("Addition...%d passing and %d failures.", tests_passed, tests_failed);
     end
 
     // -- Testing Right Shift Operation

@@ -40,17 +40,13 @@ module alu
 
   always @(*) begin
 
-    // Default for all ALU output flags
-    alu_flags = 8'b0;
-
-    case ( alu_ctrl )
+    case ( alu_control )
 
       ADD: begin
         // Affects Flags: N V Z C
           // Binary addition with carry in
-          result = {1'b0, alu_AI} + {1'b0, alu_BI} + { 8'b0, alu_carry };
+          result = {1'b0, alu_AI} + {1'b0, alu_BI} + { 8'b0, alu_carry_in };
           alu_Y = result[7:0];
-          alu_flags[CARRY] = result[8];
       end
 
       // OR: begin
@@ -79,40 +75,40 @@ module alu
 //        N = Y[7];
 //      end
 
-      AND: begin
-        // Affects Flags: N Z
-        alu_Y = alu_AI & alu_BI;
-        // Set if result is zero; else cleared
-        if (alu_Y == 8'b0) begin
-          alu_flags[ZERO] = 1'b1;
-        end else begin
-          alu_flags[ZERO] = 1'b0;
-        end
-        // Set if MSB is set; else cleared
-        alu_flags[NEG] = alu_Y[7];
-      end
+      // AND: begin
+      //   // Affects Flags: N Z
+      //   alu_Y = alu_AI & alu_BI;
+      //   // Set if result is zero; else cleared
+      //   if (alu_Y == 8'b0) begin
+      //     alu_flags[ZERO] = 1'b1;
+      //   end else begin
+      //     alu_flags[ZERO] = 1'b0;
+      //   end
+      //   // Set if MSB is set; else cleared
+      //   alu_flags[NEG] = alu_Y[7];
+      // end
 
-      SR: begin
-        alu_Y = { 1'b0, alu_AI[7:1] };
-        alu_flags[CARRY] = alu_AI[0];
-        if (alu_Y == 8'b0) begin
-          alu_flags[ZERO] = 1'b1;
-        end else begin
-          alu_flags[ZERO] = 1'b0;
-        end
-        alu_flags[NEG] = alu_Y[7];
-      end
+      // SR: begin
+      //   alu_Y = { 1'b0, alu_AI[7:1] };
+      //   alu_flags[CARRY] = alu_AI[0];
+      //   if (alu_Y == 8'b0) begin
+      //     alu_flags[ZERO] = 1'b1;
+      //   end else begin
+      //     alu_flags[ZERO] = 1'b0;
+      //   end
+      //   alu_flags[NEG] = alu_Y[7];
+      // end
 
-      SL: begin
-        alu_Y = { alu_AI[6:0], 1'b0 };
-        alu_flags[CARRY] = alu_AI[7];
-        if (alu_Y == 8'b0) begin
-          alu_flags[ZERO] = 1'b1;
-        end else begin
-          alu_flags[ZERO] = 1'b0;
-        end
-        alu_flags[NEG] = alu_Y[7];
-      end
+      // SL: begin
+      //   alu_Y = { alu_AI[6:0], 1'b0 };
+      //   alu_flags[CARRY] = alu_AI[7];
+      //   if (alu_Y == 8'b0) begin
+      //     alu_flags[ZERO] = 1'b1;
+      //   end else begin
+      //     alu_flags[ZERO] = 1'b0;
+      //   end
+      //   alu_flags[NEG] = alu_Y[7];
+      // end
 
       default: begin end
 
