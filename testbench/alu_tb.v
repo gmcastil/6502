@@ -99,7 +99,33 @@ module alu_tb ();
           end else begin
             tests_failed = tests_failed + 1;
           end
-        end // if (alu_AI[7] && alu_BI[7] && !alu_carry_in)
+        // Test just overflow
+        end else begin
+          if (alu_overflow == 1'b0) begin
+            tests_passed = tests_passed + 1;
+          end else begin
+            tests_failed = tests_failed + 1;
+          end
+        end // else: !if(alu_AI[7] && alu_BI[7] && !alu_carry_in)
+
+        // Test the actual addition operation
+        if (alu_Y == A + B) begin
+          tests_passed = tests_passed + 1;
+        end else begin
+          tests_failed = tests_failed + 1;
+        end
+
+        // Test carry out
+        if (A + B > 255 && alu_carry_out) begin
+          tests_passed = tests_passed + 1;
+        end else begin
+          tests_failed = tests_failed + 1;
+        end
+
+
+
+
+
 
       end
     end
