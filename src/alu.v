@@ -16,8 +16,9 @@
 //   OR  = 3'b011
 //   XOR = 3'b100
 //
-// Logical operations do not distinguish between the A and B inputs.  The right
-// shift operation however only supports the A input.
+// Logical and arithmetic operations do not distinguish between the A and B
+// inputs.  However, the right shift operation assumes exclusive use of the
+// A input.
 // ----------------------------------------------------------------------------
 
 module alu
@@ -36,31 +37,36 @@ module alu
 `include "../src/includes/params.vh"
 
   // --- Miscellaneous Signals
-  reg [8:0]         result;  // 9-bits to keep track of the carry
+  wire [8:0]        add_result;  // 9-bits to keep track of the carry
+  wire              add_carry_out;
+  wire              sr_carry_out;
 
-  // Select which operation to bring out
+  // Mux out the intended operation
   always @(*) begin
 
     case ( alu_control )
 
       ADD: begin
-
+        add_result = {1'b0, alu_AI} + {1'b0, alu_BI} + {8'd0, alu_carry_in};
+        add_carry_out = add_result[8];
+        alu_Y = add_result[7:0];
       end
 
       SR: begin
-
+        alu_Y = {alu_carry_in, alu_AI[7:1]};
+        sr_carry_out = alu_AI[0];
       end
 
       AND: begin
-
+        alu_Y = alu_AI & alu_BI;
       end
 
       OR: begin
-
+        alu_Y = alu_AI | alu_BI;
       end
 
       XOR: begin
-
+        alu_Y = alu_AI ^ alu_BI;
       end
 
       default: begin end
@@ -68,14 +74,29 @@ module alu
     endcase // case ( ctrl )
   end
 
-  // Select which value to use for the carry out bit
+  // Mux out the carry bit - note that only ADD and SR have any effect on this
+  // value
   always @(*) begin
 
+    case ( alu_control )
+
+      ADD: begin
+        alu_carry_out = add_carry_out;
+      end
+
+      SR: begin
+        alu_carry_out = sr_carry_out;
+      end
+
+      default: begin
+        alu_carry_out = 1'b0;
+      end
+    endcase // case ( alu_control )
   end
 
-  // Compute the overflow value
+  // Compute the overflow output
   always @(*) begin
-
+    alu_AI[7] alu_BI[7]
   end
 
 endmodule // alu
