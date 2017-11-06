@@ -50,12 +50,12 @@ module alu_tb ();
     // Testing addition without a carry in
     tests_failed = 0;
     tests_passed = 0;
-
     alu_control = ADD;
+
     alu_carry_in = 1'b0;
 
     for (A=0; A<256; A=A+1'd1) begin
-      for (B=0; A<256; B=B+1'd1) begin
+      for (B=0; B<256; B=B+1'd1) begin
         alu_AI = A;
         alu_BI = B;
         #10;
@@ -145,10 +145,10 @@ module alu_tb ();
     // -- Testing Right Shift Operation
     tests_failed = 0;
     tests_passed = 0;
+    alu_control = SR;
 
     for (A=0; A<256; A=A+1) begin
       alu_AI = A;
-      alu_control = SR;
       alu_carry_in = 1'b0;
       if (A % 2 == 1) begin
         result = (A - 1) / 2;
@@ -172,7 +172,64 @@ module alu_tb ();
       end else begin
         tests_failed = tests_failed + 1;
       end
+    end
 
+    // -- Testing AND Operation
+    tests_failed = 0;
+    tests_passed = 0;
+    alu_control = AND;
+
+    for (A=0; A<256; A=A+1'd1) begin
+      for (B=0; B<256; B=B+1'd1) begin
+        alu_AI = A;
+        alu_BI = B;
+        result = A & B;
+        #10;
+        if (alu_Y == result) begin
+          tests_passed = tests_passed + 1;
+        end else begin
+          tests_failed = tests_failed + 1;
+        end
+      end
+    end
+
+
+    // -- Testing OR Operation
+    tests_failed = 0;
+    tests_passed = 0;
+    alu_control = OR;
+
+    for (A=0; A<256; A=A+1'd1) begin
+      for (B=0; B<256; B=B+1'd1) begin
+        alu_AI = A;
+        alu_BI = B;
+        result = A | B;
+        #10;
+        if (alu_Y == result) begin
+          tests_passed = tests_passed + 1;
+        end else begin
+          tests_failed = tests_failed + 1;
+        end
+      end
+    end
+
+    // -- Testing XOR Operation
+    tests_failed = 0;
+    tests_passed = 0;
+    alu_control = XOR;
+
+    for (A=0; A<256; A=A+1'd1) begin
+      for (B=0; B<256; B=B+1'd1) begin
+        alu_AI = A;
+        alu_BI = B;
+        result = A ^ B;
+        #10;
+        if (alu_Y == result) begin
+          tests_passed = tests_passed + 1;
+        end else begin
+          tests_failed = tests_failed + 1;
+        end
+      end
     end
 
     $finish;

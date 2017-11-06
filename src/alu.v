@@ -38,81 +38,43 @@ module alu
   // --- Miscellaneous Signals
   reg [8:0]         result;  // 9-bits to keep track of the carry
 
+  // Select which operation to bring out
   always @(*) begin
 
     case ( alu_control )
 
       ADD: begin
-        // Affects Flags: N V Z C
-          // Binary addition with carry in
-          result = {1'b0, alu_AI} + {1'b0, alu_BI} + { 8'b0, alu_carry_in };
-          alu_Y = result[7:0];
+
       end
 
-      // OR: begin
-      //   // Affects Flags: N Z
-      //   alu_Y = alu_AI | alu_BI;
-      //   // Set if result is zero; else cleared
-      //   if (alu_Y == 8'b0) begin
-      //     alu_flags[ZERO] = 1'b0;
-      //   end else begin
-      //     alu_flags[ZERO] = 1'b1;
-      //   end
-      //   // Set if MSB is set; else cleared
-      //   alu_flags[NEG] = alu_Y[7];
-      // end
+      SR: begin
 
-//      XOR: begin
-//        // Affects Flags: N Z
-//        Y = AI ^ BI;
-//        // Set if result is zero; else cleared
-//        if (Y == 8'b0) begin
-//          Z = 1'b0;
-//        end else begin
-//          Z = 1'b1;
-//        end
-//        // Set if MSB is set; else cleared
-//        N = Y[7];
-//      end
+      end
 
-      // AND: begin
-      //   // Affects Flags: N Z
-      //   alu_Y = alu_AI & alu_BI;
-      //   // Set if result is zero; else cleared
-      //   if (alu_Y == 8'b0) begin
-      //     alu_flags[ZERO] = 1'b1;
-      //   end else begin
-      //     alu_flags[ZERO] = 1'b0;
-      //   end
-      //   // Set if MSB is set; else cleared
-      //   alu_flags[NEG] = alu_Y[7];
-      // end
+      AND: begin
 
-      // SR: begin
-      //   alu_Y = { 1'b0, alu_AI[7:1] };
-      //   alu_flags[CARRY] = alu_AI[0];
-      //   if (alu_Y == 8'b0) begin
-      //     alu_flags[ZERO] = 1'b1;
-      //   end else begin
-      //     alu_flags[ZERO] = 1'b0;
-      //   end
-      //   alu_flags[NEG] = alu_Y[7];
-      // end
+      end
 
-      // SL: begin
-      //   alu_Y = { alu_AI[6:0], 1'b0 };
-      //   alu_flags[CARRY] = alu_AI[7];
-      //   if (alu_Y == 8'b0) begin
-      //     alu_flags[ZERO] = 1'b1;
-      //   end else begin
-      //     alu_flags[ZERO] = 1'b0;
-      //   end
-      //   alu_flags[NEG] = alu_Y[7];
-      // end
+      OR: begin
+
+      end
+
+      XOR: begin
+
+      end
 
       default: begin end
 
     endcase // case ( ctrl )
+  end
+
+  // Select which value to use for the carry out bit
+  always @(*) begin
+
+  end
+
+  // Compute the overflow value
+  always @(*) begin
 
   end
 
