@@ -33,12 +33,12 @@ module alu
    output reg       alu_overflow
    );
 
-//`include "./includes/params.vh"
 `include "../src/includes/params.vh"
 
   // --- Miscellaneous Signals
   wire [8:0]        add_result;  // 9-bits to keep track of the carry
   wire              add_carry_out;
+  wire              add_overflow;
   wire              sr_carry_out;
 
   // Mux out the intended operation
@@ -96,7 +96,17 @@ module alu
 
   // Compute the overflow output
   always @(*) begin
-    alu_AI[7] alu_BI[7]
+    // The overflow condition is logically
+    //
+    // ((NOT A[7] AND NOT B[7]) AND ADD[7]) OR (A[7] AND B[7] AND NOT ADD[7])
+    //
+    // Which is equivalent to
+    //
+    // (A[7] XNOR B[7]) AND (A[7] XOR ADD[7])
+    add_overflow = (alu_AI[7] ~& alu_BI[7]) & (alu_AI[7] ^ alu_Y[7]);
   end
+
+  // Only enable the overflow output during addition
+  assign alu_overflow = (alu_control == ADD) ? add_overflow : 1'b0;
 
 endmodule // alu
