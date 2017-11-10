@@ -56,7 +56,7 @@ module alu
       SR: begin
         alu_Y = {alu_carry_in, alu_AI[7:1]};
         sr_carry_out = alu_AI[0];
-        alu_overflow = 1'b0;      
+        alu_overflow = 1'b0;
       end
 
       AND: begin
@@ -108,7 +108,7 @@ module alu
     // Which is equivalent to
     //
     // (A[7] XNOR B[7]) AND (A[7] XOR ADD[7])
-    add_overflow = ~(alu_AI[7] ^ alu_BI[7]) & (alu_AI[7] ^ alu_Y[7]);
+    add_overflow = (~(alu_AI[7] ^ alu_BI[7])) & (alu_AI[7] ^ alu_Y[7]);
   end
 
 endmodule // alu
