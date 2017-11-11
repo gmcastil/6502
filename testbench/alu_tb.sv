@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Module:  alu_tb.v
+// Module:  alu_tb.sv
 // Project: MOS 6502 Processor
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    09 July 2017
@@ -55,8 +55,8 @@ module alu_tb ();
 
     alu_carry_in = 1'b0;
 
-    for (A=0; A<256; A=A+1) begin
-      for (B=0; B<256; B=B+1) begin
+    for (A=0; A<256; A=A++) begin
+      for (B=0; B<256; B=B++) begin
         alu_AI = A;
         alu_BI = B;
         #10;
@@ -64,70 +64,75 @@ module alu_tb ();
         // Test carry out with no overflow
         if (!alu_AI[7] && !alu_BI[7] && alu_carry_in) begin
 
-          if (alu_Y[7] == 1'b1) begin
-            tests_passed = tests_passed + 1;
+          assert (alu_Y[7] == 1'b1) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
-          if (alu_overflow == 1'b1) begin
-            tests_passed = tests_passed + 1;
+
+          assert (alu_overflow == 1'b1) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
-          if (alu_carry_out == 1'b0) begin
-            tests_passed = tests_passed + 1;
+
+          assert (alu_carry_out == 1'b0) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
 
         // Test carry out with overflow
         end else if (alu_AI[7] && alu_BI[7] && !alu_carry_in) begin
 
-          if (alu_Y[7] == 1'b1) begin
-            tests_passed = tests_passed + 1;
+          assert (alu_Y[7] == 1'b1) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
-          if (alu_overflow == 1'b1) begin
-            tests_passed = tests_passed + 1;
+
+          assert (alu_overflow == 1'b1) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
-          if (alu_carry_out == 1'b0) begin
-            tests_passed = tests_passed + 1;
+
+          assert (alu_carry_out == 1'b0) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
 
         // Test just overflow
         end else begin // if (alu_AI[7] && alu_BI[7] && !alu_carry_in)
-          if (alu_overflow == 1'b0) begin
-            tests_passed = tests_passed + 1;
+
+          assert (alu_overflow == 1'b0) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
         end // else: !if(alu_AI[7] && alu_BI[7] && !alu_carry_in)
 
         // Test the actual addition operation
         result = A + B;
-        if (alu_Y == result[7:0]) begin
-          tests_passed = tests_passed + 1;
+        assert (alu_Y == result[7:0]) begin
+          tests_passed++;
         end else begin
-          tests_failed = tests_failed + 1;
+          tests_failed++;
         end
 
         // Test carry out
         if (A + B > 255) begin
-          if (alu_carry_out == 1'b1) begin
-            tests_passed = tests_passed + 1;
+          assert (alu_carry_out == 1'b1) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
         end else begin
-          if (alu_carry_out == 1'b0) begin
-            tests_passed = tests_passed + 1;
+          assert (alu_carry_out == 1'b0) begin
+            tests_passed++;
           end else begin
-            tests_failed = tests_failed + 1;
+            tests_failed++;
           end
         end // else: !if(A + B > 255)
 
@@ -156,18 +161,18 @@ module alu_tb ();
       end
       #10;
 
-      if (alu_Y == result && carry_out == alu_carry_out) begin
-        tests_passed = tests_passed + 1;
+      assert (alu_Y == result && carry_out == alu_carry_out) begin
+        tests_passed++;
       end else begin
-        tests_failed = tests_failed + 1;
+        tests_failed++;
       end
 
       alu_carry_in = 1'b1;
       #10;
-      if (alu_Y == result + 128 && carry_out == alu_carry_out) begin
-        tests_passed = tests_passed + 1;
+      assert (alu_Y == result + 128 && carry_out == alu_carry_out) begin
+        tests_passed++;
       end else begin
-        tests_failed = tests_failed + 1;
+        tests_failed++;
       end
     end // for (A=0; A<256; A=A+1)
 
@@ -185,10 +190,10 @@ module alu_tb ();
         alu_BI = B;
         result = A & B;
         #10;
-        if (alu_Y == result) begin
-          tests_passed = tests_passed + 1;
+        assert (alu_Y == result) begin
+          tests_passed++;
         end else begin
-          tests_failed = tests_failed + 1;
+          tests_failed++;
         end
       end
     end
@@ -207,10 +212,10 @@ module alu_tb ();
         alu_BI = B;
         result = A | B;
         #10;
-        if (alu_Y == result) begin
-          tests_passed = tests_passed + 1;
+        assert (alu_Y == result) begin
+          tests_passed++;
         end else begin
-          tests_failed = tests_failed + 1;
+          tests_failed++;
         end
       end
     end
@@ -229,10 +234,10 @@ module alu_tb ();
         alu_BI = B;
         result = A ^ B;
         #10;
-        if (alu_Y == result) begin
-          tests_passed = tests_passed + 1;
+        assert (alu_Y == result) begin
+          tests_passed++;
         end else begin
-          tests_failed = tests_failed + 1;
+          tests_failed++;
         end
       end
     end

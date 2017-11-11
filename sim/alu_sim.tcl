@@ -38,4 +38,4 @@ $vlog \
    +libext+.v \
    +libext+.vh \
    +incdir+$includes_dir \
-   $testbench_dir/alu_tb.v
+   $testbench_dir/alu_tb.sv
