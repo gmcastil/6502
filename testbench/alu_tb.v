@@ -34,19 +34,20 @@ module alu_tb ();
                  .alu_overflow  (alu_overflow)
                );
 
-  integer   tests_failed;
-  integer   tests_passed;
-  integer   result;
-  integer   A;
-  integer   B;
+  integer    tests_failed;
+  integer    tests_passed;
+  integer    result;
+  integer    A;
+  integer    B;
 
-  reg       carry_out;
+  reg        carry_out;
 
   initial begin
     // Let the simulator get caught up before starting
     #100;
 
     // -- Test Addition Operation
+
     // Testing addition without a carry in
     tests_failed = 0;
     tests_passed = 0;
@@ -54,8 +55,8 @@ module alu_tb ();
 
     alu_carry_in = 1'b0;
 
-    for (A=0; A<256; A=A+1'd1) begin
-      for (B=0; B<256; B=B+1'd1) begin
+    for (A=0; A<256; A=A+1) begin
+      for (B=0; B<256; B=B+1) begin
         alu_AI = A;
         alu_BI = B;
         #10;
@@ -134,11 +135,7 @@ module alu_tb ();
     end // for (A=0, A<256, A=A+1)
 
     // -- Addition Summary
-    if (tests_failed == 0) begin
-      $display("Addition...OK");
-    end else begin
-      $display("Addition...%d passing and %d failures.", tests_passed, tests_failed);
-    end
+    $display("Addition without carry in...%d passing and %d failures.", tests_passed, tests_failed);
 
     #100;
 
@@ -172,15 +169,18 @@ module alu_tb ();
       end else begin
         tests_failed = tests_failed + 1;
       end
-    end
+    end // for (A=0; A<256; A=A+1)
+
+    // -- Shift Right Summary
+    $display("Shift right operation...%d passing and %d failures.", tests_passed, tests_failed);
 
     // -- Testing AND Operation
     tests_failed = 0;
     tests_passed = 0;
     alu_control = AND;
 
-    for (A=0; A<256; A=A+1'd1) begin
-      for (B=0; B<256; B=B+1'd1) begin
+    for (A=0; A<256; A=A+1) begin
+      for (B=0; B<256; B=B+1) begin
         alu_AI = A;
         alu_BI = B;
         result = A & B;
@@ -193,14 +193,16 @@ module alu_tb ();
       end
     end
 
+    // -- AND Summary
+    $display("AND operation...%d passing and %d failures.", tests_passed, tests_failed);
 
     // -- Testing OR Operation
     tests_failed = 0;
     tests_passed = 0;
     alu_control = OR;
 
-    for (A=0; A<256; A=A+1'd1) begin
-      for (B=0; B<256; B=B+1'd1) begin
+    for (A=0; A<256; A=A+1) begin
+      for (B=0; B<256; B=B+1) begin
         alu_AI = A;
         alu_BI = B;
         result = A | B;
@@ -213,13 +215,16 @@ module alu_tb ();
       end
     end
 
+    // -- OR Summary
+    $display("OR operation...%d passing and %d failures.", tests_passed, tests_failed);
+
     // -- Testing XOR Operation
     tests_failed = 0;
     tests_passed = 0;
     alu_control = XOR;
 
-    for (A=0; A<256; A=A+1'd1) begin
-      for (B=0; B<256; B=B+1'd1) begin
+    for (A=0; A<256; A=A+1) begin
+      for (B=0; B<256; B=B+1) begin
         alu_AI = A;
         alu_BI = B;
         result = A ^ B;
@@ -232,7 +237,10 @@ module alu_tb ();
       end
     end
 
+    // -- XOR Summary
+    $display("XOR operation...%d passing and %d failures.", tests_passed, tests_failed);
+
     $finish;
-  end
+  end // initial begin
 
 endmodule // alu_tb
