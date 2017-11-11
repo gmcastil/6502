@@ -19,3 +19,5 @@ transcript
 *.mif
 *.log
 *.wlf
+# Also ignore the lib files that the simulation scripts create
+sim/*_lib/
