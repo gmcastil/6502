@@ -143,11 +143,11 @@ module alu_tb ();
       for (int B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
+        alu_carry_in = carry_in;
         #10;
 
         // Test carry out with no overflow
         if (!alu_AI[7] && !alu_BI[7] && alu_carry_in) begin
-
           assert (alu_Y[7] == 1'b1) begin
             add_passed++;
           end else begin
@@ -168,7 +168,6 @@ module alu_tb ();
 
         // Test carry out with overflow
         end else if (alu_AI[7] && alu_BI[7] && !alu_carry_in) begin
-
           assert (alu_Y[7] == 1'b1) begin
             add_passed++;
           end else begin
