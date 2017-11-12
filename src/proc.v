@@ -224,6 +224,9 @@ module proc
         // Processor status register is updated after every instruction but
         // determined using a combinational logic block
         P <= updated_status;
+
+        // With some instructions, the accumulator is updated directly.  In
+        // other instances it is updated from another logic block
         if (update_accumulator_flag == 1'b1) begin
           A <= updated_accumulator;
           update_accumulator_flag <= 1'b0;
@@ -304,6 +307,7 @@ module proc
             alu_BI <= A;
             alu_carry_in <= P[CARRY];
             alu_control <= ADD;
+            update_accumulator_flag <= 1'b1;
           end
 
           LSR_acc: begin
@@ -312,6 +316,7 @@ module proc
             alu_AI <= A;
             alu_carry_in <= 1'b0;
             alu_control <= SR
+            update_accumulator_flag <= 1'b1;
           end
 
           ROL_acc: begin
@@ -321,12 +326,16 @@ module proc
             alu_BI <= A;
             alu_carry_in <= P[CARRY];
             alu_control <= ADD;
+            update_accumulator_flag <= 1'b1;
           end
 
           ROR_acc: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
             alu_AI <= A;
+            alu_carry_in <= P[CARRY];
+            alu_control <= SR;
+            update_accumulator_flag <= 1'b1;
           end
 
 
@@ -361,7 +370,7 @@ module proc
           ROR_abs,
           SBC_abs: begin
             address <= { rd_data, operand_LSB };
-          end // case: ADC_abs,...
+<          end // case: ADC_abs,...
 
           STA_abs: begin
             address <= { rd_data, operand_LSB };
@@ -777,27 +786,49 @@ module proc
         updated_status[ZERO] = ~|A;
       end
 
-      LDX_abs,
-      LDY_abs,
-      ORA_abs: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
+      LDX_abs: begin
+        updated_status[NEG] = X[MSB];
+        updated_status[ZERO] = ~|X;
+      end
+      LDY_abs: begin
+        updated_status[NEG] = Y[MSB];
+        updated_status[ZERO] = ~|Y;
       end
 
-      ASL_abs,
-      LSR_abs,
-      ROL_abs,
+      ORA_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      ASL_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
+      end
+
+      LSR_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
+      end
+
+      ROL_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
+      end
+
       ROR_abs: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[CARRY] = alu_flags[CARRY];
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
       end
 
       BIT_abs: begin
         // Negative flag comes from high bit of operand provided to ALU
         updated_status[NEG] = rd_data[7];
         // Zero flag is normal, but with accumulator and memory unaffected
-        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[ZERO] = ~|rd_data;
         // Overflow flag comes from next highest bit of operand provided to ALU
         updated_status[OVF] = rd_data[6];
       end
