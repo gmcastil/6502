@@ -44,19 +44,13 @@ module alu_tb ();
     // Let the simulator get caught up before starting
     #100;
 
-    // -- Test Addition Operation
-
-    // Testing addition without a carry in
-    tests_failed = 0;
-    tests_passed = 0;
-
+    // -- Results header
     $display("Results:\n");
     $display("|-----------------------------------------|");
     $display("| Operation   | Carry | Passes | Failures |");
     $display("|-------------+-------+--------+----------|");
 
-
-    // -- Addition Summary
+    // -- Test Addition Operation
     test_addition(1'b0, tests_passed, tests_failed);
     $display("| Addition    |  No   | %6d |   %6d |", tests_passed, tests_failed);
     test_addition(1'b1, tests_passed, tests_failed);
@@ -140,6 +134,9 @@ module alu_tb ();
     input carry_in;
     output int add_passed;
     output int add_failed;
+
+    add_passed = 0;
+    add_failed = 0;
 
     alu_control = ADD;
     for (int A = 0; A < 256; A++) begin
@@ -231,6 +228,9 @@ module alu_tb ();
     output int sr_passed;
     output int sr_failed;
 
+    sr_passed = 0;
+    sr_failed = 0;
+
     alu_control = SR;
     for (int A = 0; A < 256; A++) begin
       alu_AI = A[7:0];
@@ -245,7 +245,7 @@ module alu_tb ();
       end
       #10;
 
-      assert (alu_Y == result[7:0] && carry_out == alu_carry_out) begin
+      assert (alu_Y == {carry_in, result[6:0]} && carry_out == alu_carry_out) begin
         sr_passed++;
       end else begin
         sr_failed++;
