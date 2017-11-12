@@ -76,7 +76,7 @@ module proc
   reg [7:0]          operand_MSB;
 
   // Accumulator and processor status updates
-  reg                update_accumulator_flag_flag;
+  reg                update_accumulator_flag;
   reg [7:0]          updated_status;
   reg [7:0]          updated_accumulator;
 
@@ -104,15 +104,15 @@ module proc
 
       // Also, clear these special control bits too
       update_accumulator_flag <= 1'b0;
+      updated_status <= 8'b0
       decoded_state <= 0;
 
       // Finally, pipeline the reset vector - no point in waiting
       address <= RESET_LSB;
-
     end else begin
       state <= next;
-    end
-  end
+    end // else: !if( resetn == 1'b0 )
+  end // always @ (posedge clk)
 
   // --- State Machine Definition
   always @(*) begin: STATE_MACHINE
@@ -169,7 +169,6 @@ module proc
           ROL_abs,
           ROR_abs: begin
             next[ABS_3] = 1'b1;
-
           end
 
           // 4-cycle instructions return - not sure this is right
@@ -341,7 +340,7 @@ module proc
           default: begin end
         endcase // case ( IR )
 
-      end
+      end // case: state[DECODE]
 
       // -- Absolute Addressing Mode
       state[ABS_1]: begin
@@ -397,7 +396,7 @@ module proc
           default: begin end
         endcase // case ( IR )
 
-      end
+      end // case: state[ABS_1]
 
       state[ABS_2]: begin
 
@@ -576,7 +575,7 @@ module proc
           default: begin end
         endcase // case ( IR )
 
-      end
+      end // case: state[ABS_2]
 
       state[ABS_3]: begin
 
@@ -623,7 +622,8 @@ module proc
 
           default: begin end
         endcase // case ( IR )
-      end
+
+      end // case: state[ABS_3]
 
       state[ABS_4]: begin
 
@@ -657,10 +657,10 @@ module proc
 
           default: begin end
         endcase // case ( IR )
-      end
+
+      end // case: state[ABS_4]
 
     endcase // case ( 1'b1 )
-
   end // block: INSTRUCTION_CYCLE
 
   // --- Address Mode Decoder
