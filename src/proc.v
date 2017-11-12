@@ -450,8 +450,8 @@ module proc
             address <= PC + 16'd3;
 
             alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_control <= SUB;
+            alu_BI <= twos_complement(rd_data);
+            alu_control <= ADD;
 
             // CMP instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -463,8 +463,8 @@ module proc
             address <= PC + 16'd3;
 
             alu_AI <= X;
-            alu_BI <= rd_data;
-            alu_control <= SUB;
+            alu_BI <= twos_complement(rd_data);
+            alu_control <= ADD;
 
             // CPX instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -476,8 +476,8 @@ module proc
             address <= PC + 16'd3;
 
             alu_AI <= Y;
-            alu_BI <= rd_data;
-            alu_control <= SUB;
+            alu_BI <= twos_complement(rd_data);
+            alu_control <= ADD;
 
             // CPY instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
@@ -486,8 +486,8 @@ module proc
 
           DEC_abs: begin
             alu_AI <= rd_data;
-            alu_BI <= 8'd1;
-            alu_control <= SUB;
+            alu_BI <= twos_complement(8'd1);
+            alu_control <= ADD;
           end
 
           EOR_abs: begin
@@ -559,8 +559,8 @@ module proc
             address <= PC + 16'd3;
 
             alu_AI <= A;
-            alu_BI <= rd_data;
-            alu_control <= SUB;
+            alu_BI <= twos_complement(rd_data);
+            alu_control <= ADD;
 
             update_accumulator_flag <= 1'b1;
           end
@@ -833,19 +833,25 @@ module proc
         updated_status[OVF] = rd_data[6];
       end
 
-      CMP_abs,
-      CPX_abs,
+      CMP_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
+        //
+      end
+
+      CPX_abs: begin
+        updated_status[NEG] = alu_flags[NEG];
+        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[CARRY] = alu_flags[CARRY];
+        //
+      end
+
       CPY_abs: begin
         updated_status[NEG] = alu_flags[NEG];
         updated_status[ZERO] = alu_flags[ZERO];
         updated_status[CARRY] = alu_flags[CARRY];
-      end
-
-      JMP_abs,
-      STA_abs,
-      STX_abs,
-      STY_abs: begin
-        updated_status = P;
+        //
       end
 
       // -- Implied Addressing Mode
@@ -861,6 +867,11 @@ module proc
         updated_status[CARRY] = 1'b1;
       end
 
+      // Be explicit about which opcodes do not affect processor status
+      JMP_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs,
       NOP_imp: begin
         updated_status = P;
       end
@@ -910,5 +921,15 @@ module proc
                   .alu_carry_out (alu_carry_out),
                   .alu_overflow  (alu_overflow)
                   );
+
+  function [7:0] twos_complement;
+    // Represent negative numbers to perform subtraction
+    input [7:0] value
+
+    begin
+      twos_complement = (~value) + 1'b1;
+    end
+  endfunction // negate
+
 
 endmodule // proc
