@@ -368,7 +368,7 @@ module proc
           ROR_abs,
           SBC_abs: begin
             address <= { rd_data, operand_LSB };
-<          end // case: ADC_abs,...
+          end // case: ADC_abs,...
 
           STA_abs: begin
             address <= { rd_data, operand_LSB };
