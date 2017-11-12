@@ -63,6 +63,7 @@ module proc
 
   localparam EMPTY     = 32'd0;
   localparam MSB       = 7;
+  localparam LSB       = 0;
 
   // State register definition - for now, we'll make this big
   reg [31:0]        state;
@@ -846,25 +847,25 @@ module proc
 
       ASL_acc: begin
         updated_accumulator = alu_Y;
-        updated_accumulator[LSB] = alu_carry_out;
       end
 
       LSR_acc: begin
+        updated_accumulator = alu_Y;
       end
 
       ROL_acc: begin
+        updated_accumulator = alu_Y;
+        updated_accumulator[LSB] = alu_carry_out;
       end
 
       ROR_acc: begin
+        updated_accumulator = alu_Y;
+        updated_accumulator[MSB] = alu_carry_out;
       end
 
       default: begin end
     endcase // case ( IR )
   end // block: ACCUMULATOR_UPDATE
-
-
-
-
 
   // -- ALU Instantiation
   alu
