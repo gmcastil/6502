@@ -61,7 +61,8 @@ module proc
 
   // More to come...
 
-  localparam EMPTY = 32'd0;
+  localparam EMPTY     = 32'd0;
+  localparam MSB       = 7;
 
   // State register definition - for now, we'll make this big
   reg [31:0]        state;
@@ -74,8 +75,9 @@ module proc
   reg [7:0]          operand_MSB;
 
   // Accumulator and processor status updates
-  reg                update_accumulator;
+  reg                update_accumulator_flag_flag;
   reg [7:0]          updated_status;
+  reg [7:0]          updated_accumulator;
 
   // Opcodes get decoded and the appropriate next state index selected during
   // the DECODE state
@@ -100,7 +102,7 @@ module proc
       S <= { 1'b1, 8'hFF };
 
       // Also, clear these special control bits too
-      update_accumulator <= 1'b0;
+      update_accumulator_flag <= 1'b0;
       decoded_state <= 0;
 
       // Finally, pipeline the reset vector - no point in waiting
@@ -221,9 +223,9 @@ module proc
         // Processor status register is updated after every instruction but
         // determined using a combinational logic block
         P <= updated_status;
-        if (update_accumulator == 1'b1) begin
-          A <= alu_Y;
-          update_accumulator <= 1'b0;
+        if (update_accumulator_flag == 1'b1) begin
+          A <= updated_accumulator;
+          update_accumulator_flag <= 1'b0;
         end
       end
 
@@ -292,6 +294,40 @@ module proc
             PC <= PC + 16'd2;
             Y <= rd_data;
           end
+
+          // -- Accumulator Addressing Mode
+          ASL_acc: begin
+            address <= PC + 16'd1;
+            PC <= PC + 16'd1;
+            alu_AI <= A;
+            alu_BI <= A;
+            alu_carry_in <= P[CARRY];
+            alu_control <= ADD;
+          end
+
+          LSR_acc: begin
+            address <= PC + 16'd1;
+            PC <= PC + 16'd1;
+            alu_AI <= A;
+            alu_carry_in <= 1'b0;
+            alu_control <= SR
+          end
+
+          ROL_acc: begin
+            address <= PC + 16'd1;
+            PC <= PC + 16'd1;
+            alu_AI <= A;
+            alu_BI <= A;
+            alu_carry_in <= P[CARRY];
+            alu_control <= ADD;
+          end
+
+          ROR_acc: begin
+            address <= PC + 16'd1;
+            PC <= PC + 16'd1;
+            alu_AI <= A;
+          end
+
 
           default: begin end
         endcase // case ( IR )
@@ -367,7 +403,7 @@ module proc
             alu_control <= ADD;
             alu_carry <= P[CARRY];
 
-            update_accumulator <= 1'b1;
+            update_accumulator_flag <= 1'b1;
           end
 
           AND_abs: begin
@@ -378,7 +414,7 @@ module proc
             alu_BI <= rd_data;
             alu_control <= AND;
 
-            update_accumulator <= 1'b1;
+            update_accumulator_flag <= 1'b1;
           end
 
           ASL_abs: begin
@@ -396,7 +432,7 @@ module proc
 
             // BIT instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
-            update_accumulator <= 1'b0;
+            update_accumulator_flag <= 1'b0;
           end
 
           CMP_abs: begin
@@ -409,7 +445,7 @@ module proc
 
             // CMP instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
-            update_accumulator <= 1'b0;
+            update_accumulator_flag <= 1'b0;
           end
 
           CPX_abs: begin
@@ -422,7 +458,7 @@ module proc
 
             // CPX instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
-            update_accumulator <= 1'b0;
+            update_accumulator_flag <= 1'b0;
           end
 
           CPY_abs: begin
@@ -435,7 +471,7 @@ module proc
 
             // CPY instruction affects only processor status register and does
             // not touch memory or the accumulator - explicitly ignore it here
-            update_accumulator <= 1'b0;
+            update_accumulator_flag <= 1'b0;
           end // case: CPY_abs
 
           DEC_abs: begin
@@ -452,7 +488,7 @@ module proc
             alu_BI <= rd_data;
             alu_control <= XOR;
 
-            update_accumulator <= 1'b1;
+            update_accumulator_flag <= 1'b1;
           end
 
           INC_abs: begin
@@ -495,7 +531,7 @@ module proc
             alu_BI <= rd_data;
             alu_control <= OR;
 
-            update_accumulator <= 1'b1;
+            update_accumulator_flag <= 1'b1;
           end
 
           ROL_abs: begin
@@ -516,7 +552,7 @@ module proc
             alu_BI <= rd_data;
             alu_control <= SUB;
 
-            update_accumulator <= 1'b1;
+            update_accumulator_flag <= 1'b1;
           end
 
           STA_abs: begin
@@ -667,6 +703,14 @@ module proc
         decoded_state = FETCH;
       end
 
+      // -- Accumulator Addressing Mode
+      ASL_acc,
+      LSR_acc,
+      ROL_acc,
+      ROR_acc: begin
+        decoded_state = FETCH;
+      end
+
       default: begin
         decoded_state = ERROR;
       end
@@ -677,33 +721,61 @@ module proc
   // --- Processor Status Update
   always @(*) begin: PROCESSOR_STATUS_UPDATE
 
-    // Processor status register will be updated when  in the FETCH state.
+    // Processor status register will be updated when in the FETCH state.
 
     updated_status = P;
 
     case ( IR )
 
       // -- Immediate Addressing mode
-      LDA_imm,
-      LDX_imm,
+      LDA_imm: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      LDX_imm: begin
+        updated_status[NEG] = X[MSB];
+        updated_status[ZERO] = ~|X;
+      end
+
       LDY_imm: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
+        updated_status[NEG] = Y[MSB];
+        updated_status[ZERO] = ~|Y;
       end
 
       // -- Absolute Addressing Mode
       ADC_abs: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[OVF] = alu_flags[OVF];
-        updated_status[CARRY] = alu_flags[CARRY];
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+        updated_status[OVF] = alu_overflow;
+        updated_status[CARRY] = alu_carry_out;
       end
 
-      AND_abs,
-      DEC_abs,
-      EOR_abs,
-      INC_abs,
-      LDA_abs,
+      AND_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      DEC_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+      end
+
+      EOR_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      INC_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+      end
+
+      LDA_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
       LDX_abs,
       LDY_abs,
       ORA_abs: begin
@@ -764,6 +836,35 @@ module proc
       default: begin end
     endcase // case ( IR )
   end // block: PROCESSOR_STATUS_UPDATE
+
+  // -- Accumulator Update
+  always @(*) begin: ACCUMULATOR_UPDATE
+
+    // The acumulator will be updated when in the FETCH state, if necessary
+
+    case ( IR )
+
+      ASL_acc: begin
+        updated_accumulator = alu_Y;
+        updated_accumulator[LSB] = alu_carry_out;
+      end
+
+      LSR_acc: begin
+      end
+
+      ROL_acc: begin
+      end
+
+      ROR_acc: begin
+      end
+
+      default: begin end
+    endcase // case ( IR )
+  end // block: ACCUMULATOR_UPDATE
+
+
+
+
 
   // -- ALU Instantiation
   alu

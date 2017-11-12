@@ -20,6 +20,7 @@
 // A convention for identifying addressing modes (from [2]):
 //
 // imm   Immediate                           #$00
+// acc   Accumulator
 // abs   Absolute                            $0000
 // zp    Zero page                           $00
 // abx   Absolute indexed with X             $0000, X
@@ -105,7 +106,8 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ASL_abs = 8'h0E;  //  3       6
+  ASL_abs = 8'h0E,  //  3       6
+  ASL_acc = 8'h0A;  //  1       2
 
 localparam
   //
@@ -262,7 +264,8 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  LSR_abs = 8'h4E;  //  3       6
+  LSR_abs = 8'h4E,  //  3       6
+  LSR_acc = 8'h4A;  //  3       2
 
 localparam
   //
@@ -353,6 +356,24 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   CLV_imp = 8'hB8;  //  1       2
+
+localparam
+  //
+  // Rotate Memory or Accumulator Left
+  //
+  // Flags Affected: n - - - - - z c
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  ROL_acc = 8'h2A;  //  1       2
+
+localparam
+  //
+  // Rotate Memory or Accumulator Right
+  //
+  // Flags Affected: n - - - - - z c
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  ROR_acc = 8'h6A;  //  1       2
 
 localparam
   //
