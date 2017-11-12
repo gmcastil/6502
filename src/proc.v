@@ -428,7 +428,9 @@ module proc
 
           ASL_abs: begin
             alu_AI <= rd_data;
-            alu_control <= SL;
+            alu_BI <= rd_data;
+            alu_control <= ADD;
+            alu_carry_in <= P[CARRY];
           end
 
           BIT_abs: begin
@@ -765,59 +767,7 @@ module proc
         updated_status[ZERO] = ~|A;
       end
 
-      DEC_abs: begin
-        updated_status[NEG] = alu_Y[MSB];
-        updated_status[ZERO] = ~|alu_Y;
-      end
-
-      EOR_abs: begin
-        updated_status[NEG] = A[MSB];
-        updated_status[ZERO] = ~|A;
-      end
-
-      INC_abs: begin
-        updated_status[NEG] = alu_Y[MSB];
-        updated_status[ZERO] = ~|alu_Y;
-      end
-
-      LDA_abs: begin
-        updated_status[NEG] = A[MSB];
-        updated_status[ZERO] = ~|A;
-      end
-
-      LDX_abs: begin
-        updated_status[NEG] = X[MSB];
-        updated_status[ZERO] = ~|X;
-      end
-      LDY_abs: begin
-        updated_status[NEG] = Y[MSB];
-        updated_status[ZERO] = ~|Y;
-      end
-
-      ORA_abs: begin
-        updated_status[NEG] = A[MSB];
-        updated_status[ZERO] = ~|A;
-      end
-
       ASL_abs: begin
-        updated_status[NEG] = alu_Y[MSB];
-        updated_status[ZERO] = ~|alu_Y;
-        updated_status[CARRY] = alu_carry_out;
-      end
-
-      LSR_abs: begin
-        updated_status[NEG] = alu_Y[MSB];
-        updated_status[ZERO] = ~|alu_Y;
-        updated_status[CARRY] = alu_carry_out;
-      end
-
-      ROL_abs: begin
-        updated_status[NEG] = alu_Y[MSB];
-        updated_status[ZERO] = ~|alu_Y;
-        updated_status[CARRY] = alu_carry_out;
-      end
-
-      ROR_abs: begin
         updated_status[NEG] = alu_Y[MSB];
         updated_status[ZERO] = ~|alu_Y;
         updated_status[CARRY] = alu_carry_out;
@@ -862,6 +812,58 @@ module proc
         end else begin
           updated_status[CARRY] = 1'b0;
         end
+      end
+
+      DEC_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+      end
+
+      EOR_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      INC_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+      end
+
+      LDA_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      LDX_abs: begin
+        updated_status[NEG] = X[MSB];
+        updated_status[ZERO] = ~|X;
+      end
+      LDY_abs: begin
+        updated_status[NEG] = Y[MSB];
+        updated_status[ZERO] = ~|Y;
+      end
+
+      LSR_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
+      end
+
+      ORA_abs: begin
+        updated_status[NEG] = A[MSB];
+        updated_status[ZERO] = ~|A;
+      end
+
+      ROL_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
+      end
+
+      ROR_abs: begin
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] = alu_carry_out;
       end
 
       // -- Implied Addressing Mode
