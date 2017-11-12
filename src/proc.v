@@ -338,7 +338,6 @@ module proc
             update_accumulator_flag <= 1'b1;
           end
 
-
           default: begin end
         endcase // case ( IR )
 
@@ -834,24 +833,35 @@ module proc
       end
 
       CMP_abs: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[CARRY] = alu_flags[CARRY];
-        //
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        if (A >= alu_Y) begin
+          updated_status[CARRY] = 1'b1;
+        end else begin
+          updated_status[CARRY] = 1'b0;
+        end
       end
 
       CPX_abs: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[CARRY] = alu_flags[CARRY];
-        //
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] =
+        if (X >= alu_Y) begin
+          updated_status[CARRY] = 1'b1;
+        end else begin
+          updated_status[CARRY] = 1'b0;
+        end
       end
 
       CPY_abs: begin
-        updated_status[NEG] = alu_flags[NEG];
-        updated_status[ZERO] = alu_flags[ZERO];
-        updated_status[CARRY] = alu_flags[CARRY];
-        //
+        updated_status[NEG] = alu_Y[MSB];
+        updated_status[ZERO] = ~|alu_Y;
+        updated_status[CARRY] =
+        if (Y >= alu_Y) begin
+          updated_status[CARRY] = 1'b1;
+        end else begin
+          updated_status[CARRY] = 1'b0;
+        end
       end
 
       // -- Implied Addressing Mode
@@ -929,7 +939,6 @@ module proc
     begin
       twos_complement = (~value) + 1'b1;
     end
-  endfunction // negate
-
+  endfunction // twos_complement
 
 endmodule // proc
