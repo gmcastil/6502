@@ -936,7 +936,7 @@ module proc
 
   function [7:0] twos_complement;
     // Represent negative numbers to perform subtraction
-    input [7:0] value
+    input [7:0] value;
 
     begin
       twos_complement = (~value) + 1'b1;
