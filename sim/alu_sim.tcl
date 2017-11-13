@@ -39,3 +39,6 @@ $vlog \
    +libext+.vh \
    +incdir+$includes_dir \
    $testbench_dir/alu_tb.sv
+
+# Finally, run the entire simulation
+do $dofiles_dir/alu_sim.do
