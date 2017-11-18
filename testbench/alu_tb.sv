@@ -34,6 +34,8 @@ module alu_tb ();
                  .alu_overflow  (alu_overflow)
                );
 
+  integer    total_failed;
+  integer    total_passed;
   integer    result_failed;
   integer    result_passed;
   integer    ovf_failed;
@@ -44,6 +46,8 @@ module alu_tb ();
   initial begin
     // Let the simulator get caught up before starting
     #100;
+    total_passed = 0;
+    total_failed = 0;
 
     // -- Results header
     $display("Results:\n");
@@ -56,7 +60,7 @@ module alu_tb ();
     // -- Addition operation
     $display("| Addition     | %6d | %6d | %6d | %6d | %6d | %6d |");
 
-    // -- Test with carry
+    // -- With carry
     test_addition(1'b1, ovf_passed, ovf_failed,
                   carry_passed, carry_failed,
                   result_passed, result_failed);
@@ -64,8 +68,11 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
 
-    // -- Test without carry
+
+    // -- Without carry
     test_addition(1'b0, ovf_passed, ovf_failed,
                   carry_passed, carry_failed,
                   result_passed, result_failed);
@@ -73,15 +80,14 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
 
     #100;
-
-    // // -- Right shift operation
+    // -- Right shift operation
     $display("| Right Shift  |          |          |            |          |         |         |");
-    $display("|   With Carry |          |          |            |          |         |         |");
-    $display("|   No Carry   |          |          |            |          |         |         |");
 
-    // -- Test with carry
+    // -- With carry
     test_right_shift(1'b1, ovf_passed, ovf_failed,
                      carry_passed, carry_failed,
                      result_passed, result_failed);
@@ -89,8 +95,10 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
 
-    // -- Test without carry
+    // -- Without carry
     test_right_shift(1'b0, ovf_passed, ovf_failed,
                      carry_passed, carry_failed,
                      result_passed, result_failed);
@@ -98,12 +106,57 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
 
-    // -- Testing AND Operation
-    tests_failed = 0;
-    tests_passed = 0;
+    #100;
+    // -- AND operation
+    test_and(1'bx, ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+    $display("| AND          | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
+
+    #100;
+    // -- OR operation
+    test_or(1'bx, ovf_passed, ovf_failed,
+            carry_passed, carry_failed,
+            result_passed, result_failed);
+    $display("| OR           | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
+
+    #100;
+    // -- XOR operation
+    test_xor(1'bx, ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+    $display("| XOR          | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+    total_passed = ovf_passed + carry_passed + result_passed;
+    total_failed = ovf_failed + carry_failed + result_failed;
+
+    // -- Finish up
+    $display("|--------------+-----------------+-----------------+-----------------|");
+    $display("");
+    $display("TOTAL PASSING TESTS...%d", total_passed);
+    $display("TOTAL FAILING TESTS...%d", total_failed);
+    $display("");
+    $finish;
+  end // initial begin
+
+
+
     alu_control = AND;
-
     for (int A = 0; A < 256; A++) begin
       for (int B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
