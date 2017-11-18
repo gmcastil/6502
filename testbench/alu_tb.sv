@@ -34,13 +34,12 @@ module alu_tb ();
                  .alu_overflow  (alu_overflow)
                );
 
-  integer    tests_failed;
-  integer    tests_passed;
-  integer    ovf_tests_failed;
-  integer    ovf_tests_passed;
-  integer    result;
-
-  reg        carry_out;
+  integer    result_failed;
+  integer    result_passed;
+  integer    ovf_failed;
+  integer    ovf_passed;
+  integer    carry_failed;
+  integer    carry_passed;
 
   initial begin
     // Let the simulator get caught up before starting
@@ -48,37 +47,57 @@ module alu_tb ();
 
     // -- Results header
     $display("Results:\n");
-    $display("|--------------+---------------------+-----------------------+-------------------|");
-    $display("|              |      Overflow       |        Carry Out      |      Result       |");
-    $display("|--------------+----------+----------+------------+----------+---------+---------|");
-    $display("| Operation    |  Passes  |   Fails  |   Passes   |  Fails   | Passes  | Fails   |");
-    $display("|--------------+----------+----------+------------+----------+---------+---------|");
+    $display("|--------------+-----------------+-----------------+-----------------|");
+    $display("|              |    Overflow     |    Carry Out    |     Result      |");
+    $display("|--------------+--------+--------+--------+--------+--------+--------|");
+    $display("| Operation    | Passes |  Fails | Passes |  Fails | Passes |  Fails |");
+    $display("|--------------+--------+--------+--------+--------+--------+--------|");
 
-    // -- Test Addition Operation
-    $display("| Addition     |          |          |            |          |         |         |");
+    // -- Addition operation
+    $display("| Addition     | %6d | %6d | %6d | %6d | %6d | %6d |");
+
+    // -- Test with carry
+    test_addition(1'b1, ovf_passed, ovf_failed,
+                  carry_passed, carry_failed,
+                  result_passed, result_failed);
+    $display("|   With Carry | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+
+    // -- Test without carry
+    test_addition(1'b0, ovf_passed, ovf_failed,
+                  carry_passed, carry_failed,
+                  result_passed, result_failed);
+    $display("|   No Carry   | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
+
+    #100;
+
+    // // -- Right shift operation
+    $display("| Right Shift  |          |          |            |          |         |         |");
     $display("|   With Carry |          |          |            |          |         |         |");
     $display("|   No Carry   |          |          |            |          |         |         |");
 
-    test_addition(1'b0, tests_passed, tests_failed,
-                  ovf_tests_passed, ovf_tests_failed);
-    $display("| Addition    |  No   | %6d |   %6d | %6d | %6d |",
-             tests_passed, tests_failed, ovf_tests_passed, ovf_tests_failed);
-    test_addition(1'b1, tests_passed, tests_failed,
-                  ovf_tests_passed, ovf_tests_failed);
-    $display("| Addition    |  Yes  | %6d |   %6d | %6d | %6d |",
-             tests_passed, tests_failed, ovf_tests_passed, ovf_tests_failed);
-    #100;
+    // -- Test with carry
+    test_right_shift(1'b1, ovf_passed, ovf_failed,
+                     carry_passed, carry_failed,
+                     result_passed, result_failed);
+    $display("|   With Carry | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
 
-    // // -- Testing Right Shift Operation
-    $display("| Right Shift  |          |       |           |        |         |         |");
-    $display("|   With Carry |          |       |           |        |         |         |");
-    $display("|   No Carry   |          |       |           |        |         |         |");
-
-    // test_right_shift(1'b0, tests_passed, tests_failed);
-    // $display("| Shift Right |  No   | %6d |   %6d |", tests_passed, tests_failed);
-    // test_right_shift(1'b1, tests_passed, tests_failed);
-    // $display("| Shift Right |  Yes  | %6d |   %6d |", tests_passed, tests_failed);
-    // #100;
+    // -- Test without carry
+    test_right_shift(1'b0, ovf_passed, ovf_failed,
+                     carry_passed, carry_failed,
+                     result_passed, result_failed);
+    $display("|   No Carry   | %6d | %6d | %6d | %6d | %6d | %6d |",
+             ovf_passed, ovf_failed,
+             carry_passed, carry_failed,
+             result_passed, result_failed);
 
     // -- Testing AND Operation
     tests_failed = 0;
