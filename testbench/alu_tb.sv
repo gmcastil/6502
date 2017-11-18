@@ -48,11 +48,17 @@ module alu_tb ();
 
     // -- Results header
     $display("Results:\n");
-    $display("|-----------------------------------------|");
-    $display("| Operation   | Carry | Passes | Failures |");
-    $display("|-------------+-------+--------+----------|");
+    $display("|--------------+---------------------+-----------------------+-------------------|");
+    $display("|              |      Overflow       |        Carry Out      |      Result       |");
+    $display("|--------------+----------+----------+------------+----------+---------+---------|");
+    $display("| Operation    |  Passes  |   Fails  |   Passes   |  Fails   | Passes  | Fails   |");
+    $display("|--------------+----------+----------+------------+----------+---------+---------|");
 
     // -- Test Addition Operation
+    $display("| Addition     |          |          |            |          |         |         |");
+    $display("|   With Carry |          |          |            |          |         |         |");
+    $display("|   No Carry   |          |          |            |          |         |         |");
+
     test_addition(1'b0, tests_passed, tests_failed,
                   ovf_tests_passed, ovf_tests_failed);
     $display("| Addition    |  No   | %6d |   %6d | %6d | %6d |",
@@ -64,6 +70,10 @@ module alu_tb ();
     #100;
 
     // // -- Testing Right Shift Operation
+    $display("| Right Shift  |          |       |           |        |         |         |");
+    $display("|   With Carry |          |       |           |        |         |         |");
+    $display("|   No Carry   |          |       |           |        |         |         |");
+
     // test_right_shift(1'b0, tests_passed, tests_failed);
     // $display("| Shift Right |  No   | %6d |   %6d |", tests_passed, tests_failed);
     // test_right_shift(1'b1, tests_passed, tests_failed);
@@ -223,37 +233,37 @@ module alu_tb ();
   // endtask // test_addition
 
   // Test right shift
-  // task test_right_shift;
-  //   input carry_in;
-  //   output int sr_passed;
-  //   output int sr_failed;
+  task test_right_shift;
+    input carry_in;
+    output int sr_passed;
+    output int sr_failed;
 
-  //   sr_passed = 0;
-  //   sr_failed = 0;
+    sr_passed = 0;
+    sr_failed = 0;
 
-  //   alu_control = SR;
+    alu_control = SR;
 
-  //   reg [7:0] sr_result;
+    reg [7:0] sr_result;
 
-  //   for (int A = 0; A < 256; A++) begin
-  //     alu_AI = A[7:0];
-  //     alu_carry_in = carry_in;
+    for (int A = 0; A < 256; A++) begin
+      alu_AI = A[7:0];
+      alu_carry_in = carry_in;
 
-  //     if (A % 2 == 1) begin
-  //       sr_result = (A - 1) / 2;
-  //       carry_out = 1'b1;
-  //     end else begin
-  //       sr_result = A / 2;
-  //       carry_out = 1'b0;
-  //     end
-  //     #10;
+      if (A % 2 == 1) begin
+        sr_result = (A - 1) / 2;
+        carry_out = 1'b1;
+      end else begin
+        sr_result = A / 2;
+        carry_out = 1'b0;
+      end
+      #10;
 
-  //     assert (alu_Y == {carry_in, sr_result[6:0]} && carry_out == alu_carry_out) begin
-  //       sr_passed++;
-  //     end else begin
-  //       sr_failed++;
-  //     end
-  //   end
-  // endtask // test_right_shift
+      assert (alu_Y == {carry_in, sr_result[6:0]} && carry_out == alu_carry_out) begin
+        sr_passed++;
+      end else begin
+        sr_failed++;
+      end
+    end
+  endtask // test_right_shift
 
 endmodule // alu_tb
