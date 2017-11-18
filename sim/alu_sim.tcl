@@ -5,11 +5,11 @@ set includes_dir "../src/includes"
 set testbench_dir "../testbench"
 set dofiles_dir "./dofiles"
 
-set vlib ${env(QUESTA_BIN)}/vlib
-set vlog ${env(QUESTA_BIN)}/vlog
-set vsim ${env(QUESTA_BIN)}/vsim
+set vlib ${::env(QUESTA_PATH)}/vlib
+set vlog ${::env(QUESTA_PATH)}/vlog
+set vsim ${::env(QUESTA_PATH)}/vsim
 
-set xilinx_vivado ${env(XILINX_VIVADO)}
+set xilinx_vivado ${::env(XILINX_VIVADO)}
 
 set library_name "alu_lib"
 
