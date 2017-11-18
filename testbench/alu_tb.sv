@@ -165,12 +165,12 @@ module alu_tb ();
     output int add_passed;
     output int add_failed;
 
-    add_passed = 0;
-    add_failed = 0;
     add_ovf_passed = 0;
     add_ovf_failed = 0;
     add_carry_passed = 0;
     add_carry_failed = 0;
+    add_passed = 0;
+    add_failed = 0;
 
     alu_control = ADD;
     alu_carry_in = carry_in;
@@ -223,6 +223,63 @@ module alu_tb ();
     end // for (int A = 0; A < 256; A++)
   endtask // test_addition
 
+  // Test right shift
+  task test_right_shift;
+    input      sr_carry_in;
+    output int sr_ovf_passed;
+    output int sr_ovf_failed;
+    output int sr_carry_passed;
+    output int sr_carry_failed;
+    output int sr_passed;
+    output int sr_failed;
+
+    sr_ovf_passed = 0;
+    sr_ovf_failed = 0;
+    sr_carry_passed = 0;
+    sr_carry_failed = 0;
+    sr_passed = 0;
+    sr_failed = 0;
+
+    alu_control = SR;
+
+    reg [7:0] sr_result;
+    reg       sr_carry_out;
+
+    for (int A = 0; A < 256; A++) begin
+      alu_AI = A[7:0];
+      alu_carry_in = sr_carry_in;
+
+      if (A % 2 == 1) begin
+        sr_result = (A - 1) / 2;
+        sr_carry_out = 1'b1;
+      end else begin
+        sr_result = A / 2;
+        sr_carry_out = 1'b0;
+      end
+      #10;
+
+      // Test the shift operation
+      assert (alu_Y == sr_result) begin
+        sr_passed++;
+      end else begin
+        sr_failed++;
+      end
+
+      // Test the carry out bit
+      assert (alu_carry_out == sr_carry_out) begin
+        sr_carry_passed++;
+      end else begin
+        sr_carry_failed++;
+      end
+
+      // Test the overflow bit - should always be zero
+      assert (alu_overflow == 1'b0);
+        sr_ovf_passed++;
+      end else begin
+        sr_ovf_failed++;
+      end
+    end
+  endtask // test_right_shift
 
 
     alu_control = AND;
@@ -304,38 +361,5 @@ module alu_tb ();
   //   end
   // endtask // test_addition
 
-  // Test right shift
-  task test_right_shift;
-    input carry_in;
-    output int sr_passed;
-    output int sr_failed;
-
-    sr_passed = 0;
-    sr_failed = 0;
-
-    alu_control = SR;
-
-    reg [7:0] sr_result;
-
-    for (int A = 0; A < 256; A++) begin
-      alu_AI = A[7:0];
-      alu_carry_in = carry_in;
-
-      if (A % 2 == 1) begin
-        sr_result = (A - 1) / 2;
-        carry_out = 1'b1;
-      end else begin
-        sr_result = A / 2;
-        carry_out = 1'b0;
-      end
-      #10;
-
-      assert (alu_Y == {carry_in, sr_result[6:0]} && carry_out == alu_carry_out) begin
-        sr_passed++;
-      end else begin
-        sr_failed++;
-      end
-    end
-  endtask // test_right_shift
 
 endmodule // alu_tb
