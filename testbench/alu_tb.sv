@@ -58,7 +58,7 @@ module alu_tb ();
     $display("|--------------+--------+--------+--------+--------+--------+--------|");
 
     // -- Addition operation
-    $display("| Addition     | %6d | %6d | %6d | %6d | %6d | %6d |");
+    $display("| Addition     |        |        |        |        |        |        |");
 
     // -- With carry
     test_addition(1'b1, ovf_passed, ovf_failed,
@@ -112,11 +112,9 @@ module alu_tb ();
     #100;
     // -- AND operation
     test_and(1'bx, ovf_passed, ovf_failed,
-             carry_passed, carry_failed,
              result_passed, result_failed);
-    $display("| AND          | %6d | %6d | %6d | %6d | %6d | %6d |",
+    $display("| AND          | %6d | %6d |        |        | %6d | %6d |",
              ovf_passed, ovf_failed,
-             carry_passed, carry_failed,
              result_passed, result_failed);
     total_passed = ovf_passed + carry_passed + result_passed;
     total_failed = ovf_failed + carry_failed + result_failed;
@@ -173,13 +171,11 @@ module alu_tb ();
     add_failed = 0;
 
     alu_control = ADD;
-    alu_carry_in = carry_in;
-
     for (int A = 0; A < 256; A++) begin
       for (int B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
-        alu_carry_in = carry_in;
+        alu_carry_in = add_carry_in;
         #10;
 
         // Test the actual addition operation
@@ -190,7 +186,7 @@ module alu_tb ();
         end
 
         // Test the overflow bit
-        if ((!A[7] && !B[7] && carry_in) || (A[7] && B[7] && !add_carry_in)) begin
+        if ((!A[7] && !B[7] && add_carry_in) || (A[7] && B[7] && !add_carry_in)) begin
           assert (alu_overflow == 1'b1) begin
             add_ovf_passed++;
           end else begin
@@ -223,7 +219,7 @@ module alu_tb ();
     end // for (int A = 0; A < 256; A++)
   endtask // test_addition
 
-  // Test right shift
+  // Right shift
   task test_right_shift;
     input      sr_carry_in;
     output int sr_ovf_passed;
@@ -241,39 +237,37 @@ module alu_tb ();
     sr_failed = 0;
 
     alu_control = SR;
-
-    reg [7:0] sr_result;
-    reg       sr_carry_out;
-
     for (int A = 0; A < 256; A++) begin
-      alu_AI = A[7:0];
+      alu_AI = A[7:0] ;
       alu_carry_in = sr_carry_in;
 
+      // Test shift result and carry bit
       if (A % 2 == 1) begin
-        sr_result = (A - 1) / 2;
-        sr_carry_out = 1'b1;
+        assert (alu_Y == (A - 1) / 2) begin
+          sr_passed++;
+        end else begin
+          sr_failed++;
+        end
+        assert (alu_carry_out == 1'b1) begin
+          sr_carry_passed++;
+        end else begin
+          sr_carry_failed++;
+        end
       end else begin
-        sr_result = A / 2;
-        sr_carry_out = 1'b0;
-      end
-      #10;
-
-      // Test the shift operation
-      assert (alu_Y == sr_result) begin
-        sr_passed++;
-      end else begin
-        sr_failed++;
-      end
-
-      // Test the carry out bit
-      assert (alu_carry_out == sr_carry_out) begin
-        sr_carry_passed++;
-      end else begin
-        sr_carry_failed++;
+        assert (alu_Y == (A / 2)) begin
+          sr_passed++;
+        end else begin
+          sr_failed++;
+        end
+        assert (alu_carry_out == 1'b0) begin
+          sr_carry_passed++;
+        end else begin
+          sr_carry_failed++;
+        end
       end
 
       // Test the overflow bit - should always be zero
-      assert (alu_overflow == 1'b0);
+      assert (alu_overflow == 1'b0) begin
         sr_ovf_passed++;
       end else begin
         sr_ovf_failed++;
@@ -281,67 +275,76 @@ module alu_tb ();
     end
   endtask // test_right_shift
 
+  task test_and;
+    output and_ovf_passed;
+    output and_ovf_failed;
+    output and_passed;
+    output and_failed;
 
     alu_control = AND;
     for (int A = 0; A < 256; A++) begin
       for (int B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
-        result = A & B;
         #10;
-        assert (alu_Y == result[7:0]) begin
-          tests_passed++;
+        assert (alu_Y == (A & B)) begin
+          and_passed++;
         end else begin
-          tests_failed++;
+          and_failed++;
+        end
+        assert (alu_overflow == 1'b0) begin
+          and_ovf_passed++;
+        end else begin
+          and_ovf_failed++;
         end
       end
     end
-    $display("| AND         |       | %6d |   %6d |", tests_passed, tests_failed);
+  endtask // test_and
 
-    // -- Testing OR Operation
-    tests_failed = 0;
-    tests_passed = 0;
-    alu_control = OR;
+  //   // -- Testing OR Operation
+  //   tests_failed = 0;
+  //   tests_passed = 0;
+  //   alu_control = OR;
 
-    for (int A = 0; A < 256; A++) begin
-      for (int B = 0; B < 256; B++) begin
-        alu_AI = A[7:0];
-        alu_BI = B[7:0];
-        result = A | B;
-        #10;
-        assert (alu_Y == result[7:0]) begin
-          tests_passed++;
-        end else begin
-          tests_failed++;
-        end
-      end
-    end
-    $display("| OR          |       | %6d |   %6d |", tests_passed, tests_failed);
+  //   for (int A = 0; A < 256; A++) begin
+  //     for (int B = 0; B < 256; B++) begin
+  //       alu_AI = A[7:0];
+  //       alu_BI = B[7:0];
+  //       result = A | B;
+  //       #10;
+  //       assert (alu_Y == result[7:0]) begin
+  //         tests_passed++;
+  //       end else begin
+  //         tests_failed++;
+  //       end
+  //     end
+  //   end
+  //   $display("| OR          |       | %6d |   %6d |", tests_passed, tests_failed);
 
-    // -- Testing XOR Operation
-    tests_failed = 0;
-    tests_passed = 0;
-    alu_control = XOR;
+  //   // -- Testing XOR Operation
+  //   tests_failed = 0;
+  //   tests_passed = 0;
+  //   alu_control = XOR;
 
-    for (int A = 0; A < 256; A++) begin
-      for (int B = 0; B < 256; B++) begin
-        alu_AI = A[7:0];
-        alu_BI = B[7:0];
-        result = A ^ B;
-        #10;
-        assert (alu_Y == result[7:0]) begin
-          tests_passed++;
-        end else begin
-          tests_failed++;
-        end
-      end
-    end
-    $display("| XOR         |       | %6d |   %6d |", tests_passed, tests_failed);
-    $display("|-----------------------------------------|");
-    $display("");
+  //   for (int A = 0; A < 256; A++) begin
+  //     for (int B = 0; B < 256; B++) begin
+  //       alu_AI = A[7:0];
+  //       alu_BI = B[7:0];
+  //       result = A ^ B;
+  //       #10;
+  //       assert (alu_Y == result[7:0]) begin
+  //         tests_passed++;
+  //       end else begin
+  //         tests_failed++;
+  //       end
+  //     end
+  //   end
+  //   $display("| XOR         |       | %6d |   %6d |", tests_passed, tests_failed);
+  //   $display("|-----------------------------------------|");
+  //   $display("");
 
-    $finish;
-  end // initial begin
+  //   $finish;
+  // end // initial begin
 
   //       // Test carry out
   //       if (A + B > 255) begin
@@ -360,6 +363,5 @@ module alu_tb ();
   //     end
   //   end
   // endtask // test_addition
-
 
 endmodule // alu_tb
