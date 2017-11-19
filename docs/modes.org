@@ -121,35 +121,45 @@ STX 86
 STY 84
 
 * Absolute Indexed, X
-ADC 7D x
-AND 3D x
-ASL 1E x
-CMP DD x
-DEC DE x
+ADC 7D x 3 4
+AND 3D x 3 4
+ASL 1E x 3 7
+CMP DD x 3 4 *
+DEC DE x 3 7 *
 
-EOR 5D x
-INC FE x
-LDA BD x
-LDY BC x
-LSR 5E x
+EOR 5D x 3 4 *
+INC FE x 3 7
+LDA BD x 3 4 *
+LDY BC x 3 4 *
+LSR 5E x 3 7
 
-ORA 1D x
-ROL 3E x
-ROR 7E x
-SBC FD x
-STA 9D x
+ORA 1D x 3 4 *
+ROL 3E x 3 7
+ROR 7E x 3 7
+SBC FD x 3 4 *
+STA 9D x 3 5
+
+The absolute X indexed addressing mode performs the same as absolute Y indexed,
+with a couple of nuances - a oouple of instructions take 7 clock cycles and a
+few others have the same caveat of needing an extra clock cycle when crossing
+page boundaries.
 
 * Absolute Indexed, Y
-ADC 79 x
-AND 39 x
-CMP D9 x
-EOR 59 x
-LDA B9 x
+ADC 79 x 3 4
+AND 39 x 3 4
+CMP D9 x 3 4 *
+EOR 59 x 3 4 *
+LDA B9 x 3 4 *
 
-LDX BE x
-ORA 19 x
-SBC F9 x
-STA 99 x
+LDX BE x 3 4 *
+ORA 19 x 3 4 *
+SBC F9 x 3 4 *
+STA 99 x 3 5
+
+The absolute indexed X and Y addressing modex each perform the same, although
+more opcodes are supported for X than Y.  All but one instruction are performed
+in 4 clock cycles.  Note also that several instructions (*) require an extra
+cycle if they are crossing a page boundary.
 
 * Zero Page Indexed, X
 ADC 75
