@@ -152,8 +152,6 @@ module alu_tb ();
   end // initial begin
 
   // Addition task definition
-  integer count;
-
   task test_addition;
     input bit add_carry_in;
     output integer add_ovf_passed;
@@ -171,7 +169,6 @@ module alu_tb ();
     add_failed = 0;
 
     alu_control = ADD;
-    count = 0;
     for (integer A = 0; A < 256; A++) begin
       for (integer B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
@@ -219,7 +216,6 @@ module alu_tb ();
 
       end // for (integer B = 0; B < 256; B++)
     end // for (integer A = 0; A < 256; A++)
-
   endtask // test_addition
 
   // Right shift task definition
@@ -240,28 +236,26 @@ module alu_tb ();
     sr_failed = 0;
 
     alu_control = SR;
-    for (integer A = 8'h00; A < 8'hff; A++) begin
+    for (integer A = 0; A < 256; A++) begin
       alu_AI = A[7:0];
       alu_carry_in = sr_carry_in;
+      #10;
 
-      // Test shift result and carry bit
+      // Test shift result
+      assert (alu_Y == {sr_carry_in, A[7:1]}) begin
+        sr_passed++;
+      end else begin
+        sr_failed++;
+      end
+
+      // Test carry bit
       if (A % 2 == 1) begin
-        assert (alu_Y == ((sr_carry_in * 8'h40) + (A - 8'b1) / 2)) begin
-          sr_passed++;
-        end else begin
-          sr_failed++;
-        end
         assert (alu_carry_out == 1'b1) begin
           sr_carry_passed++;
         end else begin
           sr_carry_failed++;
         end
       end else begin
-        assert (alu_Y == ((sr_carry_in * 8'h40) + (A - 8'b1) / 2)) begin
-          sr_passed++;
-        end else begin
-          sr_failed++;
-        end
         assert (alu_carry_out == 1'b0) begin
           sr_carry_passed++;
         end else begin
@@ -328,6 +322,7 @@ module alu_tb ();
         alu_AI = A[7:0];
         alu_BI = B[7:0];
         #10;
+
         assert (alu_Y == (A | B)) begin
           or_passed++;
         end else begin
@@ -360,6 +355,7 @@ module alu_tb ();
         alu_AI = A[7:0];
         alu_BI = B[7:0];
         #10;
+
         assert (alu_Y == (A ^ B)) begin
           xor_passed++;
         end else begin
