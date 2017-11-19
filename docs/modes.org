@@ -137,7 +137,7 @@ ORA 1D x
 ROL 3E x
 ROR 7E x
 SBC FD x
-STA 9D
+STA 9D x
 
 * Absolute Indexed, Y
 ADC 79 x
@@ -149,7 +149,7 @@ LDA B9 x
 LDX BE x
 ORA 19 x
 SBC F9 x
-STA 99
+STA 99 x
 
 * Zero Page Indexed, X
 ADC 75
