@@ -40,7 +40,7 @@ ORA 09
 SBC E9
 
 * Implied
-CLC 18
+  CLC 18
 CLD D8
 CLI 58
 CLV B8
@@ -121,34 +121,34 @@ STX 86
 STY 84
 
 * Absolute Indexed, X
-ADC 7D
-AND 3D
-ASL 1E
-CMP DD
-DEC DE
+ADC 7D x
+AND 3D x
+ASL 1E x
+CMP DD x
+DEC DE x
 
-EOR 5D
-INC FE
-LDA BD
-LDY BC
-LSR 5E
+EOR 5D x
+INC FE x
+LDA BD x
+LDY BC x
+LSR 5E x
 
-ORA 1D
-ROL 3E
-ROR 7E
-SBC FD
+ORA 1D x
+ROL 3E x
+ROR 7E x
+SBC FD x
 STA 9D
 
 * Absolute Indexed, Y
-ADC 79
-AND 39
-CMP D9
-EOR 59
-LDA B9
+ADC 79 x
+AND 39 x
+CMP D9 x
+EOR 59 x
+LDA B9 x
 
-LDX BE
-ORA 19
-SBC F9
+LDX BE x
+ORA 19 x
+SBC F9 x
 STA 99
 
 * Zero Page Indexed, X
