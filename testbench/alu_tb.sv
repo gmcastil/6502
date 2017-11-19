@@ -274,10 +274,10 @@ module alu_tb ();
 
   // AND task definition
   task test_and;
-    output int and_ovf_passed;
-    output int and_ovf_failed;
-    output int and_passed;
-    output int and_failed;
+    output integer and_ovf_passed;
+    output integer and_ovf_failed;
+    output integer and_passed;
+    output integer and_failed;
 
     and_ovf_passed = 0;
     and_ovf_failed = 0;
@@ -285,12 +285,13 @@ module alu_tb ();
     and_failed = 0;
 
     alu_control = AND;
-    for (int A = 0; A < 256; A++) begin
-      for (int B = 0; B < 256; B++) begin
+    for (integer A = 0; A < 256; A++) begin
+      for (integer B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
         #10;
-        assert (alu_Y == (A & B)) begin
+
+        assert (alu_Y == (A[7:0] & B[7:0])) begin
           and_passed++;
         end else begin
           and_failed++;
@@ -306,10 +307,10 @@ module alu_tb ();
 
   // OR task definition
   task test_or;
-    output int or_ovf_passed;
-    output int or_ovf_failed;
-    output int or_passed;
-    output int or_failed;
+    output integer or_ovf_passed;
+    output integer or_ovf_failed;
+    output integer or_passed;
+    output integer or_failed;
 
     or_ovf_passed = 0;
     or_ovf_failed = 0;
@@ -317,13 +318,13 @@ module alu_tb ();
     or_failed = 0;
 
     alu_control = OR;
-    for (int A = 0; A < 256; A++) begin
-      for (int B = 0; B < 256; B++) begin
+    for (integer A = 0; A < 256; A++) begin
+      for (integer B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
         #10;
 
-        assert (alu_Y == (A | B)) begin
+        assert (alu_Y == (A[7:0] | B[7:0])) begin
           or_passed++;
         end else begin
           or_failed++;
@@ -339,10 +340,10 @@ module alu_tb ();
 
   // XOR task definition
   task test_xor;
-    output int xor_ovf_passed;
-    output int xor_ovf_failed;
-    output int xor_passed;
-    output int xor_failed;
+    output integer xor_ovf_passed;
+    output integer xor_ovf_failed;
+    output integer xor_passed;
+    output integer xor_failed;
 
     xor_ovf_passed = 0;
     xor_ovf_failed = 0;
@@ -350,13 +351,13 @@ module alu_tb ();
     xor_failed = 0;
 
     alu_control = XOR;
-    for (int A = 0; A < 256; A++) begin
-      for (int B = 0; B < 256; B++) begin
+    for (integer A = 0; A < 256; A++) begin
+      for (integer B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
         #10;
 
-        assert (alu_Y == (A ^ B)) begin
+        assert (alu_Y == (A[7:0] ^ B[7:0])) begin
           xor_passed++;
         end else begin
           xor_failed++;
