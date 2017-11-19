@@ -68,8 +68,8 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + carry_passed + result_passed;
-    total_failed = ovf_failed + carry_failed + result_failed;
+    total_passed += ovf_passed + carry_passed + result_passed;
+    total_failed += ovf_failed + carry_failed + result_failed;
 
 
     // -- Without carry
@@ -80,8 +80,9 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + carry_passed + result_passed;
-    total_failed = ovf_failed + carry_failed + result_failed;
+    $display("|              |        |        |        |        |        |        |");
+    total_passed += ovf_passed + carry_passed + result_passed;
+    total_failed += ovf_failed + carry_failed + result_failed;
 
     #100;
     // -- Right shift operation
@@ -95,8 +96,8 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + carry_passed + result_passed;
-    total_failed = ovf_failed + carry_failed + result_failed;
+    total_passed += ovf_passed + carry_passed + result_passed;
+    total_failed += ovf_failed + carry_failed + result_failed;
 
     // -- Without carry
     test_right_shift(1'b0, ovf_passed, ovf_failed,
@@ -106,8 +107,9 @@ module alu_tb ();
              ovf_passed, ovf_failed,
              carry_passed, carry_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + carry_passed + result_passed;
-    total_failed = ovf_failed + carry_failed + result_failed;
+    $display("|              |        |        |        |        |        |        |");
+    total_passed += ovf_passed + carry_passed + result_passed;
+    total_failed += ovf_failed + carry_failed + result_failed;
 
     #100;
     // -- AND operation
@@ -116,8 +118,8 @@ module alu_tb ();
     $display("| AND          | %6d | %6d |        |        | %6d | %6d |",
              ovf_passed, ovf_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + result_passed;
-    total_failed = ovf_failed + result_failed;
+    total_passed += ovf_passed + result_passed;
+    total_failed += ovf_failed + result_failed;
 
     #100;
     // -- OR operation
@@ -126,8 +128,8 @@ module alu_tb ();
     $display("| OR           | %6d | %6d |        |        | %6d | %6d |",
              ovf_passed, ovf_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + result_passed;
-    total_failed = ovf_failed + result_failed;
+    total_passed += ovf_passed + result_passed;
+    total_failed += ovf_failed + result_failed;
 
     #100;
     // -- XOR operation
@@ -136,28 +138,30 @@ module alu_tb ();
     $display("| XOR          | %6d | %6d |        |        | %6d | %6d |",
              ovf_passed, ovf_failed,
              result_passed, result_failed);
-    total_passed = ovf_passed + result_passed;
-    total_failed = ovf_failed + result_failed;
+    total_passed += ovf_passed + result_passed;
+    total_failed += ovf_failed + result_failed;
 
     // -- Finish up
     $display("|--------------+-----------------+-----------------+-----------------|");
     $display("");
-    $display("TOTAL PASSING TESTS...%d", total_passed);
-    $display("TOTAL FAILING TESTS...%d", total_failed);
+    $display("TOTAL PASSING TESTS...%7d", total_passed);
+    $display("TOTAL FAILING TESTS...%7d", total_failed);
     $display("");
     $finish;
 
   end // initial begin
 
   // Addition task definition
+  integer count;
+
   task test_addition;
-    input      add_carry_in;
-    output int add_ovf_passed;
-    output int add_ovf_failed;
-    output int add_carry_passed;
-    output int add_carry_failed;
-    output int add_passed;
-    output int add_failed;
+    input bit add_carry_in;
+    output integer add_ovf_passed;
+    output integer add_ovf_failed;
+    output integer add_carry_passed;
+    output integer add_carry_failed;
+    output integer add_passed;
+    output integer add_failed;
 
     add_ovf_passed = 0;
     add_ovf_failed = 0;
@@ -167,8 +171,9 @@ module alu_tb ();
     add_failed = 0;
 
     alu_control = ADD;
-    for (int A = 0; A < 256; A++) begin
-      for (int B = 0; B < 256; B++) begin
+    count = 0;
+    for (integer A = 0; A < 256; A++) begin
+      for (integer B = 0; B < 256; B++) begin
         alu_AI = A[7:0];
         alu_BI = B[7:0];
         alu_carry_in = add_carry_in;
@@ -182,7 +187,7 @@ module alu_tb ();
         end
 
         // Test the overflow bit
-        if ((!A[7] && !B[7] && add_carry_in) || (A[7] && B[7] && !add_carry_in)) begin
+        if (~(A[7] ^ B[7]) & (A[7] ^ alu_Y[7])) begin
           assert (alu_overflow == 1'b1) begin
             add_ovf_passed++;
           end else begin
@@ -197,13 +202,14 @@ module alu_tb ();
         end
 
         // Test the carry out bit
-        if ((A[7:0] + B[7:0] + {7'd0, add_carry_in}) > 255) begin
+        if (A + B + integer'(add_carry_in) > 255) begin
           assert (alu_carry_out == 1'b1) begin
             add_carry_passed++;
           end else begin
             add_carry_failed++;
           end
         end else begin
+          // $display("A is %6d, B is %6d", A, B);
           assert (alu_carry_out == 1'b0) begin
             add_carry_passed++;
           end else begin
@@ -211,19 +217,20 @@ module alu_tb ();
           end
         end
 
-      end // for (int B = 0; B < 256; B++)
-    end // for (int A = 0; A < 256; A++)
+      end // for (integer B = 0; B < 256; B++)
+    end // for (integer A = 0; A < 256; A++)
+
   endtask // test_addition
 
   // Right shift task definition
   task test_right_shift;
-    input      sr_carry_in;
-    output int sr_ovf_passed;
-    output int sr_ovf_failed;
-    output int sr_carry_passed;
-    output int sr_carry_failed;
-    output int sr_passed;
-    output int sr_failed;
+    input  bit sr_carry_in;
+    output integer sr_ovf_passed;
+    output integer sr_ovf_failed;
+    output integer sr_carry_passed;
+    output integer sr_carry_failed;
+    output integer sr_passed;
+    output integer sr_failed;
 
     sr_ovf_passed = 0;
     sr_ovf_failed = 0;
@@ -233,13 +240,13 @@ module alu_tb ();
     sr_failed = 0;
 
     alu_control = SR;
-    for (int A = 0; A < 256; A++) begin
-      alu_AI = A[7:0] ;
+    for (integer A = 8'h00; A < 8'hff; A++) begin
+      alu_AI = A[7:0];
       alu_carry_in = sr_carry_in;
 
       // Test shift result and carry bit
       if (A % 2 == 1) begin
-        assert (alu_Y == (A - 1) / 2) begin
+        assert (alu_Y == ((sr_carry_in * 8'h40) + (A - 8'b1) / 2)) begin
           sr_passed++;
         end else begin
           sr_failed++;
@@ -250,7 +257,7 @@ module alu_tb ();
           sr_carry_failed++;
         end
       end else begin
-        assert (alu_Y == (A / 2)) begin
+        assert (alu_Y == ((sr_carry_in * 8'h40) + (A - 8'b1) / 2)) begin
           sr_passed++;
         end else begin
           sr_failed++;
