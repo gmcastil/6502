@@ -57,6 +57,14 @@ module proc
   localparam ABS_3     = 7;
   localparam ABS_4     = 8;
 
+  // Absolute indexed X addressing mode
+  localparam ABX_1      = 9;
+  localparam ABX_2      = 10;
+  localparam ABX_3      = 11;
+  localparam ABX_4      = 12;
+  localparam ABX_5      = 13;
+  localparam ABX_6      = 14;
+
   localparam ERROR     = 31;
 
   // More to come...
@@ -187,6 +195,9 @@ module proc
         next[FETCH] = 1'b1;
       end
 
+      // -- Absolute Indexed X Addressing mode
+
+      // Always fall through to an error state
       state[ERROR]: begin
         next[ERROR] = 1'b1;
       end
