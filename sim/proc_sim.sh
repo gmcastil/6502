@@ -5,14 +5,20 @@ set -o nounset  # -u
 set -o pipefail
 IFS=$'\n\t'
 
+if [[ -z "$#" ]]; then
+    echo "Usage: proc_sim <mode>"
+    exit 1
+else
+    mode="$1"
+fi
+
 # Make these available to the Tcl interpreter
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
 export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 
 sim_dir="./proc_lib/"
-
-if [[ -d $sim_dir ]]; then
-    rm -rf $sim_dir
+if [[ -d "$sim_dir" ]]; then
+    rm -rf "$sim_dir"
 fi
 
 # vsim -c -do proc_sim.tcl
