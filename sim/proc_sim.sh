@@ -6,7 +6,7 @@ set -o pipefail
 IFS=$'\n\t'
 
 # For now, just make sure that it's been called with a valid prefix
-if [[ -z "$#" ]]; then
+if [[ "$#" -eq 0 ]]; then
     echo "Usage: proc_sim <mode>"
     exit 1
 else
@@ -24,13 +24,13 @@ export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 #     exit 1
 # fi
 
-# sim_dir=./"$mode"_lib/
-# if [[ -d "$sim_dir" ]]; then
-#     rm -rf "$sim_dir"
-# fi
-#
-# echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
-# mkdir -p "$sim_dir"
+sim_dir=./"$mode"_lib/
+if [[ -d "$sim_dir" ]]; then
+    rm -rf "$sim_dir"
+fi
+
+echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
+mkdir -p "$sim_dir"
 
 # Look for the appropriate simulation .asm file to use
 
