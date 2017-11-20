@@ -5,6 +5,7 @@ set src_dir "../src"
 set includes_dir "../src/includes"
 set memory_dir "../build/memory_block"
 set dofiles "./dofiles"
+set roms_dir "../roms"
 
 set vlib ${::env(QUESTA_PATH)}/vlib
 set vlog ${::env(QUESTA_PATH)}/vlog
