@@ -15,10 +15,11 @@ set library_name "alu_lib"
 
 # Create an empty library before compiling source code into a compiled
 # database
-$vlib $library_name
+$vlib -quiet $library_name
 
 # Compile the global set/reset library
 $vlog \
+   -quiet \
    -work $library_name \
    -novopt \
    -l glbl.log\
@@ -26,6 +27,7 @@ $vlog \
 
 # Compile ALU source and testbench
 $vlog \
+   -quiet \
    -work $library_name \
    -novopt \
    -l alu.log \
