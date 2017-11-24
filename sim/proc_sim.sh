@@ -37,6 +37,7 @@ case "$mode" in
         fi
         mkdir -p "$sim_dir"
 
+        vsim -c -do "$mode"_sim.tcl
         ;;
     "absolute X")
         echo "Testing absolute indexed X addressing mode."
@@ -57,4 +58,3 @@ esac
 #
 # # Move the .mif into the /sim directory
 #
-# vsim -c -do "$mode"_sim.tcl
