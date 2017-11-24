@@ -17,6 +17,22 @@ fi
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
 export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 
+case "$mode" in
+
+    "absolute")
+        echo "Testing absolute addressing mode."
+        ;;
+    "absolute X")
+        echo "Testing absolute indexed X addressing mode."
+        ;;
+    "absolute Y")
+        echo "Testing absolute indexed Y addressing mode."
+        ;;
+    *)
+        echo "$mode is not a valid addressing mode"
+        ;;
+esac
+
 # Require a memory_block simulation model to exist before continuing
 # memory_dir="../build/memory_block"
 # if [[ ! -f "$memory_dir/memory_block.v" ]]; then
@@ -24,18 +40,18 @@ export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 #     exit 1
 # fi
 
-sim_dir=./"$mode"_lib/
-if [[ -d "$sim_dir" ]]; then
-    rm -rf "$sim_dir"
-fi
-
-echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
-mkdir -p "$sim_dir"
-
-# Look for the appropriate simulation .asm file to use
-
-# Compile the .asm file into a .mif
-
-# Move the .mif into the /sim directory
-
-vsim -c -do "$mode"_sim.tcl
+# sim_dir=./"$mode"_lib/
+# if [[ -d "$sim_dir" ]]; then
+#     rm -rf "$sim_dir"
+# fi
+#
+# echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
+# mkdir -p "$sim_dir"
+#
+# # Look for the appropriate simulation .asm file to use
+#
+# # Compile the .asm file into a .mif
+#
+# # Move the .mif into the /sim directory
+#
+# vsim -c -do "$mode"_sim.tcl
