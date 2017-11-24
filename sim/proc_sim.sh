@@ -24,14 +24,14 @@ case "$mode" in
 
         # Require a memory_block simulation model to exist before continuing
         memory_dir="../build/memory_block"
-        if [[ ! -f "$memory_dir/memory_block.v" ]]; then
+        if [[ ! -f "$memory_dir/sim/memory_block.v" ]]; then
             echo "ERROR: No block RAM simulation model found."
             exit 1
         fi
 
         # Creating simulation directory
-        echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
         sim_dir=./"$mode"_lib/
+        echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
         if [[ -d "$sim_dir" ]]; then
             rm -rf "$sim_dir"
         fi
