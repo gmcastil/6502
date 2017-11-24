@@ -21,6 +21,22 @@ case "$mode" in
 
     "absolute")
         echo "Testing absolute addressing mode."
+
+        # Require a memory_block simulation model to exist before continuing
+        memory_dir="../build/memory_block"
+        if [[ ! -f "$memory_dir/memory_block.v" ]]; then
+            echo "ERROR: No block RAM simulation model found."
+            exit 1
+        fi
+
+        # Creating simulation directory
+        echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
+        sim_dir=./"$mode"_lib/
+        if [[ -d "$sim_dir" ]]; then
+            rm -rf "$sim_dir"
+        fi
+        mkdir -p "$sim_dir"
+
         ;;
     "absolute X")
         echo "Testing absolute indexed X addressing mode."
@@ -33,20 +49,7 @@ case "$mode" in
         ;;
 esac
 
-# Require a memory_block simulation model to exist before continuing
-# memory_dir="../build/memory_block"
-# if [[ ! -f "$memory_dir/memory_block.v" ]]; then
-#     echo "ERROR: No block RAM simulation model found."
-#     exit 1
-# fi
 
-# sim_dir=./"$mode"_lib/
-# if [[ -d "$sim_dir" ]]; then
-#     rm -rf "$sim_dir"
-# fi
-#
-# echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
-# mkdir -p "$sim_dir"
 #
 # # Look for the appropriate simulation .asm file to use
 #
