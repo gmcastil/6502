@@ -16,11 +16,12 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-IFS=$'\n\t'
+IFS='$ \n\t'
 
-# Simulation script must be run from the /sim directory in the 6502 source tree
-if [[ "basename $(pwd)" == "sim" && "dirname $(pwd)" ]]; then
-    root_dir="readlink $(pwd)"
+# Simulation script must be run from the /sim directory
+full_pwd="$(readlink -f "$(pwd)")"
+if [[ "$(basename "$full_pwd")" == "sim" ]]; then
+    root_dir="$(dirname "$full_pwd")"
 else
     echo "ERROR: Simulation script must be run from the /sim directory."
     exit 1
@@ -34,9 +35,8 @@ memory_dir="$build_dir/$memory_ip"
 memory_model="blk_mem_gen_v8_3.v"
 
 # Temporary directories
-tmp_dir="$tmp_dir/read_only"
+tmp_dir="/tmp"
 sim_dir="$tmp_dir/proc_sim"
-
 
 # Make these environment variables  available to the Tcl interpreter
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
@@ -53,14 +53,19 @@ if [[ "$#" -eq 0 ]]; then
     exit 1
 else
     mode="${1:-}"
-    for available in "$supported"
+    found=0
+    for available in "${supported[@]}"
     do
-        if [[ "$mode" != "$available" ]]; then
-            echo "ERROR: $mode is not a supported addressing mode or test case."
-            exit 1
+        if [[ "$mode" == "$available" ]]; then
+            echo "INFO: Simulating $mode addressing mode."
+            found=1
+            break
         fi
     done
-    echo "INFO: Simulating $mode addressing mode."
+    if ((!found)); then
+        echo "ERROR: $mode is not a supported addressing mode or test case."
+        exit 1
+    fi
 fi
 
 # Delete any existing directory in /tmp - check to make sure that user has
@@ -74,6 +79,7 @@ elif [[ -d "$sim_dir" ]]; then
 fi
 mkdir -pv "$sim_dir/$mode"
 
+
 # If no block memory has been built yet, create one.  Otherwise, use the existing
 # one.  In both cases, build a .mif to use for simulation.
 
@@ -81,7 +87,6 @@ if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
     echo "ERROR: No behavioral model for the Block Memory Generator Core found."
     if [[ -d "$memory_dir" ]]; then
         rm -rf "$memory_dir"
-
 else
 
 
