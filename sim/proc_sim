@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# High level simulation script for the MOS 6502 processor
+#
+# To run a simulation, run this script and provide the desired addressing mode
+# to be simulated:
+#
+# $ ./proc_sim absolute
+#
+# This will run the 'absolute_tb.v' from /testbench with the absolute.asm
+# from /roms.  A number of interim steps are currently required (e.g., building
+# a block memory, assembling source code into .mif files).  Those are no
+# longer necessary as the simulation script is now sophisticated enough to
+# automate all of that, rather than relying on the user to do it correctly.
+
 set -o errexit  # -e
 set -o nounset  # -u
 set -o pipefail
@@ -17,7 +30,23 @@ fi
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
 export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 
+# Delete any existing /tmp/proc_sim/$mode directory - check to make sure that user
+# has permissions for this and error out if not (making different directories
+# within /tmp/proc_sim allows multiple simulations to be carried out in parallel
+
+# Check for an existing memory block in the build directory
+
+# If it hasn't been built yet, generate a .coe file from the .asm file for this
+# mode and then build a memory block using that .coe file
+
+# Generate a new .mif file for use in simulating the proc and block memory
+
+# Build all simulation files in /tmp/proc_sim/$mode
+
+
 case "$mode" in
+
+
 
     "absolute")
         echo "Testing absolute addressing mode."
