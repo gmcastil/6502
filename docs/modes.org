@@ -121,7 +121,7 @@ STX 86
 STY 84
 
 * Absolute Indexed, X
-ADC 7D x 3 4
+ADC 7D x 3 4 *
 AND 3D x 3 4
 ASL 1E x 3 7
 CMP DD x 3 4 *
