@@ -7,23 +7,41 @@
 #
 # $ ./proc_sim absolute
 #
-# This will run the 'absolute_tb.v' from /testbench with the absolute.asm
-# from /roms.  A number of interim steps are currently required (e.g., building
-# a block memory, assembling source code into .mif files).  Those are no
-# longer necessary as the simulation script is now sophisticated enough to
-# automate all of that, rather than relying on the user to do it correctly.
+# This will run the 'proc_tb.v' from /testbench with the absolute.asm from
+# /roms. A number of interim steps are currently required (e.g., building a
+# block memory, assembling source code into .mif files). Those are no longer
+# necessary as the simulation script is now sophisticated enough to automate all
+# of that, rather than relying on the user to do it correctly.
 
 set -o errexit  # -e
 set -o nounset  # -u
 set -o pipefail
 IFS=$'\n\t'
 
-# For now, just make sure that it's been called with a valid prefix
+# Supported addressing modes and test cases (eventualy there will be more than
+# just addresing modes to run - in fact, at some point in the future, the
+# simulation script should be pointed at every ROM in /roms and just run them
+# all.  At that point, it's probably more appropriate to refactor this to just
+# look at the contents of that directory.
+declare -a supported=("absolute"
+                      "absolute-x"
+                      "absolute-y")
+
+# Determine which mode is indicated and error out if it is not found or
+# was not supplied
 if [[ "$#" -eq 0 ]]; then
     echo "Usage: proc_sim <mode>"
     exit 1
 else
     mode="${1:-}"
+    for available in "$supported"
+    do
+        if [[ "$mode" != "$available" ]]; then
+            echo "ERROR: $mode is not a supported addressing mode or test case."
+            exit 1
+        fi
+    done
+    echo "INFO: $mode wil be simulated."
 fi
 
 # Make these available to the Tcl interpreter
@@ -44,46 +62,46 @@ export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 # Build all simulation files in /tmp/proc_sim/$mode
 
 
-case "$mode" in
+# case "$mode" in
 
 
 
-    "absolute")
-        echo "Testing absolute addressing mode."
+#     "absolute")
+#         echo "Testing absolute addressing mode."
 
-        # Require a memory_block simulation model to exist before continuing
-        memory_dir="../build/memory_block"
-        if [[ ! -f "$memory_dir/sim/memory_block.v" ]]; then
-            echo "ERROR: No block RAM simulation model found."
-            exit 1
-        fi
+#         # Require a memory_block simulation model to exist before continuing
+#         memory_dir="../build/memory_block"
+#         if [[ ! -f "$memory_dir/sim/memory_block.v" ]]; then
+#             echo "ERROR: No block RAM simulation model found."
+#             exit 1
+#         fi
 
-        # Creating simulation directory
-        sim_dir=./"$mode"_lib/
-        echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
-        if [[ -d "$sim_dir" ]]; then
-            rm -rf "$sim_dir"
-        fi
-        mkdir -p "$sim_dir"
+#         # Creating simulation directory
+#         sim_dir=./"$mode"_lib/
+#         echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
+#         if [[ -d "$sim_dir" ]]; then
+#             rm -rf "$sim_dir"
+#         fi
+#         mkdir -p "$sim_dir"
 
-        vsim -c -do "$mode"_sim.tcl
-        ;;
-    "absolute X")
-        echo "Testing absolute indexed X addressing mode."
-        ;;
-    "absolute Y")
-        echo "Testing absolute indexed Y addressing mode."
-        ;;
-    *)
-        echo "$mode is not a valid addressing mode"
-        ;;
-esac
+#         vsim -c -do "$mode"_sim.tcl
+#         ;;
+#     "absolute X")
+#         echo "Testing absolute indexed X addressing mode."
+#         ;;
+#     "absolute Y")
+#         echo "Testing absolute indexed Y addressing mode."
+#         ;;
+#     *)
+#         echo "$mode is not a valid addressing mode"
+#         ;;
+# esac
 
 
-#
-# # Look for the appropriate simulation .asm file to use
-#
-# # Compile the .asm file into a .mif
-#
-# # Move the .mif into the /sim directory
-#
+# #
+# # # Look for the appropriate simulation .asm file to use
+# #
+# # # Compile the .asm file into a .mif
+# #
+# # # Move the .mif into the /sim directory
+# #
