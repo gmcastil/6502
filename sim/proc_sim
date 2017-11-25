@@ -13,24 +13,43 @@
 # necessary as the simulation script is now sophisticated enough to automate all
 # of that, rather than relying on the user to do it correctly.
 
-set -o errexit  # -e
-set -o nounset  # -u
+set -o errexit
+set -o nounset
 set -o pipefail
 IFS=$'\n\t'
 
-# Supported addressing modes and test cases (eventualy there will be more than
-# just addresing modes to run - in fact, at some point in the future, the
-# simulation script should be pointed at every ROM in /roms and just run them
-# all.  At that point, it's probably more appropriate to refactor this to just
-# look at the contents of that directory.
+# Simulation script must be run from the /sim directory in the 6502 source tree
+if [[ "basename $(pwd)" == "sim" && "dirname $(pwd)" ]]; then
+    root_dir="readlink $(pwd)"
+else
+    echo "ERROR: Simulation script must be run from the /sim directory."
+    exit 1
+fi
+
+# Some commonly used directories
+scripts_dir="$root_dir/scripts"
+build_dir="$root_dir/build"
+memory_ip="memory_block"
+memory_dir="$build_dir/$memory_ip"
+memory_model="blk_mem_gen_v8_3.v"
+
+# Temporary directories
+tmp_dir="$tmp_dir/read_only"
+sim_dir="$tmp_dir/proc_sim"
+
+
+# Make these environment variables  available to the Tcl interpreter
+export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
+export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
+
+# Supported addressing modes and test cases
 declare -a supported=("absolute"
                       "absolute-x"
                       "absolute-y")
 
-# Determine which mode is indicated and error out if it is not found or
-# was not supplied
+# Error out if requested test case invalid or not provided
 if [[ "$#" -eq 0 ]]; then
-    echo "Usage: proc_sim <mode>"
+    echo "Usage: proc_sim <mode or test case>"
     exit 1
 else
     mode="${1:-}"
@@ -41,18 +60,31 @@ else
             exit 1
         fi
     done
-    echo "INFO: $mode wil be simulated."
+    echo "INFO: Simulating $mode addressing mode."
 fi
 
-# Make these available to the Tcl interpreter
-export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
-export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
+# Delete any existing directory in /tmp - check to make sure that user has
+# permissions for this and error out if not (making different directories within
+# /tmp/proc_sim allows multiple simulations to be carried out in parallel
+if [[ ! -w "$tmp_dir" || ! -r "$tmp_dir" ]]; then
+    echo "ERROR: Directory $tmp_dir not readable or writable by current user."
+    exit 1
+elif [[ -d "$sim_dir" ]]; then
+    rm -rf "$sim_dir"
+fi
+mkdir -pv "$sim_dir/$mode"
 
-# Delete any existing /tmp/proc_sim/$mode directory - check to make sure that user
-# has permissions for this and error out if not (making different directories
-# within /tmp/proc_sim allows multiple simulations to be carried out in parallel
+# If no block memory has been built yet, create one.  Otherwise, use the existing
+# one.  In both cases, build a .mif to use for simulation.
 
-# Check for an existing memory block in the build directory
+if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
+    echo "ERROR: No behavioral model for the Block Memory Generator Core found."
+    if [[ -d "$memory_dir" ]]; then
+        rm -rf "$memory_dir"
+
+else
+
+
 
 # If it hasn't been built yet, generate a .coe file from the .asm file for this
 # mode and then build a memory block using that .coe file
