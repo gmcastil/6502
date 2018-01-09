@@ -70,28 +70,6 @@ if ! "$found"; then
 fi
 
 # Establish a temp location to put the result of the simulation
-
-# Assemble the ROM into a .coe and .mif file
-
-# If it does not already exist, build a behavioral model for the Xilinx
-# block RAM
-
-# Move or copy all simulation files to the temp location
-
-# Run the requested simulation
-
-# Simulation script must be run from the /sim directory
-
-# Some commonly used directories
-
-
-# Make these environment variables  available to the Tcl interpreter
-
-# Error out if requested test case invalid or not provided
-
-# Delete any existing directory in /tmp - check to make sure that user has
-# permissions for this and error out if not (making different directories within
-# /tmp/proc_sim allows multiple simulations to be carried out in parallel
 if [[ ! -w "$tmp_dir" || ! -r "$tmp_dir" ]]; then
     echo "ERROR: Directory $tmp_dir not readable or writable by current user."
     exit 1
@@ -100,66 +78,16 @@ elif [[ -d "$sim_dir" ]]; then
 fi
 mkdir -pv "$sim_dir/$mode"
 
+# Assemble the ROM into a .coe and .mif file
 
-# If no block memory has been built yet, create one.  Otherwise, use the existing
-# one.  In both cases, build a .mif to use for simulation.
-
+# If it does not already exist, build a behavioral model for the Xilinx
+# block RAM
 if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
     echo "ERROR: No behavioral model for the Block Memory Generator Core found."
     if [[ -d "$memory_dir" ]]; then
         rm -rf "$memory_dir"
 else
 
+# Move or copy all simulation files to the temp location
 
-
-# If it hasn't been built yet, generate a .coe file from the .asm file for this
-# mode and then build a memory block using that .coe file
-
-# Generate a new .mif file for use in simulating the proc and block memory
-
-# Build all simulation files in /tmp/proc_sim/$mode
-
-
-# case "$mode" in
-
-
-
-#     "absolute")
-#         echo "Testing absolute addressing mode."
-
-#         # Require a memory_block simulation model to exist before continuing
-#         memory_dir="../build/memory_block"
-#         if [[ ! -f "$memory_dir/sim/memory_block.v" ]]; then
-#             echo "ERROR: No block RAM simulation model found."
-#             exit 1
-#         fi
-
-#         # Creating simulation directory
-#         sim_dir=./"$mode"_lib/
-#         echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
-#         if [[ -d "$sim_dir" ]]; then
-#             rm -rf "$sim_dir"
-#         fi
-#         mkdir -p "$sim_dir"
-
-#         vsim -c -do "$mode"_sim.tcl
-#         ;;
-#     "absolute X")
-#         echo "Testing absolute indexed X addressing mode."
-#         ;;
-#     "absolute Y")
-#         echo "Testing absolute indexed Y addressing mode."
-#         ;;
-#     *)
-#         echo "$mode is not a valid addressing mode"
-#         ;;
-# esac
-
-
-# #
-# # # Look for the appropriate simulation .asm file to use
-# #
-# # # Compile the .asm file into a .mif
-# #
-# # # Move the .mif into the /sim directory
-# #
+# Run the requested simulation
