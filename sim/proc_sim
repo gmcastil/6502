@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# High level simulation script for the MOS 6502 processor
+#
+# To run a simulation, run this script and provide the desired addressing mode
+# to be simulated:
+#
+# $ ./proc_sim absolute
+#
+# This will run the 'proc_tb.v' from /testbench with the absolute.asm from
+# /roms. A number of interim steps are currently required (e.g., building a
+# block memory, assembling source code into .mif files). Those are no longer
+# necessary as the simulation script is now sophisticated enough to automate all
+# of that, rather than relying on the user to do it correctly.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS='$ \n\t'
+
+# Check usage and verify that a mode or test case was actually provided
+if [[ "$#" -eq 0 ]]; then
+    echo "Usage: proc_sim <mode or test case>"
+    exit 1
+fi
+
+# Verify that the simulation script is being run from the /sim directory
+# otherwise exit.
+full_pwd="$(readlink -f "$(pwd)")"
+if [[ "$(basename "$full_pwd")" == "sim" ]]; then
+    root_dir="$(dirname "$full_pwd")"
+else
+    echo "ERROR: Simulation script must be run from the /sim directory."
+    exit 1
+fi
+
+# Set up commonly used variables and locations
+scripts_dir="$root_dir/scripts"
+build_dir="$root_dir/build"
+memory_ip="memory_block"
+memory_dir="$build_dir/$memory_ip"
+memory_model="blk_mem_gen_v8_3.v"
+
+# Temporary directories
+tmp_dir="/tmp"
+sim_dir="$tmp_dir/proc_sim"
+
+# Export important variables so the EDA tools can be found
+export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
+export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
+
+# Supported test ROMs or modes that can be run
+supported=("absolute")
+
+# Check available modes
+mode="${1:-}"
+found=false
+for available in "${supported[@]}"; do
+    if [[ "$mode" == "$available" ]]; then
+        echo "INFO: Running simulation for $mode addressing mode."
+        found=true
+        break
+    fi
+done
+
+# Exit if mode was not found to be one of the expected modes
+if ! "$found"; then
+    echo "ERROR: $mode is not a supported addressing mode."
+    exit 1
+fi
+
+# Establish a temp location to put the result of the simulation
+if [[ ! -w "$tmp_dir" || ! -r "$tmp_dir" ]]; then
+    echo "ERROR: Directory $tmp_dir not readable or writable by current user."
+    exit 1
+elif [[ -d "$sim_dir" ]]; then
+    rm -rf "$sim_dir"
+fi
+mkdir -pv "$sim_dir/$mode"
+
+# Assemble the ROM into a .coe and .mif file
+
+# If it does not already exist, build a behavioral model for the Xilinx
+# block RAM
+if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
+    echo "ERROR: No behavioral model for the Block Memory Generator Core found."
+    if [[ -d "$memory_dir" ]]; then
+        rm -rf "$memory_dir"
+else
+
+# Move or copy all simulation files to the temp location
+
+# Run the requested simulation
