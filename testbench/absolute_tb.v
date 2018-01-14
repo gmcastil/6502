@@ -132,7 +132,7 @@ module absolute_tb ();
 
                    .address       (address),
                    .wr_data       (wr_data),
-                   .wr_enable     (wr_enable),
+                   .wr_enable     (wr_enable)
                    );
 
 endmodule // proc_top_tb
