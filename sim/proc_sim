@@ -19,20 +19,25 @@ set -o pipefail
 IFS='$ \n\t'
 
 # Simulation script must be run from the /sim directory
-full_pwd="$(readlink -f "$(pwd)")"
-if [[ "$(basename "$full_pwd")" == "sim" ]]; then
-    root_dir="$(dirname "$full_pwd")"
-else
-    echo "ERROR: Simulation script must be run from the /sim directory."
-    exit 1
-fi
+#full_pwd="$(greadlink -f "$(pwd)")"
+#if [[ "$(basename "$full_pwd")" == "sim" ]]; then
+#    # Location to the project root directory
+#    root_dir="$(dirname "$full_pwd")"
+#else
+#    echo "ERROR: Simulation script must be run from the /sim directory."
+#    exit 1
+#fi
+
+root_dir="../"
+
+# Names needed for working with Xilinx block memory IP
+memory_ip="memory_block"
+memory_model="blk_mem_gen_v8_3.v"
 
 # Some commonly used directories
 scripts_dir="$root_dir/scripts"
 build_dir="$root_dir/build"
-memory_ip="memory_block"
 memory_dir="$build_dir/$memory_ip"
-memory_model="blk_mem_gen_v8_3.v"
 
 # Temporary directories
 tmp_dir="/tmp"
@@ -42,14 +47,13 @@ sim_dir="$tmp_dir/proc_sim"
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
 export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 
-# Supported addressing modes and test cases
-declare -a supported=("absolute"
-                      "absolute-x"
-                      "absolute-y")
+# Supported addressing modes and test cases - should correspond to the names of
+# testbenches, ROMs, and Tcl scripts to run for each/
+supported=( "absolute" "absolute-x" "absolute-y" )
 
 # Error out if requested test case invalid or not provided
 if [[ "$#" -eq 0 ]]; then
-    echo "Usage: proc_sim <mode or test case>"
+    echo "Usage: proc_sim [TEST CASE]"
     exit 1
 else
     mode="${1:-}"
@@ -62,7 +66,7 @@ else
             break
         fi
     done
-    if ((!found)); then
+    if (( ! "$found" )); then
         echo "ERROR: $mode is not a supported addressing mode or test case."
         exit 1
     fi
@@ -79,15 +83,17 @@ elif [[ -d "$sim_dir" ]]; then
 fi
 mkdir -pv "$sim_dir/$mode"
 
-
 # If no block memory has been built yet, create one.  Otherwise, use the existing
 # one.  In both cases, build a .mif to use for simulation.
-
 if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
-    echo "ERROR: No behavioral model for the Block Memory Generator Core found."
+    echo "INFO: No behavioral model for the Block Memory Generator Core found."
+    # Delete any remnants of the memory model if they exist
     if [[ -d "$memory_dir" ]]; then
         rm -rf "$memory_dir"
-else
+    fi
+
+
+
 
 
 
@@ -100,8 +106,6 @@ else
 
 
 # case "$mode" in
-
-
 
 #     "absolute")
 #         echo "Testing absolute addressing mode."
