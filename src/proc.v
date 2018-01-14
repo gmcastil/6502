@@ -112,7 +112,7 @@ module proc
 
       // Also, clear these special control bits too
       update_accumulator_flag <= 1'b0;
-      updated_status <= 8'b0
+      updated_status <= 8'b0;
       decoded_state <= 0;
 
       // Finally, pipeline the reset vector - no point in waiting
@@ -325,7 +325,7 @@ module proc
             PC <= PC + 16'd1;
             alu_AI <= A;
             alu_carry_in <= 1'b0;
-            alu_control <= SR
+            alu_control <= SR;
             update_accumulator_flag <= 1'b1;
           end
 
@@ -420,7 +420,7 @@ module proc
             alu_AI <= A;
             alu_BI <= rd_data;
             alu_control <= ADD;
-            alu_carry <= P[CARRY];
+            alu_carry_in <= P[CARRY];
 
             update_accumulator_flag <= 1'b1;
           end
@@ -541,7 +541,7 @@ module proc
 
           LSR_abs: begin
             alu_AI <= rd_data;
-            alu_control <= SL;
+            alu_control <= ADD;
           end
 
           ORA_abs: begin
@@ -557,7 +557,7 @@ module proc
 
           ROL_abs: begin
             alu_AI <= rd_data;
-            alu_control <= SL;
+            alu_control <= ADD;
           end
 
           ROR_abs: begin
@@ -806,7 +806,6 @@ module proc
       CPX_abs: begin
         updated_status[NEG] = alu_Y[MSB];
         updated_status[ZERO] = ~|alu_Y;
-        updated_status[CARRY] =
         if (X >= alu_Y) begin
           updated_status[CARRY] = 1'b1;
         end else begin
@@ -817,7 +816,6 @@ module proc
       CPY_abs: begin
         updated_status[NEG] = alu_Y[MSB];
         updated_status[ZERO] = ~|alu_Y;
-        updated_status[CARRY] =
         if (Y >= alu_Y) begin
           updated_status[CARRY] = 1'b1;
         end else begin
