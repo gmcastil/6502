@@ -7,39 +7,16 @@
 #
 # $ ./proc_sim absolute
 #
-# This will run the 'proc_tb.v' from /testbench with the absolute.asm from
-# /roms. A number of interim steps are currently required (e.g., building a
-# block memory, assembling source code into .mif files). Those are no longer
-# necessary as the simulation script is now sophisticated enough to automate all
-# of that, rather than relying on the user to do it correctly.
+# This will run the 'absolute_tb.v' from /testbench with the absolute.asm from
+# /roms. A number of interim steps used to be required (e.g., building a
+# block memory, assembling source code into .mif files). These are no longer
+# necessary as the simulation scripts are now sophisticated enough to automate
+# all of that, rather than relying on the user to do it correctly.
 
 set -o errexit
 set -o nounset
 set -o pipefail
 IFS='$ \n\t'
-
-<<<<<<< HEAD
-# Simulation script must be run from the /sim directory
-#full_pwd="$(greadlink -f "$(pwd)")"
-#if [[ "$(basename "$full_pwd")" == "sim" ]]; then
-#    # Location to the project root directory
-#    root_dir="$(dirname "$full_pwd")"
-#else
-#    echo "ERROR: Simulation script must be run from the /sim directory."
-#    exit 1
-#fi
-
-root_dir="../"
-
-# Names needed for working with Xilinx block memory IP
-memory_ip="memory_block"
-memory_model="blk_mem_gen_v8_3.v"
-=======
-# Check usage and verify that a mode or test case was actually provided
-if [[ "$#" -eq 0 ]]; then
-    echo "Usage: proc_sim <mode or test case>"
-    exit 1
-fi
 
 # Verify that the simulation script is being run from the /sim directory
 # otherwise exit.
@@ -50,11 +27,21 @@ else
     echo "ERROR: Simulation script must be run from the /sim directory."
     exit 1
 fi
->>>>>>> c061573d9d4a1f8d485993f76847fe6dfe1f1dff
+
+# Check usage and verify that a mode or test case was actually provided
+if [[ "$#" -eq 0 ]]; then
+    echo "Usage: proc_sim [TEST_CASE]"
+    exit 1
+fi
+
+# Names needed for working with Xilinx block memory IP
+memory_ip="memory_block"
+memory_model="blk_mem_gen_v8_3.v"
 
 # Set up commonly used variables and locations
 scripts_dir="$root_dir/scripts"
 build_dir="$root_dir/build"
+roms_dir="$root_dir/roms"
 memory_dir="$build_dir/$memory_ip"
 
 # Temporary directories
@@ -65,50 +52,24 @@ sim_dir="$tmp_dir/proc_sim"
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
 export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
 
-<<<<<<< HEAD
 # Supported addressing modes and test cases - should correspond to the names of
 # testbenches, ROMs, and Tcl scripts to run for each/
 supported=( "absolute" "absolute-x" "absolute-y" )
 
 # Error out if requested test case invalid or not provided
-if [[ "$#" -eq 0 ]]; then
-    echo "Usage: proc_sim [TEST CASE]"
-    exit 1
-else
-    mode="${1:-}"
-    found=0
-    for available in "${supported[@]}"
-    do
-        if [[ "$mode" == "$available" ]]; then
-            echo "INFO: Simulating $mode addressing mode."
-            found=1
-            break
-        fi
-    done
-    if (( ! "$found" )); then
-        echo "ERROR: $mode is not a supported addressing mode or test case."
-        exit 1
-    fi
-=======
-# Supported test ROMs or modes that can be run
-supported=("absolute")
-
-# Check available modes
 mode="${1:-}"
-found=false
-for available in "${supported[@]}"; do
+found=0
+for available in "${supported[@]}"
+do
     if [[ "$mode" == "$available" ]]; then
-        echo "INFO: Running simulation for $mode addressing mode."
-        found=true
+        echo "INFO: Simulating $mode addressing mode."
+        found=1
         break
     fi
 done
-
-# Exit if mode was not found to be one of the expected modes
-if ! "$found"; then
-    echo "ERROR: $mode is not a supported addressing mode."
+if (( ! "$found" )); then
+    echo "ERROR: $mode is not a supported addressing mode or test case."
     exit 1
->>>>>>> c061573d9d4a1f8d485993f76847fe6dfe1f1dff
 fi
 
 # Establish a temp location to put the result of the simulation
@@ -120,78 +81,21 @@ elif [[ -d "$sim_dir" ]]; then
 fi
 mkdir -pv "$sim_dir/$mode"
 
-<<<<<<< HEAD
-# If no block memory has been built yet, create one.  Otherwise, use the existing
-# one.  In both cases, build a .mif to use for simulation.
-=======
-# Assemble the ROM into a .coe and .mif file
-
 # If it does not already exist, build a behavioral model for the Xilinx
 # block RAM
->>>>>>> c061573d9d4a1f8d485993f76847fe6dfe1f1dff
 if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
     echo "INFO: No behavioral model for the Block Memory Generator Core found."
     # Delete any remnants of the memory model if they exist
     if [[ -d "$memory_dir" ]]; then
         rm -rf "$memory_dir"
     fi
-
-
-
-
-# Move or copy all simulation files to the temp location
-
-<<<<<<< HEAD
-
-# If it hasn't been built yet, generate a .coe file from the .asm file for this
-# mode and then build a memory block using that .coe file
-
-# Generate a new .mif file for use in simulating the proc and block memory
-
-# Build all simulation files in /tmp/proc_sim/$mode
-
-
-# case "$mode" in
-
-#     "absolute")
-#         echo "Testing absolute addressing mode."
-
-#         # Require a memory_block simulation model to exist before continuing
-#         memory_dir="../build/memory_block"
-#         if [[ ! -f "$memory_dir/sim/memory_block.v" ]]; then
-#             echo "ERROR: No block RAM simulation model found."
-#             exit 1
-#         fi
-
-#         # Creating simulation directory
-#         sim_dir=./"$mode"_lib/
-#         echo "INFO: Creating simulation directory $(pwd -P)/$sim_dir"
-#         if [[ -d "$sim_dir" ]]; then
-#             rm -rf "$sim_dir"
-#         fi
-#         mkdir -p "$sim_dir"
-
-#         vsim -c -do "$mode"_sim.tcl
-#         ;;
-#     "absolute X")
-#         echo "Testing absolute indexed X addressing mode."
-#         ;;
-#     "absolute Y")
-#         echo "Testing absolute indexed Y addressing mode."
-#         ;;
-#     *)
-#         echo "$mode is not a valid addressing mode"
-#         ;;
-# esac
-
-
-# #
-# # # Look for the appropriate simulation .asm file to use
-# #
-# # # Compile the .asm file into a .mif
-# #
-# # # Move the .mif into the /sim directory
-# #
-=======
-# Run the requested simulation
->>>>>>> c061573d9d4a1f8d485993f76847fe6dfe1f1dff
+    echo "INFO: Generating behavioral model for Block Memory Generator Core."
+    # Run the memory generator script and provide it with the name of the
+    # ROM to use - for now, it assumes that it was run from the scripts
+    # directory
+    cd "$scripts_dir"
+    "$scripts_dir/memory_gen" "$roms_dir/$mode.coe"
+    cd "$sim_dir"
+else
+    echo "INFO: Found Block Memory Generator Core at $memory_dir."
+fi
