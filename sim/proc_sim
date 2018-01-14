@@ -81,9 +81,19 @@ elif [[ -d "$sim_dir" ]]; then
 fi
 mkdir -pv "$sim_dir/$mode"
 
+# Assemble the source code and generate a .coe file
+source_file="$roms_dir/$mode.asm"
+if [[ -f "$source_file" ]]; then
+    "$scripts_dir/oddball" "$source_file"
+else
+    echo "ERROR: Source file $source_file not found."
+    exit 1
+fi
+
 # If it does not already exist, build a behavioral model for the Xilinx
 # block RAM
-if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
+memory_file="$memory_dir/simulation/$memory_model"
+if [[ ! -f "$memory_file" ]]; then
     echo "INFO: No behavioral model for the Block Memory Generator Core found."
     # Delete any remnants of the memory model if they exist
     if [[ -d "$memory_dir" ]]; then
@@ -98,4 +108,9 @@ if [[ ! -f "$memory_dir/simulation/$memory_model" ]]; then
     cd "$sim_dir"
 else
     echo "INFO: Found Block Memory Generator Core at $memory_dir."
+fi
+
+sim_file="$mode.tcl"
+if [[ -f "$sim_file" ]]; then
+    vsim -c -do "$sim_file"
 fi
