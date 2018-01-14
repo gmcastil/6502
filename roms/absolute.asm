@@ -3,7 +3,7 @@
 ;;; assembled from this file and then placed into a ROM used by the testbench
 ;;; for testing absolute addressing mode.
 
-        .org     $8000
+        .org    $8000
 8000:   lda     $9000           ; $9000 = $00
 
         ;; -- Add With Carry (ADC)
