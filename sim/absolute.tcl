@@ -5,6 +5,7 @@ set src_dir "../src"
 set includes_dir "../src/includes"
 set memory_dir "../build/memory_block"
 set dofiles "./dofiles"
+set tb_dir "../testbench"
 
 set vlib ${env(QUESTA_PATH)}/vlib
 set vlog ${env(QUESTA_PATH)}/vlog
@@ -48,7 +49,7 @@ $vlog \
    +libext+.v \
    +libext+.vh \
    +incdir+${includes_dir} \
-   ${src_dir}/absolute_tb.v
+   ${tb_dir}/absolute_tb.v
 
 # $vsim \
 #    -t 1ps \
