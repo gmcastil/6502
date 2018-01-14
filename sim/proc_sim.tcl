@@ -60,3 +60,6 @@ $vlog \
 #    -do "do ${dofiles}/proc_sim_wave.do" \
 #    -do "do ${dofiles}/runsim.do" \
 #    -do "quit -sim"
+
+# Finally, run the entire simulation
+do $dofiles_dir/proc_sim.do
