@@ -943,6 +943,8 @@ module proc
                   .alu_overflow  (alu_overflow)
                   );
 
+  // -- Function Definitions
+
   function [7:0] twos_complement;
     // Represent negative numbers to perform subtraction
     input [7:0] value;
