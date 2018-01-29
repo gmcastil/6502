@@ -27,9 +27,9 @@ module proc
   reg [7:0]          alu_AI;
   reg [7:0]          alu_BI;
   reg                alu_carry_in;
-  reg [7:0]          alu_Y;
-  reg                alu_carry_out;
-  reg                alu_overflow;
+  wire [7:0]         alu_Y;
+  wire               alu_carry_out;
+  wire               alu_overflow;
 
   // --- Processor Registers
   reg [7:0]          A;   // accumulator
