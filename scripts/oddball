@@ -765,7 +765,7 @@ def add_map(filename, data):
     with open(filename, 'r') as map_file:
         for line in map_file:
             if line.startswith('#'):
-                pass
+                continue
             elif ';' in line:
                 comment_index = line.find('#')
                 line = line[:comment_index].strip()
