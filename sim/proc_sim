@@ -83,8 +83,9 @@ mkdir -pv "$sim_dir/$mode"
 
 # Assemble the source code and generate a .coe file
 source_file="$roms_dir/$mode.asm"
+map_file="$roms_dir/$mode.map"
 if [[ -f "$source_file" ]]; then
-    "$scripts_dir/oddball" "$source_file"
+    "$scripts_dir/oddball" --with-map "$map_file" "$source_file"
 else
     echo "ERROR: Source file $source_file not found."
     exit 1
