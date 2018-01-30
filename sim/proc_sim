@@ -42,6 +42,7 @@ memory_model="blk_mem_gen_v8_3.v"
 scripts_dir="$root_dir/scripts"
 build_dir="$root_dir/build"
 roms_dir="$root_dir/roms"
+dofiles_dir="$root_dir/sim/dofiles"
 memory_dir="$build_dir/$memory_ip"
 
 # Temporary directories
@@ -112,6 +113,8 @@ else
 fi
 
 sim_file="$mode.tcl"
+#do_file="$dofiles_dir/proc_sim_wave.do"
 if [[ -f "$sim_file" ]]; then
     vsim -c -do "$sim_file"
+    #TESTBENCH="$mode" vsim -do "do $do_file"
 fi

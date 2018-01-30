@@ -1,6 +1,5 @@
-if { $::argc > 0 } {
-   set testbench [lindex $argv 1]
-}
+set testbench "${env(TESTBENCH)}_tb"
+puts "Simulation of $testbench addressing mode"
 
 onerror {resume}
 quietly WaveActivateNextPane {} 0

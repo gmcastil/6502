@@ -32,6 +32,7 @@ $vlog \
    -y ${xilinx_vivado}/data/xsim/verilog/simprims_ver \
    +libext+.v \
    +libext+.vh \
+   +libext+.sv \
    ${memory_dir}/sim/memory_block.v \
    ${memory_dir}/simulation/blk_mem_gen_v8_3.v
    #${memory_dir}/memory_block_stub.v
@@ -48,8 +49,9 @@ $vlog \
    -y ${xilinx_vivado}/data/xsim/verilog/simprims_ver \
    +libext+.v \
    +libext+.vh \
+   +libext+.sv \
    +incdir+${includes_dir} \
-   ${tb_dir}/absolute_tb.v
+   ${tb_dir}/absolute_tb.sv
 
 # $vsim \
 #    -t 1ps \

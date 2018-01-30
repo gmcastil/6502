@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Module:  absolute_tb.v
+// Module:  absolute_tb.sv
 // Project:
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    15 October 2017
@@ -43,22 +43,6 @@ module absolute_tb ();
     end
   end
 
-  // Set some parameters to remain constant throughout (at least for now)
-  initial begin
-    enable = 1'b1;
-  end
-
-  // Initiate the global reset (for now, synchronize both edges to both
-  // clocks, but later this will be performed by the porf block)
-  initial begin
-    resetn = 1'b1;
-    #(P*2)
-    resetn = 1'b0;
-    #(P*4)
-    resetn = 1'b1;
-    #(P*100);
-  end
-
   // Bring processor status register bits up to the top and break them out
   // into individual signals to aide in simulation
   wire sim_proc_carry;
@@ -77,38 +61,15 @@ module absolute_tb ();
   assign sim_proc_overflow   = inst_proc.P[6];
   assign sim_proc_negative   = inst_proc.P[7];
 
-  wire [15:0] sim_proc_PC;
-
-  assign sim_proc_PC         = inst_proc.PC;
-
-  // -- Testing Cycle Accuracy
-  integer cycle_counter = 0;
-
-  localparam RESET_CYCLE = 6;  // cycles until end of reset
-  localparam PROGRAM_START = 16'h8000;
-
+  // Initiate the global reset (for now, synchronize both edges to both
+  // clocks, but later this will be performed by the porf block)
   initial begin
-    cycle_counter = 0;
-    forever begin
-      #P
-      cycle_counter = cycle_counter + 1;
-    end
-  end
-
-  initial begin
-    #(P*(RESET_CYCLE + 3));  // Fetch of first instruction
-    if (sim_proc_PC == PROGRAM_START) begin
-      $display("Found program starting address of %h...OK", PROGRAM_START);
-    end else begin
-      $display("Program not found...FAIL");
-    end
-
+    resetn = 1'b1;
+    #(P*2)
+    resetn = 1'b0;
     #(P*4)
-    if (sim_proc_PC == PROGRAM_START + 16'h0003) begin
-      $display("LDA instruction took three cycles...OK");
-    end else begin
-      $display("LDA instruction took three cycles...FAIL");
-    end
+    resetn = 1'b1;
+    #(P*100);
   end
 
   // -- Instantiations
