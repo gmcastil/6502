@@ -21,3 +21,5 @@ transcript
 *.wlf
 # Also ignore the lib files that the simulation scripts create
 sim/*_lib/
+# Ignore coefficients files - these are only side effects of the assembler
+*.coe
