@@ -1,11 +1,11 @@
-# Running a simulation
-
 # Some important parameters
 set src_dir "../src"
 set includes_dir "../src/includes"
 set memory_dir "../build/memory_block"
 set dofiles "./dofiles"
+set log_dir "./logs"
 set tb_dir "../testbench"
+set sim_dir ${env(SIM_DIR)}
 
 set vlib ${env(QUESTA_PATH)}/vlib
 set vlog ${env(QUESTA_PATH)}/vlog
@@ -16,15 +16,15 @@ set xilinx_vivado ${env(XILINX_VIVADO)}
 $vlib proc_lib
 
 $vlog \
-   -work proc_lib \
+   -work ${sim_dir}/proc_lib \
    -novopt \
-   -l glbl.log \
+   -l ${log_dir}/glbl.log \
    ${xilinx_vivado}/data/verilog/src/glbl.v
 
 $vlog \
-   -work proc_lib \
+   -work ${sim_dir}/proc_lib \
    -novopt \
-   -l memory_block.log \
+   -l ${log_dir}/memory_block.log \
    -y ${xilinx_vivado}/data/verilog/src/unisims \
    -y ${xilinx_vivado}/data/verilog/src/unifast \
    -y ${xilinx_vivado}/data/verilog/src/unimacro \
@@ -38,9 +38,9 @@ $vlog \
    #${memory_dir}/memory_block_stub.v
 
 $vlog \
-   -work proc_lib \
+   -work ${sim_dir}/proc_lib \
    -novopt \
-   -l proc.log \
+   -l ${log_dir}/proc.log \
    -y ${src_dir} \
    -y ${xilinx_vivado}/data/verilog/src/unisims \
    -y ${xilinx_vivado}/data/verilog/src/unifast \
