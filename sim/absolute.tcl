@@ -13,7 +13,7 @@ set vsim ${env(QUESTA_PATH)}/vsim
 
 set xilinx_vivado ${env(XILINX_VIVADO)}
 
-$vlib proc_lib
+$vlib ${sim_dir}/proc_lib
 
 $vlog \
    -work ${sim_dir}/proc_lib \
