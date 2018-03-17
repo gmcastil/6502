@@ -72,6 +72,11 @@ module absolute_tb ();
     #(P*100);
   end
 
+  initial begin
+    #(P*206)
+    $finish;
+  end
+
   // -- Instantiations
   memory_block
     #(
