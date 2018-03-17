@@ -2,7 +2,7 @@
 set src_dir "../src"
 set includes_dir "../src/includes"
 set memory_dir "../build/memory_block"
-set dofiles "./dofiles"
+set dofiles_dir "./dofiles"
 set log_dir "./logs"
 set tb_dir "../testbench"
 set sim_dir ${env(SIM_DIR)}
@@ -53,12 +53,9 @@ $vlog \
    +incdir+${includes_dir} \
    ${tb_dir}/absolute_tb.sv
 
-# $vsim \
-#    -t 1ps \
-#    -c \
-#    proc_lib.proc_tb \
-#    -wlf proc_sim.wlf \
-#    -do "log -r /*" \
-#    -do "do ${dofiles}/proc_sim_wave.do" \
-#    -do "do ${dofiles}/runsim.do" \
-#    -do "quit -sim"
+$vsim \
+   -t 1ps \
+   -novopt \
+   -c \
+   -do "add log -r /*; run -all; quit -f;" \
+   proc_lib.absolute_tb
