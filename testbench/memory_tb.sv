@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Module:  memory_tb.v
+// Module:  memory_tb.sv
 // Project: MOS 6502 Processor
 // Author:  George Castillo <gmcastil at gmail.com>
 // Date:    08 July 2017
@@ -23,6 +23,9 @@ module memory_tb();
   wire [7:0] read_data;
   reg [7:0]  write_data;
 
+  integer    pass;
+  integer    fail;
+
   initial begin
     clk_sys = 1'b1;
     forever begin
@@ -34,17 +37,42 @@ module memory_tb();
   reg [15:0] addr_count;
 
   initial begin
+
     enable = 1'b1;
     write_enable = 1'b0;
-    write_data = 8'b0;
-
-    address = 16'b0;
-    addr_count = 16'b0;
+    // Verify initial loading of block RAM contents
     #(T*10);
-    for (addr_count=16'b0; addr_count<=16'hFFFF; addr_count=addr_count+1'b1) begin
+    for (addr_count = 16'b0; addr_count < 16'hFFFF; addr_count++) begin
+      address = addr_count;
+      #(T*10);
+      $display("Read value %u from address %u", read_data, address);
+      #(T*10);
+    end
+
+    pass = 0;
+    fail = 0;
+
+    // Verify that we can read and write the memory
+    #(T*10);
+    for (addr_count = 16'b0; addr_count < 16'hFFFF; addr_count++) begin
+      write_enable = 1'b1;
+      write_data = $random;
       address = addr_count;
       #(T);
+
+      write_enable = 1'b0;
+      #(T*10);
+      assert(write_data == read_data) begin
+        pass++;
+      end else begin
+        fail++;
+        $display("Expected %u but received %u at address %u", write_data, read_data, address);
+      end
+      #(T);
     end
+    $display("%u passing tests", pass);
+    $display("%u failing tests", fail);
+    $finish;
   end
 
   memory_block
