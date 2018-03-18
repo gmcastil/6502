@@ -42,12 +42,9 @@ memory_model="blk_mem_gen_v8_3.v"
 scripts_dir="$root_dir/scripts"
 build_dir="$root_dir/build"
 roms_dir="$root_dir/roms"
-dofiles_dir="$root_dir/sim/dofiles"
 memory_dir="$build_dir/$memory_ip"
-
-# Temporary directories
-tmp_dir="/tmp"
-sim_dir="$tmp_dir/proc_sim"
+sim_dir="$root_dir/sim"
+lib_dir="$sim_dir/proc_lib"
 
 # Export important variables so the EDA tools can be found
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
@@ -68,19 +65,11 @@ do
         break
     fi
 done
+
 if (( ! "$found" )); then
     echo "ERROR: $mode is not a supported addressing mode or test case."
     exit 1
 fi
-
-# Establish a temp location to put the result of the simulation
-if [[ ! -w "$tmp_dir" || ! -r "$tmp_dir" ]]; then
-    echo "ERROR: Directory $tmp_dir not readable or writable by current user."
-    exit 1
-elif [[ -d "$sim_dir" ]]; then
-    rm -rf "$sim_dir"
-fi
-mkdir -pv "$sim_dir/$mode"
 
 # Assemble the source code and generate a .coe file
 source_file="$roms_dir/$mode.asm"
@@ -112,9 +101,12 @@ else
     echo "INFO: Found Block Memory Generator Core at $memory_dir."
 fi
 
+# Remove existing library if it exists.
+if [[ -d "$lib_dir" ]]; then
+    rm -rf "$lib_dir"
+fi
+
 sim_file="$mode.tcl"
-#do_file="$dofiles_dir/proc_sim_wave.do"
 if [[ -f "$sim_file" ]]; then
     vsim -c -do "$sim_file"
-    #TESTBENCH="$mode" vsim -do "do $do_file"
 fi
