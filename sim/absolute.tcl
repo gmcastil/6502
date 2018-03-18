@@ -5,7 +5,8 @@ set memory_dir "../build/memory_block"
 set dofiles_dir "./dofiles"
 set log_dir "./logs"
 set tb_dir "../testbench"
-set sim_dir ${env(SIM_DIR)}
+set sim_dir "./"
+set lib_name "proc_lib"
 
 set vlib ${env(QUESTA_PATH)}/vlib
 set vlog ${env(QUESTA_PATH)}/vlog
@@ -13,16 +14,16 @@ set vsim ${env(QUESTA_PATH)}/vsim
 
 set xilinx_vivado ${env(XILINX_VIVADO)}
 
-$vlib ${sim_dir}/proc_lib
+$vlib ${sim_dir}/${lib_name}
 
 $vlog \
-   -work ${sim_dir}/proc_lib \
+   -work ${lib_name} \
    -novopt \
    -l ${log_dir}/glbl.log \
    ${xilinx_vivado}/data/verilog/src/glbl.v
 
 $vlog \
-   -work ${sim_dir}/proc_lib \
+   -work ${lib_name} \
    -novopt \
    -l ${log_dir}/memory_block.log \
    -y ${xilinx_vivado}/data/verilog/src/unisims \
@@ -35,10 +36,9 @@ $vlog \
    +libext+.sv \
    ${memory_dir}/sim/memory_block.v \
    ${memory_dir}/simulation/blk_mem_gen_v8_3.v
-   #${memory_dir}/memory_block_stub.v
 
 $vlog \
-   -work ${sim_dir}/proc_lib \
+   -work ${lib_name} \
    -novopt \
    -l ${log_dir}/proc.log \
    -y ${src_dir} \
@@ -57,5 +57,6 @@ $vsim \
    -t 1ps \
    -novopt \
    -c \
-   -do "add log -r /*; run -all; quit -f;" \
-   proc_lib.absolute_tb
+   -do ${dofiles_dir}/proc_sim.do \
+   -do "quit -f;" \
+   ${lib_name}.absolute_tb
