@@ -1,2 +1,2 @@
-vsim proc_lib.absolute_tb
+log -r /*
 run -all
