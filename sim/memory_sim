@@ -27,11 +27,15 @@ build_dir="$root_dir/build"
 roms_dir="$root_dir/roms"
 memory_dir="$build_dir/$memory_ip"
 sim_dir="$root_dir/sim"
-lib_dir="$sim_dir/proc_lib"
+lib_dir="$sim_dir/memory_lib"
 
 # Export important variables so the EDA tools can be found
 export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
 export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
+
+if [[ -d "$lib_dir" ]]; then
+    rm -rf "$lib_dir"
+fi
 
 sim_file="memory_sim.tcl"
 if [[ -f "$sim_file" ]]; then

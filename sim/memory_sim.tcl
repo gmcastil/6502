@@ -6,6 +6,7 @@ set dofiles_dir "./dofiles"
 set log_dir "./logs"
 set tb_dir "../testbench"
 set sim_dir "./"
+set lib_name "proc_lib"
 
 set vlib ${env(QUESTA_PATH)}/vlib
 set vlog ${env(QUESTA_PATH)}/vlog
@@ -13,16 +14,16 @@ set vsim ${env(QUESTA_PATH)}/vsim
 
 set xilinx_vivado ${env(XILINX_VIVADO)}
 
-$vlib ${sim_dir}/proc_lib
+$vlib ${sim_dir}/${lib_name}
 
 $vlog \
-   -work proc_lib \
+   -work ${lib_name} \
    -novopt \
    -l ${log_dir}/glbl.log \
    ${xilinx_vivado}/data/verilog/src/glbl.v
 
 $vlog \
-   -work proc_lib \
+   -work ${lib_name} \
    -novopt \
    -l ${log_dir}/memory_block.log \
    -y ${xilinx_vivado}/data/verilog/src/unisims \
@@ -37,9 +38,9 @@ $vlog \
    ${memory_dir}/simulation/blk_mem_gen_v8_3.v
 
 $vlog \
-   -work proc_lib \
+   -work ${lib_name} \
    -novopt \
-   -l ${log_dir}/proc.log \
+   -l ${log_dir}/memory_tb.log \
    -y ${src_dir} \
    -y ${xilinx_vivado}/data/verilog/src/unisims \
    -y ${xilinx_vivado}/data/verilog/src/unifast \
