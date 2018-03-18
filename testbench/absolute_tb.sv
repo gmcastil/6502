@@ -82,7 +82,7 @@ module absolute_tb ();
     #(
       ) inst_memory_block (
                            .clka  (clk_sys),
-                           .ena   (enable),
+                           .ena   (1'b1),
                            .wea   (wr_enable),
                            .addra (address),
                            .dina  (wr_data),
