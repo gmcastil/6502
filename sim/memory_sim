@@ -1,46 +1,39 @@
 #!/usr/bin/env bash
 
+# Simulation script to verify operation of the block memory
+
 set -o errexit  # -e
 set -o nounset  # -u
 set -o pipefail
-IFS=$'\n\t'
+IFS=$' \n\t'
 
-# Simulates the 64KB memory block created by the memory_gen.sh script
-# using the testbench in /6502/src/
-
-common="./common.sh"
-
-if [[ -x "$common" ]]; then
-    source $common
+# Verify that the simulation script is being run from the /sim directory
+# otherwise exit.
+full_pwd="$(readlink -f "$(pwd)")"
+if [[ "$(basename "$full_pwd")" == "sim" ]]; then
+    root_dir="$(dirname "$full_pwd")"
 else
-    echo "ERROR: $common missing or not executable." | $COLORIZE
+    echo "ERROR: Simulation script must be run from the /sim directory."
     exit 1
 fi
 
-ip_dir="$WORKING_DIR/memory_block/"
+# Names needed for working with Xilinx block memory IP
+memory_ip="memory_block"
+memory_model="blk_mem_gen_v8_3.v"
 
-coe_file=${1:-}
-if [[ -z "$coe_file" ]]; then
-    echo "Usage: $0 filename"
-    exit 1
-else
-    coe_file=`realpath $coe_file`
+# Set up commonly used variables and locations
+scripts_dir="$root_dir/scripts"
+build_dir="$root_dir/build"
+roms_dir="$root_dir/roms"
+memory_dir="$build_dir/$memory_ip"
+sim_dir="$root_dir/sim"
+lib_dir="$sim_dir/proc_lib"
+
+# Export important variables so the EDA tools can be found
+export QUESTA_PATH="/opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux"
+export XILINX_VIVADO="/opt/Xilinx/Vivado/2017.1"
+
+sim_file="memory_sim.tcl"
+if [[ -f "$sim_file" ]]; then
+    vsim -c -do "$sim_file"
 fi
-
-# Make sure that the IP has been generated and if so, create a directory
-# alongside to start doing simulation
-ip_dir="$WORKING_DIR/memory_block/"
-if [[ ! -d $ip_dir ]]; then
-    echo "ERROR: Nothing found in $ip_dir"
-    exit 1
-else
-    # Remove any existing sim directory and make a new one
-    if [[ -d "$WORKING_DIR/memory_block_sim/" ]]; then
-        rm -rf "$WORKING_DIR/memory_block_sim/"
-    fi
-fi
-
-$vivado -verbose -notrace \
-        -mode batch \
-        -source memory_sim.tcl \
-        -tclargs $coe_file | $COLORIZE
