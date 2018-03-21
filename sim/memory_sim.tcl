@@ -6,7 +6,7 @@ set dofiles_dir "./dofiles"
 set log_dir "./logs"
 set tb_dir "../testbench"
 set sim_dir "./"
-set lib_name "proc_lib"
+set lib_name "memory_lib"
 
 set vlib ${env(QUESTA_PATH)}/vlib
 set vlog ${env(QUESTA_PATH)}/vlog
