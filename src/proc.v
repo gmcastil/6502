@@ -232,7 +232,7 @@ module proc
         IR <= rd_data;
 
         // Processor status register is updated after every instruction but
-        // determined using a combinational logic block
+        // determined using combinational logic block PROCESSOR_STATUS_UPDATE
         P <= updated_status;
 
         // With some instructions, the accumulator is updated directly.  In
