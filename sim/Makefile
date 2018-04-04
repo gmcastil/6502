@@ -8,7 +8,11 @@ SIM_DIR = .
 LIB_DIR = $(SIM_DIR)/proc_lib
 LOG_DIR = $(SIM_DIR)/logs
 
-# help - The default goal
+MEMORY_IP = memory_block
+MEMORY_DIR = $(BUILD_DIR)/$(MEMORY_IP)
+MEMORY_MODEL = $(MEMORY_DIR)/blk_mem_gen_v8_3.v
+
+# Default goal
 .PHONY: help
 help:
 	@printf "\n"
@@ -19,12 +23,12 @@ help:
 	@printf " sim   - Run a processor simulation with TESTBENCH=[testname]\n"
 	@printf "\n"
 
-# status_msg - Report status prior to major targets
+# Report status prior to major targets
 .PHONY: status_msg
 status_msg:
 	@printf "\n"
 
-# clean - Remove all non-source tree files created during simulations
+# Remove all non-source tree files created during simulations
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
@@ -35,6 +39,12 @@ clean:
 	rm -f $(SIM_DIR)/*.coe
 	rm -f $(SIM_DIR)/*.mif
 
-# sim - Run one of many possible processor simulations
-sim: status_msg
+# Assemble a
+
+# Build the model, given a new
+$(MEMORY_MODEL): $(ROMS_DIR)/$(TESTBENCH).mif
+	@printf "No ROM found, building new block RAM.\n"
+
+# Run one of many possible processor simulations
+sim: status_msg $(MEMORY_MODEL)
 	@printf "Check to make sure that TESTBENCH was provided and is valid.\n"
