@@ -15,32 +15,38 @@
 
 module proc_tb ();
 
-  localparam T = 10;
-  localparam P = 100;
+`include "./includes/opcodes.vh"
+`include "./includes/params.vh"
 
-  reg          clk_sys;       // Memory will be clocked 10X relative to processor
+  localparam T = 10;
+
   reg          clk;
   reg          resetn;
-  reg          enable;
-  wire         wr_enable;
-  wire [15:0]  address;
   wire [7:0]   rd_data;
+  wire [15:0]  address;
   wire [7:0]   wr_data;
+  wire         wr_enable;
 
-  // Create the 100MHz clock that the memory will run at
-  initial begin
-    clk_sys = 1'b1;
-    forever begin
-      #(T/2);
-      clk_sys = ~clk_sys;
-    end
-  end
+  logic [15:0] RESET_MSB = 16'hfffc;
+  logic [15:0] RESET_LSB = 16'hfffd;
 
-  // Create the 10MHz clock that the processor will run at
+  logic [15:0] PROG_START = 16'h8000;
+  logic [15:0] PC;
+
+  integer      opcode_passed = 0;
+  integer      opcode_failed = 0;
+  integer      reset_passed = 0;
+  integer      reset_failed = 0;
+  integer      pc_passed = 0;
+  integer      pc_failed = 0;
+  integer      rd_passed = 0;
+  integer      rd_failed = 0;
+
+  // Create the processor clock
   initial begin
     clk = 1'b1;
     forever begin
-      #(P/2);
+      #10ns;
       clk = ~clk;
     end
   end
@@ -54,43 +60,115 @@ module proc_tb ();
   // clocks, but later this will be performed by the porf block)
   initial begin
     resetn = 1'b1;
-    #(P*2)
+    #10ns;
     resetn = 1'b0;
-    #(P*4)
+    #30ns;
     resetn = 1'b1;
-    #(P*100);
+    #
   end
+
+  initial begin
+    total_passed = 0;
+    total_failed = 0;
+
+    // Wait for the processor to emerge from reset
+    #40ns;
+
+    // --- Test reset vector
+    assert (address == RESET_LSB) begin
+      reset_passed++;
+    end else begin
+      reset_failed++;
+    end
+    rd_data = PROG_START[7:0];
+
+    #10ns;
+    assert (address == RESET_MSB) begin
+      reset_passed++;
+    end else begin
+      reset_failed++;
+    end
+    rd_data = PROG_START[15:8];
+
+    #10ns;
+    // --- Begin testing program execution
+    assert (address == PROG_START) begin
+      pc_passed++;
+    end else begin
+      pc_failed++;
+    end
+
+    // -- Add With Carry (ADC)
+    rd_data = ADC_abs;
+    PC = PROG_START;
+    #10ns;
+    assert (address == PC + 16'h0001) begin
+      opcode_passed++;
+    end else begin
+      opcode_failed++;
+    end
+
+    rd_data = 8'h00;
+    #10ns;
+    rd_data = 8'h90;
+    #10ns;
+    assert (address == 16'h9000) begin
+      rd_passed++;
+    end else begin
+      rd_failed++;
+    end
+
+    rd_data = 8'h00;
+    #10ns;
+    assert (accumulator == 8'h00 &&
+            carry == 1'b0 &&
+            zero == 1'b1 &&
+            overflow == 1'b0) begin
+      opcode_passed++;
+    end else begin
+      opcode_failed++;
+    end
+
+    PC = PC + 16'd3;
+    assert (PC == inst_proc.PC) begin
+      pc_passed++;
+    end else begin
+      pc_failed++;
+    end
+
+    rd_data = ADC_abs;
+    #10ns;
+    assert (PC == address) begin
+      rd_passed++;
+    end else begin
+      rd_failed++;
+    end
+
+  end
+
 
   // Bring processor status register bits up to the top and break them out
   // into individual signals to aide in simulation
-  wire sim_proc_carry;
-  wire sim_proc_zero;
-  wire sim_proc_irq;
-  wire sim_proc_decimal;
-  wire sim_proc_break_inst;
-  wire sim_proc_overflow;
-  wire sim_proc_negative;
+  wire carry;
+  wire zero;
+  wire irq;
+  wire decimal;
+  wire break_inst;
+  wire overflow;
+  wire negative;
 
-  assign sim_proc_carry      = inst_proc.P[0];
-  assign sim_proc_zero       = inst_proc.P[1];
-  assign sim_proc_irq        = inst_proc.P[2];
-  assign sim_proc_decimal    = inst_proc.P[3];
-  assign sim_proc_break_inst = inst_proc.P[4];
-  assign sim_proc_overflow   = inst_proc.P[6];
-  assign sim_proc_negative   = inst_proc.P[7];
+  wire [7:0] inst_A;
+  wire [15:0] inst_PC;
+
+  assign carry      = inst_proc.P[0];
+  assign zero       = inst_proc.P[1];
+  assign irq        = inst_proc.P[2];
+  assign decimal    = inst_proc.P[3];
+  assign break_inst = inst_proc.P[4];
+  assign overflow   = inst_proc.P[6];
+  assign negative   = inst_proc.P[7];
 
   // -- Instantiations
-  memory_block
-    #(
-      ) inst_memory_block (
-                           .clka  (clk_sys),
-                           .ena   (enable),
-                           .wea   (wr_enable),
-                           .addra (address),
-                           .dina  (wr_data),
-                           .douta (rd_data)
-                           );
-
   proc
     #(
       ) inst_proc (
