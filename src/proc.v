@@ -173,6 +173,7 @@ module proc
           ASL_abs,
           DEC_abs,
           INC_abs,
+          JSR_abs,
           LSR_abs,
           ROL_abs,
           ROR_abs: begin
