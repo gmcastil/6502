@@ -122,7 +122,7 @@ module proc
     end // else: !if( resetn == 1'b0 )
   end // always @ (posedge clk)
 
-  // --- State Machine Definition
+  // --- State Machine Definition ---
   always @(*) begin: STATE_MACHINE
 
     // Each of the various addressing modes has a different path through the
@@ -207,6 +207,72 @@ module proc
     endcase // case ( state )
 
   end // block: STATE_MACHINE
+
+  // --- Address Mode Decoder ---
+  always @(*) begin: ADDR_MODE_DECODER
+
+    // The contents of the instruction register are decoded to determine the
+    // path through the state machine, which in turn determines the number of
+    // additional operands that need to be read from memory
+
+    case ( IR )
+
+      // -- Absolute Addressing Mode
+      ADC_abs,
+      AND_abs,
+      ASL_abs,
+      BIT_abs,
+      CMP_abs,
+      CPX_abs,
+      CPY_abs,
+      DEC_abs,
+      EOR_abs,
+      INC_abs,
+      JMP_abs,
+      JSR_abs,
+      LDA_abs,
+      LDX_abs,
+      LDY_abs,
+      LSR_abs,
+      ORA_abs,
+      ROL_abs,
+      ROR_abs,
+      SBC_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs: begin
+        decoded_state = ABS_1;
+      end
+
+      // -- Implied Addressing Mode
+      CLC_imp,
+      CLV_imp,
+      NOP_imp,
+      SEC_imp: begin
+        decoded_state = FETCH;
+      end
+
+      // -- Immediate Addressing Mode
+      LDA_imm,
+      LDX_imm,
+      LDY_imm: begin
+        decoded_state = FETCH;
+      end
+
+      // -- Accumulator Addressing Mode
+      ASL_acc,
+      LSR_acc,
+      ROL_acc,
+      ROR_acc: begin
+        decoded_state = FETCH;
+      end
+
+      default: begin
+        decoded_state = ERROR;
+      end
+    endcase // case ( IR )
+
+  end // block: ADDR_MODE_DECODER
 
   // --- Instruction Cycle Description
   always @(posedge clk) begin: INSTRUCTION_CYCLE
@@ -681,72 +747,6 @@ module proc
 
     endcase // case ( 1'b1 )
   end // block: INSTRUCTION_CYCLE
-
-  // --- Address Mode Decoder
-  always @(*) begin: ADDR_MODE_DECODER
-
-    // The contents of the instruction register are decoded to determine the
-    // path through the state machine, which in turn determines the number of
-    // additional operands that need to be read from memory
-
-    case ( IR )
-
-      // -- Absolute Addressing Mode
-      ADC_abs,
-      AND_abs,
-      ASL_abs,
-      BIT_abs,
-      CMP_abs,
-      CPX_abs,
-      CPY_abs,
-      DEC_abs,
-      EOR_abs,
-      INC_abs,
-      JMP_abs,
-      JSR_abs,
-      LDA_abs,
-      LDX_abs,
-      LDY_abs,
-      LSR_abs,
-      ORA_abs,
-      ROL_abs,
-      ROR_abs,
-      SBC_abs,
-      STA_abs,
-      STX_abs,
-      STY_abs: begin
-        decoded_state = ABS_1;
-      end
-
-      // -- Implied Addressing Mode
-      CLC_imp,
-      CLV_imp,
-      NOP_imp,
-      SEC_imp: begin
-        decoded_state = FETCH;
-      end
-
-      // -- Immediate Addressing Mode
-      LDA_imm,
-      LDX_imm,
-      LDY_imm: begin
-        decoded_state = FETCH;
-      end
-
-      // -- Accumulator Addressing Mode
-      ASL_acc,
-      LSR_acc,
-      ROL_acc,
-      ROR_acc: begin
-        decoded_state = FETCH;
-      end
-
-      default: begin
-        decoded_state = ERROR;
-      end
-    endcase // case ( IR )
-
-  end // block: ADDR_MODE_DECODER
 
   // --- Processor Status Update
   always @(*) begin: PROCESSOR_STATUS_UPDATE
