@@ -122,7 +122,7 @@ module proc
     end // else: !if( resetn == 1'b0 )
   end // always @ (posedge clk)
 
-  // --- State Machine Definition
+  // --- State Machine Definition ---
   always @(*) begin: STATE_MACHINE
 
     // Each of the various addressing modes has a different path through the
@@ -154,7 +154,7 @@ module proc
         next[decoded_state] = 1'b1;
       end
 
-      // --- Absolute Addressing Mode
+      // --- Absolute Addressing Mode (FSM)
       state[ABS_1]: begin
         // 3-cycle instructions return
         if ( IR == JMP_abs ) begin
@@ -173,13 +173,14 @@ module proc
           ASL_abs,
           DEC_abs,
           INC_abs,
+          JSR_abs,
           LSR_abs,
           ROL_abs,
           ROR_abs: begin
             next[ABS_3] = 1'b1;
           end
 
-          // 4-cycle instructions return - not sure this is right
+          // 4-cycle instructions return
           default: begin
             next[FETCH] = 1'b1;
           end
@@ -195,7 +196,7 @@ module proc
         next[FETCH] = 1'b1;
       end
 
-      // -- Absolute Indexed X Addressing mode
+      // -- Absolute Indexed X Addressing mode (FSM)
 
       // Always fall through to an error state
       state[ERROR]: begin
@@ -207,7 +208,73 @@ module proc
 
   end // block: STATE_MACHINE
 
-  // --- Instruction Cycle Description
+  // --- Address Mode Decoder ---
+  always @(*) begin: ADDR_MODE_DECODER
+
+    // The contents of the instruction register are decoded to determine the
+    // path through the state machine, which in turn determines the number of
+    // additional operands that need to be read from memory
+
+    case ( IR )
+
+      // -- Absolute Addressing Mode
+      ADC_abs,
+      AND_abs,
+      ASL_abs,
+      BIT_abs,
+      CMP_abs,
+      CPX_abs,
+      CPY_abs,
+      DEC_abs,
+      EOR_abs,
+      INC_abs,
+      JMP_abs,
+      JSR_abs,
+      LDA_abs,
+      LDX_abs,
+      LDY_abs,
+      LSR_abs,
+      ORA_abs,
+      ROL_abs,
+      ROR_abs,
+      SBC_abs,
+      STA_abs,
+      STX_abs,
+      STY_abs: begin
+        decoded_state = ABS_1;
+      end
+
+      // -- Implied Addressing Mode
+      CLC_imp,
+      CLV_imp,
+      NOP_imp,
+      SEC_imp: begin
+        decoded_state = FETCH;
+      end
+
+      // -- Immediate Addressing Mode
+      LDA_imm,
+      LDX_imm,
+      LDY_imm: begin
+        decoded_state = FETCH;
+      end
+
+      // -- Accumulator Addressing Mode
+      ASL_acc,
+      LSR_acc,
+      ROL_acc,
+      ROR_acc: begin
+        decoded_state = FETCH;
+      end
+
+      default: begin
+        decoded_state = ERROR;
+      end
+    endcase // case ( IR )
+
+  end // block: ADDR_MODE_DECODER
+
+  // --- Instruction Cycle Description ---
   always @(posedge clk) begin: INSTRUCTION_CYCLE
 
     // Defines instruction execution, interaction with address and data bus,
@@ -251,7 +318,7 @@ module proc
 
         case ( IR )
 
-          // absolute addressing mode
+          // --- Absolute Addressing Mode (instr cycle)
           ADC_abs,
           AND_abs,
           ASL_abs,
@@ -290,7 +357,7 @@ module proc
             PC <= PC + 16'd1;
           end
 
-          // -- Immediate Addressing Mode (2-cycle)
+          // -- Immediate Addressing Mode (2-cycle) (instr cycle)
           LDA_imm: begin
             address <= PC + 16'd2;
             PC <= PC + 16'd2;
@@ -309,7 +376,7 @@ module proc
             Y <= rd_data;
           end
 
-          // -- Accumulator Addressing Mode
+          // -- Accumulator Addressing Mode (instr cycle)
           ASL_acc: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
@@ -353,8 +420,11 @@ module proc
 
       end // case: state[DECODE]
 
-      // -- Absolute Addressing Mode
+      // -- Absolute Addressing Mode (instr cycle)
       state[ABS_1]: begin
+
+        // Either retrieve the value stored at the provided address, or
+        // store an index register or accumulator at that location.
 
         operand_MSB <= rd_data;
 
@@ -379,7 +449,8 @@ module proc
           ROR_abs,
           SBC_abs: begin
             address <= { rd_data, operand_LSB };
-          end // case: ADC_abs,...
+            wr_enable <= 1'b0;
+          end
 
           STA_abs: begin
             address <= { rd_data, operand_LSB };
@@ -402,6 +473,9 @@ module proc
           JMP_abs: begin
             address <= { rd_data, operand_LSB };
             PC <= { rd_data, operand_LSB };
+          end
+
+          JSR_abs: begin
           end
 
           default: begin end
@@ -437,10 +511,13 @@ module proc
           end
 
           ASL_abs: begin
+            // ALU only supports right shift - so accomplish a left shift
+            // by adding the operand to itself and collecting the carry out
+            // bit
             alu_AI <= rd_data;
             alu_BI <= rd_data;
             alu_control <= ADD;
-            alu_carry_in <= P[CARRY];
+            alu_carry_in <= 1'b0;
           end
 
           BIT_abs: begin
@@ -674,73 +751,7 @@ module proc
     endcase // case ( 1'b1 )
   end // block: INSTRUCTION_CYCLE
 
-  // --- Address Mode Decoder
-  always @(*) begin: ADDR_MODE_DECODER
-
-    // The contents of the instruction register are decoded to determine the
-    // path through the state machine, which in turn determines the number of
-    // additional operands that need to be read from memory
-
-    case ( IR )
-
-      // -- Absolute Addressing Mode
-      ADC_abs,
-      AND_abs,
-      ASL_abs,
-      BIT_abs,
-      CMP_abs,
-      CPX_abs,
-      CPY_abs,
-      DEC_abs,
-      EOR_abs,
-      INC_abs,
-      JMP_abs,
-      JSR_abs,
-      LDA_abs,
-      LDX_abs,
-      LDY_abs,
-      LSR_abs,
-      ORA_abs,
-      ROL_abs,
-      ROR_abs,
-      SBC_abs,
-      STA_abs,
-      STX_abs,
-      STY_abs: begin
-        decoded_state = ABS_1;
-      end
-
-      // -- Implied Addressing Mode
-      CLC_imp,
-      CLV_imp,
-      NOP_imp,
-      SEC_imp: begin
-        decoded_state = FETCH;
-      end
-
-      // -- Immediate Addressing Mode
-      LDA_imm,
-      LDX_imm,
-      LDY_imm: begin
-        decoded_state = FETCH;
-      end
-
-      // -- Accumulator Addressing Mode
-      ASL_acc,
-      LSR_acc,
-      ROL_acc,
-      ROR_acc: begin
-        decoded_state = FETCH;
-      end
-
-      default: begin
-        decoded_state = ERROR;
-      end
-    endcase // case ( IR )
-
-  end // block: ADDR_MODE_DECODER
-
-  // --- Processor Status Update
+  // --- Processor Status Update ---
   always @(*) begin: PROCESSOR_STATUS_UPDATE
 
     // Processor status register will be updated when in the FETCH state.
@@ -924,6 +935,11 @@ module proc
       ROR_acc: begin
         updated_accumulator = alu_Y;
         updated_accumulator[MSB] = alu_carry_out;
+      end
+
+      // -- Absolute Addressing Mode
+      ADC_abs: begin
+        updated_accumulator = alu_Y;
       end
 
       default: begin end
