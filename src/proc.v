@@ -274,7 +274,7 @@ module proc
 
   end // block: ADDR_MODE_DECODER
 
-  // --- Instruction Cycle Description
+  // --- Instruction Cycle Description ---
   always @(posedge clk) begin: INSTRUCTION_CYCLE
 
     // Defines instruction execution, interaction with address and data bus,
@@ -748,7 +748,7 @@ module proc
     endcase // case ( 1'b1 )
   end // block: INSTRUCTION_CYCLE
 
-  // --- Processor Status Update
+  // --- Processor Status Update ---
   always @(*) begin: PROCESSOR_STATUS_UPDATE
 
     // Processor status register will be updated when in the FETCH state.

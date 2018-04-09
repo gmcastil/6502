@@ -61,7 +61,7 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  AND_abs = 8'h2D,  //  3       4
+  AND_abs = 8'h2D,  //  3       4                Y
   AND_abx = 8'h3D,  //  3       4
   AND_aby = 8'h39;  //  3       4
 
