@@ -511,10 +511,13 @@ module proc
           end
 
           ASL_abs: begin
+            // ALU only supports right shift - so accomplish a left shift
+            // by adding the operand to itself and collecting the carry out
+            // bit
             alu_AI <= rd_data;
             alu_BI <= rd_data;
             alu_control <= ADD;
-            alu_carry_in <= P[CARRY];
+            alu_carry_in <= 1'b0;
           end
 
           BIT_abs: begin
