@@ -15,22 +15,24 @@
 
 module proc_tb ();
 
-`include "./includes/opcodes.vh"
-`include "./includes/params.vh"
+`include "opcodes.vh"
+`include "params.vh"
 
   localparam T = 10;
 
-  reg          clk;
-  reg          resetn;
-  wire [7:0]   rd_data;
-  wire [15:0]  address;
-  wire [7:0]   wr_data;
-  wire         wr_enable;
+  logic         clk;
+  logic         resetn;
+  logic [7:0]   rd_data;
+  logic [15:0]  address;
+  logic [7:0]   wr_data;
+  logic         wr_enable;
 
   logic [15:0] RESET_MSB = 16'hfffc;
   logic [15:0] RESET_LSB = 16'hfffd;
 
   logic [15:0] PROG_START = 16'h8000;
+
+  logic [7:0] accumulator;
   logic [15:0] PC;
 
   integer      opcode_passed = 0;
@@ -51,11 +53,6 @@ module proc_tb ();
     end
   end
 
-  // Set some parameters to remain constant throughout (at least for now)
-  initial begin
-    enable = 1'b1;
-  end
-
   // Initiate the global reset (for now, synchronize both edges to both
   // clocks, but later this will be performed by the porf block)
   initial begin
@@ -64,12 +61,9 @@ module proc_tb ();
     resetn = 1'b0;
     #30ns;
     resetn = 1'b1;
-    #
   end
 
   initial begin
-    total_passed = 0;
-    total_failed = 0;
 
     // Wait for the processor to emerge from reset
     #40ns;
@@ -144,6 +138,20 @@ module proc_tb ();
       rd_failed++;
     end
 
+    $display("Passing:");
+    $display("  Opcodes: %5d", opcode_passed);
+    $display("  Reset:   %5d", reset_passed);
+    $display("  PC:      %5d", pc_passed);
+    $display("  Read:    %5d", rd_passed);
+    $display("\n");
+    $display("Failing:");
+    $display("  Opcodes: %5d", opcode_failed);
+    $display("  Reset:   %5d", reset_failed);
+    $display("  PC:      %5d", pc_failed);
+    $display("  Read:    %5d", rd_passed);
+
+    $finish;
+
   end
 
 
@@ -156,9 +164,6 @@ module proc_tb ();
   wire break_inst;
   wire overflow;
   wire negative;
-
-  wire [7:0] inst_A;
-  wire [15:0] inst_PC;
 
   assign carry      = inst_proc.P[0];
   assign zero       = inst_proc.P[1];
@@ -177,7 +182,7 @@ module proc_tb ();
                    .rd_data       (rd_data),
                    .address       (address),
                    .wr_data       (wr_data),
-                   .wr_enable     (wr_enable),
+                   .wr_enable     (wr_enable)
                    );
 
 endmodule // proc_top_tb
