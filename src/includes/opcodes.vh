@@ -50,7 +50,7 @@ localparam
   // Flags Affected: n v - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  ADC_abs = 8'h6D,  //  3       4
+  ADC_abs = 8'h6D,  //  3       4                Y
   ADC_abx = 8'h7D,  //  3       4
   ADC_aby = 8'h79;  //  3       4
 

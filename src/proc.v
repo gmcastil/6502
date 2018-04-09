@@ -154,7 +154,7 @@ module proc
         next[decoded_state] = 1'b1;
       end
 
-      // --- Absolute Addressing Mode
+      // --- Absolute Addressing Mode (FSM)
       state[ABS_1]: begin
         // 3-cycle instructions return
         if ( IR == JMP_abs ) begin
@@ -180,7 +180,7 @@ module proc
             next[ABS_3] = 1'b1;
           end
 
-          // 4-cycle instructions return - not sure this is right
+          // 4-cycle instructions return
           default: begin
             next[FETCH] = 1'b1;
           end
@@ -196,7 +196,7 @@ module proc
         next[FETCH] = 1'b1;
       end
 
-      // -- Absolute Indexed X Addressing mode
+      // -- Absolute Indexed X Addressing mode (FSM)
 
       // Always fall through to an error state
       state[ERROR]: begin
@@ -252,7 +252,7 @@ module proc
 
         case ( IR )
 
-          // absolute addressing mode
+          // --- Absolute Addressing Mode (instr cycle)
           ADC_abs,
           AND_abs,
           ASL_abs,
@@ -291,7 +291,7 @@ module proc
             PC <= PC + 16'd1;
           end
 
-          // -- Immediate Addressing Mode (2-cycle)
+          // -- Immediate Addressing Mode (2-cycle) (instr cycle)
           LDA_imm: begin
             address <= PC + 16'd2;
             PC <= PC + 16'd2;
@@ -310,7 +310,7 @@ module proc
             Y <= rd_data;
           end
 
-          // -- Accumulator Addressing Mode
+          // -- Accumulator Addressing Mode (instr cycle)
           ASL_acc: begin
             address <= PC + 16'd1;
             PC <= PC + 16'd1;
@@ -354,8 +354,11 @@ module proc
 
       end // case: state[DECODE]
 
-      // -- Absolute Addressing Mode
+      // -- Absolute Addressing Mode (instr cycle)
       state[ABS_1]: begin
+
+        // Either retrieve the value stored at the provided address, or
+        // store an index register or accumulator at that location.
 
         operand_MSB <= rd_data;
 
@@ -380,7 +383,8 @@ module proc
           ROR_abs,
           SBC_abs: begin
             address <= { rd_data, operand_LSB };
-          end // case: ADC_abs,...
+            wr_enable <= 1'b0;
+          end
 
           STA_abs: begin
             address <= { rd_data, operand_LSB };
@@ -403,6 +407,9 @@ module proc
           JMP_abs: begin
             address <= { rd_data, operand_LSB };
             PC <= { rd_data, operand_LSB };
+          end
+
+          JSR_abs: begin
           end
 
           default: begin end
@@ -925,6 +932,11 @@ module proc
       ROR_acc: begin
         updated_accumulator = alu_Y;
         updated_accumulator[MSB] = alu_carry_out;
+      end
+
+      // -- Absolute Addressing Mode
+      ADC_abs: begin
+        updated_accumulator = alu_Y;
       end
 
       default: begin end
