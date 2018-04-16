@@ -18,7 +18,8 @@ module proc_tb ();
 `include "opcodes.vh"
 `include "params.vh"
 
-  localparam T = 10;
+  localparam CLOCK = 10;
+  localparam STEP = CLOCK / 2;
 
   logic         clk;
   logic         resetn;
@@ -35,6 +36,20 @@ module proc_tb ();
   logic [7:0] accumulator;
   logic [15:0] PC;
 
+  // Addressing modes for instruction decoding in tasks
+  string       IMM = "immediate";
+  string       ACC = "accumulator";
+  string       ABS = "absolute";
+  string       ZP  = "zero page";
+  string       ABX = "absolute x";
+  string       ABY = "absolute y";
+  string       ZPX = "zero page x";
+  string       ZPY = "zero page y";
+  string       IZX = "indirect x";
+  string       IZY = "indirect y";
+  string       IND = "indirect";
+  string       REL = "relative";
+
   integer      opcode_passed = 0;
   integer      opcode_failed = 0;
   integer      reset_passed = 0;
@@ -48,22 +63,75 @@ module proc_tb ();
   initial begin
     clk = 1'b1;
     forever begin
-      #10ns;
+      #(STEP);
       clk = ~clk;
     end
   end
 
-  // Initiate the global reset (for now, synchronize both edges to both
-  // clocks, but later this will be performed by the porf block)
   initial begin
-    resetn = 1'b1;
-    #10ns;
-    resetn = 1'b0;
-    #30ns;
-    resetn = 1'b1;
+
+    // -- Reset the processor
+    resetn <= 1'b1;
+    #(CLOCK*10) proc_reset(10);
+
+    // -- LDA
+    lda("immediate")
+    #(CLOCK*100);
+
+    $display("Passing:");
+    $display("  Opcodes: %5d", opcode_passed);
+    $display("  Reset:   %5d", reset_passed);
+    $display("  PC:      %5d", pc_passed);
+    $display("  Read:    %5d", rd_passed);
+    $display("");
+    $display("Failing:");
+    $display("  Opcodes: %5d", opcode_failed);
+    $display("  Reset:   %5d", reset_failed);
+    $display("  PC:      %5d", pc_failed);
+    $display("  Read:    %5d", rd_passed);
+    $display("");
+    $finish;
+
   end
 
-  initial begin
+  task proc_reset (input int duration);
+    begin
+      resetn <= 1'b0;
+      #(CLOCK*duration)
+      resetn <= 1'b1;
+    end
+  endtask // proc_reset
+
+  task lda (input string mode,
+            input bit [7:0] value,
+            input bit [15:0] address);
+    begin
+      case (mode)
+
+        ABSOLUTE: $display("This is absolute addressing mode.");
+
+        default: $display("Error");
+
+      endcase // case (mode)
+
+    end
+  endtask // lda
+
+
+
+
+
+  // Initiate the global reset (for now, synchronize both edges to both
+  // clocks, but later this will be performed by the porf block)
+/*  initial begin
+    resetn = 1'b1;
+    #(STEP)ns;
+    resetn = 1'b0;
+    #(STEP)ns;
+    resetn = 1'b1;
+  end */
+
+/*  initial begin
 
     // Wait for the processor to emerge from reset
     #40ns;
@@ -152,7 +220,7 @@ module proc_tb ();
 
     $finish;
 
-  end
+  end */
 
 
   // Bring processor status register bits up to the top and break them out
