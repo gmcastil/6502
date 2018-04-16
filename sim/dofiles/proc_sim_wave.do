@@ -1,12 +1,11 @@
-set testbench "${env(TESTBENCH)}_tb"
-puts "Simulation of $testbench addressing mode"
+set testbench "proc_tb"
+puts "Beginning processor simulation..."
 
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 
 # -- Clock and Reset
 add wave -noupdate -divider "Clock and Reset"
-add wave -noupdate -binary -label "clk_sys" /$testbench/clk_sys
 add wave -noupdate -binary -label "resetn" /$testbench/resetn
 add wave -noupdate -binary -label "clk" /$testbench/inst_proc/clk
 
@@ -38,13 +37,13 @@ add wave -noupdate -hex -label "IR" /$testbench/inst_proc/IR
 
 # -- Processor Status Registers
 add wave -noupdate -divider "Processor Status Registers"
-add wave -noupdate -binary -label "Carry" /$testbench/sim_proc_carry;
-add wave -noupdate -binary -label "Zero" /$testbench/sim_proc_zero;
-add wave -noupdate -binary -label "IRQ Disable" /$testbench/sim_proc_irq;
-add wave -noupdate -binary -label "BCD Mode" /$testbench/sim_proc_decimal;
-add wave -noupdate -binary -label "Break Instruction" /$testbench/sim_proc_break_inst;
-add wave -noupdate -binary -label "Overflow" /$testbench/sim_proc_overflow;
-add wave -noupdate -binary -label "Negative" /$testbench/sim_proc_negative;
+add wave -noupdate -binary -label "Carry" /$testbench/carry;
+add wave -noupdate -binary -label "Zero" /$testbench/zero;
+add wave -noupdate -binary -label "IRQ Disable" /$testbench/irq;
+add wave -noupdate -binary -label "BCD Mode" /$testbench/decimal;
+add wave -noupdate -binary -label "Break Instruction" /$testbench/break_inst;
+add wave -noupdate -binary -label "Overflow" /$testbench/overflow;
+add wave -noupdate -binary -label "Negative" /$testbench/negative;
 
 # -- ALU Signals
 add wave -noupdate -divider "ALU Signals"
