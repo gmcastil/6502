@@ -35,3 +35,10 @@ test:
 		-do ${DOFILES_DIR}/proc_sim.do \
 		-do "quit -f;" \
 		${LIB_NAME}.proc_tb
+
+.PHONY: clean
+clean:
+
+	rm -rf ${LOG_DIR}
+	rm -rf ${LIB_NAME}
+	rm vsim.wlf
