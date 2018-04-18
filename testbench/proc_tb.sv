@@ -33,9 +33,6 @@ module proc_tb ();
 
   logic [15:0] PROG_START = 16'h8000;
 
-  logic [7:0] accumulator;
-  logic [15:0] PC;
-
   // Addressing modes for instruction decoding in tasks
   string       IMM = "immediate";
   string       ACC = "accumulator";
@@ -68,6 +65,7 @@ module proc_tb ();
     end
   end
 
+  // Primary instruction testing
   initial begin
 
     // -- Reset the processor
@@ -75,7 +73,7 @@ module proc_tb ();
     #(CLOCK*10) proc_reset(10);
 
     // -- LDA
-    lda("immediate")
+    lda("immediate", 8'h00, 16'h8000);
     #(CLOCK*100);
 
     $display("Passing:");
@@ -97,131 +95,34 @@ module proc_tb ();
   task proc_reset (input int duration);
     begin
       resetn <= 1'b0;
-      #(CLOCK*duration)
+      #(CLOCK*duration);
       resetn <= 1'b1;
     end
   endtask // proc_reset
 
-  task lda (input string mode,
-            input bit [7:0] value,
-            input bit [15:0] address);
+  task lda (
+            input string     mode,
+            input bit [7:0]  test_data,
+            input bit [15:0] test_address
+            );
+
     begin
       case (mode)
 
-        ABSOLUTE: $display("This is absolute addressing mode.");
+        IMM: begin
+          address = test_address;
+          rd_data = LDA_imm;
+          #CLOCK;
+          rd_data = test_data;
+          #CLOCK;
+        end
 
-        default: $display("Error");
+        default: $display("Addressing mode not supported for instruction.");
 
       endcase // case (mode)
 
     end
   endtask // lda
-
-
-
-
-
-  // Initiate the global reset (for now, synchronize both edges to both
-  // clocks, but later this will be performed by the porf block)
-/*  initial begin
-    resetn = 1'b1;
-    #(STEP)ns;
-    resetn = 1'b0;
-    #(STEP)ns;
-    resetn = 1'b1;
-  end */
-
-/*  initial begin
-
-    // Wait for the processor to emerge from reset
-    #40ns;
-
-    // --- Test reset vector
-    assert (address == RESET_LSB) begin
-      reset_passed++;
-    end else begin
-      reset_failed++;
-    end
-    rd_data = PROG_START[7:0];
-
-    #10ns;
-    assert (address == RESET_MSB) begin
-      reset_passed++;
-    end else begin
-      reset_failed++;
-    end
-    rd_data = PROG_START[15:8];
-
-    #10ns;
-    // --- Begin testing program execution
-    assert (address == PROG_START) begin
-      pc_passed++;
-    end else begin
-      pc_failed++;
-    end
-
-    // -- Add With Carry (ADC)
-    rd_data = ADC_abs;
-    PC = PROG_START;
-    #10ns;
-    assert (address == PC + 16'h0001) begin
-      opcode_passed++;
-    end else begin
-      opcode_failed++;
-    end
-
-    rd_data = 8'h00;
-    #10ns;
-    rd_data = 8'h90;
-    #10ns;
-    assert (address == 16'h9000) begin
-      rd_passed++;
-    end else begin
-      rd_failed++;
-    end
-
-    rd_data = 8'h00;
-    #10ns;
-    assert (accumulator == 8'h00 &&
-            carry == 1'b0 &&
-            zero == 1'b1 &&
-            overflow == 1'b0) begin
-      opcode_passed++;
-    end else begin
-      opcode_failed++;
-    end
-
-    PC = PC + 16'd3;
-    assert (PC == inst_proc.PC) begin
-      pc_passed++;
-    end else begin
-      pc_failed++;
-    end
-
-    rd_data = ADC_abs;
-    #10ns;
-    assert (PC == address) begin
-      rd_passed++;
-    end else begin
-      rd_failed++;
-    end
-
-    $display("Passing:");
-    $display("  Opcodes: %5d", opcode_passed);
-    $display("  Reset:   %5d", reset_passed);
-    $display("  PC:      %5d", pc_passed);
-    $display("  Read:    %5d", rd_passed);
-    $display("\n");
-    $display("Failing:");
-    $display("  Opcodes: %5d", opcode_failed);
-    $display("  Reset:   %5d", reset_failed);
-    $display("  PC:      %5d", pc_failed);
-    $display("  Read:    %5d", rd_passed);
-
-    $finish;
-
-  end */
-
 
   // Bring processor status register bits up to the top and break them out
   // into individual signals to aide in simulation
@@ -233,6 +134,15 @@ module proc_tb ();
   wire overflow;
   wire negative;
 
+  wire A;
+  wire X;
+  wire Y;
+  wire S;
+  wire PC;
+  wire IR;
+  wire P;
+
+  // Break out individual processor status bits
   assign carry      = inst_proc.P[0];
   assign zero       = inst_proc.P[1];
   assign irq        = inst_proc.P[2];
@@ -240,6 +150,15 @@ module proc_tb ();
   assign break_inst = inst_proc.P[4];
   assign overflow   = inst_proc.P[6];
   assign negative   = inst_proc.P[7];
+
+  // Bring critical internal signals up and give them meaningful names
+  assign A  = inst_proc.A;
+  assign X  = inst_proc.X;
+  assign Y  = inst_proc.Y;
+  assign S  = inst_proc.S;
+  assign PC = inst_proc.PC;
+  assign IR = inst_proc.IR;
+  assign P  = inst_proc.P;
 
   // -- Instantiations
   proc
