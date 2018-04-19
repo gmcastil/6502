@@ -83,6 +83,8 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   ASL_acc = 8'h0A,  //  1       2
+  ASL_zp  = 8'h06,  //  2       5
+  ASL_zpx = 8'h16,  //  2       6
   ASL_abs = 8'h0E,  //  3       6
   ASL_abx = 8'h1E;  //  3       7
 
