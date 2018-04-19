@@ -96,7 +96,24 @@ localparam
   //                 - - - - - - z - (immediate only)
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  BIT_zp  = 8'h24,  //  2       3
   BIT_abs = 8'h2C;  //  3       4
+
+localparam
+  //
+  // Branching instructions
+  //
+  // Flags Affected: - - - - - - - -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  BPL     = 8'h10,  //  2       2+
+  BMI     = 8'h30,  //  2       2+
+  BVC     = 8'h50,  //  2       2+
+  BVS     = 8'h70,  //  2       2+
+  BCC     = 8'h90,  //  2       2+
+  BCS     = 8'hB0,  //  2       2+
+  BNE     = 8'hD0,  //  2       2+
+  BEQ     = 8'hF0;  //  2       2+
 
 localparam
   //
