@@ -27,8 +27,8 @@
 // aby   Absolute indexed with Y             $0000, Y
 // zpx   Zero page indexed with X            $00, X
 // zpy   Zero page indexed with Y            $00, Y
-// izx   Zero page indexed indirect with X   ($00, X)
-// izy   Zero page indirect indexed with Y   ($00), Y
+// inx   Indexed indirect with X             ($00, X)
+// iny   Indirect indexed with Y             ($00), Y
 // ind   Absolute indirect                   ($0000)
 // rel   Program counter relative            $0000
 
@@ -50,9 +50,14 @@ localparam
   // Flags Affected: n v - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  ADC_imm = 8'h69,  //  2       2
+  ADC_zp  = 8'h65,  //  2       3
+  ADC_zpx = 8'h75,  //  2       4
   ADC_abs = 8'h6D,  //  3       4                Y
-  ADC_abx = 8'h7D,  //  3       4
-  ADC_aby = 8'h79;  //  3       4
+  ADC_abx = 8'h7D,  //  3       4+
+  ADC_aby = 8'h79,  //  3       4+
+  ADC_inx = 8'h61,  //  2       6
+  ADC_iny = 8'h71;  //  2       5+
 
 localparam
   //
@@ -61,9 +66,14 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  AND_imm = 8'h29,  //  2       2
+  AND_zp  = 8'h25,  //  2       3
+  AND_zpx = 8'h35,  //  2       4
   AND_abs = 8'h2D,  //  3       4                Y
-  AND_abx = 8'h3D,  //  3       4
-  AND_aby = 8'h39;  //  3       4
+  AND_abx = 8'h3D,  //  3       4+
+  AND_aby = 8'h39,  //  3       4+
+  AND_inx = 8'h21,  //  2       6
+  AND_iny = 8'h31;  //  2       5+
 
 localparam
   //
