@@ -108,7 +108,7 @@ localparam
   //        Opcode      Bytes   Cycles   Notes   Implemented
   BPL     = 8'h10,  //  2       2+
   BMI     = 8'h30,  //  2       2+
-  BVC     = 8'h50,  //  2       2+
+  BVC     = 8'h50,  //  2       3
   BVS     = 8'h70,  //  2       2+
   BCC     = 8'h90,  //  2       2+
   BCS     = 8'hB0,  //  2       2+
@@ -117,14 +117,28 @@ localparam
 
 localparam
   //
+  // Break
+  //
+  // Flags Affected: - - - - - - - -
+  //
+  //        Opcode      Bytes   Cycles   Notes   Implemented
+  BRK     = 8'h00;  //  1       7
+
+localparam
+  //
   // Compare Accumulator with Memory
   //
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  CMP_imm = 8'hC9,  //  2       2
+  CMP_zp  = 8'hC5,  //  2       3
+  CMP_zpx = 8'hD5,  //  2       4
   CMP_abs = 8'hCD,  //  3       4
-  CMP_abx = 8'hDD,  //  3       4        3
-  CMP_aby = 8'hD9;  //  3       4        3
+  CMP_abx = 8'hDD,  //  3       4+
+  CMP_aby = 8'hD9,  //  3       4+
+  CMP_inx = 8'hC1,  //  2       6
+  CMP_iny = 8'hD1;  //  2       5+
 
 localparam
   //
