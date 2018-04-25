@@ -4,7 +4,12 @@
 ;;; for testing absolute addressing mode.
 
         .org    $8000
-8000:   lda     $9000           ; $9000 = $00
+8000:   lda     #$00              ; $9000 = $00
+        lda     #$01
+        lda     #$02
+        lda     #$03
+        lda     #$04
+        lda     #$05
 
         ;; -- Add With Carry (ADC)
 
