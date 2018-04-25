@@ -14,7 +14,9 @@
 // it were truly asynchronous, it would not have a clock at all.  The purpose
 // of this module is to model a memory which accepts an address on the rising
 // edge of a clock and provides the data a configurable amount of time later,
-// like an asynchronous RAM would.
+// like an asynchronous RAM would.  This model was designed to be used with a
+// simulated clock frequency of 100MHz.  Higher speeds could be done, but it
+// would require modifying the timescale directive and some parameters.
 // ----------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
