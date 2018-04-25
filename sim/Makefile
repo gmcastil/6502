@@ -1,4 +1,5 @@
-QUESTA_PATH = /opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux
+# QUESTA_PATH = /opt/Altera/intelFPGA_pro/17.0/modelsim_ase/linux
+QUESTA_PATH = /apps/questasim_10.4c_5/bin
 
 VSIM = ${QUESTA_PATH}/vsim
 VLOG = ${QUESTA_PATH}/vlog
