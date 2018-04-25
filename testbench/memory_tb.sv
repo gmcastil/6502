@@ -42,7 +42,13 @@ module memory_tb ();
   initial begin
     enable <= 1'b0;
     wr_enable <= 1'b0;
-    #100ns;
+
+    resetn <= 1'b1;
+    #10ns;
+    resetn <= 1'b0;
+    #10ns;
+    resetn <= 1'b1;
+    #80ns;
 
     enable <= 1'b1;
     address <= 16'hfffc;

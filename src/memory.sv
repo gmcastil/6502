@@ -27,7 +27,15 @@ module memory
        );
 
   logic [WIDTH-1:0] mem_array [0:(2**DEPTH)-1];
-  initial $readmemb(DATA_FILE, mem_array);
+  initial begin
+    $readmemb(DATA_FILE, mem_array);
+  end
+
+  always @(posedge clk) begin
+    if ( resetn == 1'b0 ) begin
+      $readmemb(DATA_FILE, mem_array);
+    end
+  end
 
   always @(posedge clk) begin
     #ASYNC_DELAY;
