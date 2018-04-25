@@ -11,7 +11,7 @@ TESTBENCH_DIR = ../testbench
 DOFILES_DIR = ./dofiles
 
 # This is broken
-LIB_NAME = ram_lib
+LIB_NAME = memory_lib
 
 .PHONY: test
 test:
@@ -37,8 +37,8 @@ test:
 		-do "quit -f;" \
 		${LIB_NAME}.proc_tb
 
-.PHONY: ram
-ram:
+.PHONY: memory
+memory:
 
 	${VLIB} ./${LIB_NAME}
 
@@ -47,19 +47,19 @@ ram:
 		-novopt \
 		-y ${SRC_DIR} \
 		-y ${TESTBENCH_DIR} \
-		-l ${LOG_DIR}/ram.log \
+		-l ${LOG_DIR}/memory.log \
 		+libext+.v \
 		+libext+.vh \
 		+libext+.sv \
-		${TESTBENCH_DIR}/ram_tb.sv
+		${TESTBENCH_DIR}/memory_tb.sv
 
 	${VSIM} \
 		-t 1ps \
 		-novopt \
 		-c \
-		-do ${DOFILES_DIR}/ram_sim.do \
+		-do ${DOFILES_DIR}/memory_sim.do \
 		-do "quit -f;" \
-		${LIB_NAME}.ram_tb
+		${LIB_NAME}.memory_tb
 
 
 .PHONY: clean

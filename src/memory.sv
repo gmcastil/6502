@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Module:  ram.sv
+// Module:  memory.sv
 // Project: MOS 6502 Processor
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    23 April 2018
@@ -10,41 +10,32 @@
 // ----------------------------------------------------------------------------
 `timescale 1ns / 1ps
 
-module ram
+module memory
   #(
-    parameter DEPTH = 2 ** 16,
+    parameter DEPTH = 16,
     parameter WIDTH = 8,
-    parameter ASYNC_DELAY = 10,
+    parameter ASYNC_DELAY = 1,
     parameter DATA_FILE = "data.mif"
     ) (
-       input  clk,
-       input  resetn,
-       input  enable,
-       input  [$clog2(DEPTH)-1:0] address,
-       input  [WIDTH-1:0] wr_data,
-       output [WIDTH-1:0] rd_data
+       input                  clk,
+       input                  resetn,
+       input                  enable,
+       input [DEPTH-1:0]      address,
+       input                  wr_enable,
+       input [WIDTH-1:0]      wr_data,
+       output reg [WIDTH-1:0] rd_data
        );
 
-  int file;
-
-  initial begin
-    #100ns;
-    $finish();
-  end
+  logic [WIDTH-1:0] mem_array [0:(2**DEPTH)-1];
+  initial $readmemb(DATA_FILE, mem_array);
 
   always @(posedge clk) begin
-    #(ASYNC_DELAY);
+    #ASYNC_DELAY;
+    if ( wr_enable && enable ) begin
+      mem_array[address] <= wr_data;
+    end else if ( enable ) begin
+      rd_data <= mem_array[address];
+    end
   end
-  // logic [WIDTH-1:0] memory [DEPTH-1:0];
-  // initial begin
-  //   file = $fopen(DATA_FILE, "r");
-  //   if ( !file ) begin
-  //     $display("Could not open %s for reading.", DATA_FILE);
-  //   end else begin
-  //     $display("Opening %s for reading.", DATA_FILE);
-  //     $fclose(DATA_FILE);
-  //   $finish();
-  //   end
-  // end
 
-endmodule // ram
+endmodule // memory
