@@ -10,7 +10,8 @@ LOG_DIR = ./logs
 TESTBENCH_DIR = ../testbench
 DOFILES_DIR = ./dofiles
 
-LIB_NAME = proc_lib
+# This is broken
+LIB_NAME = ram_lib
 
 .PHONY: test
 test:
@@ -35,6 +36,31 @@ test:
 		-do ${DOFILES_DIR}/proc_sim.do \
 		-do "quit -f;" \
 		${LIB_NAME}.proc_tb
+
+.PHONY: ram
+ram:
+
+	${VLIB} ./${LIB_NAME}
+
+	${VLOG} \
+		-work ${LIB_NAME} \
+		-novopt \
+		-y ${SRC_DIR} \
+		-y ${TESTBENCH_DIR} \
+		-l ${LOG_DIR}/ram.log \
+		+libext+.v \
+		+libext+.vh \
+		+libext+.sv \
+		${TESTBENCH_DIR}/ram_tb.sv
+
+	${VSIM} \
+		-t 1ps \
+		-novopt \
+		-c \
+		-do ${DOFILES_DIR}/ram_sim.do \
+		-do "quit -f;" \
+		${LIB_NAME}.ram_tb
+
 
 .PHONY: clean
 clean:
