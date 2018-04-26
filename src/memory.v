@@ -38,7 +38,7 @@ module memory #(
 
   localparam DISABLED = 8'hff;
 
-  reg [(WIDTH-1):0]           mem_array [0:(2**DEPTH)-1];
+  reg [(WIDTH-1):0]           mem_array [0:(2**DEPTH-1)];
   initial begin
     $readmemb(DATA_FILE, mem_array);
   end
