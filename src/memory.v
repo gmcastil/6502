@@ -17,6 +17,25 @@
 // like an asynchronous RAM would.  This model was designed to be used with a
 // simulated clock frequency of 100MHz.  Higher speeds could be done, but it
 // would require modifying the timescale directive and some parameters.
+//
+// Read:
+// - The `enable' net should be driven high and `wr_enable' driven low
+// - An address is expected to be provided on the rising edge of `clk'
+// - Some time after that clock edge, determined by ASYNC_DELAY, data will
+//   arrive on the data lines and will be available by the next clock cycle
+//
+// Write:
+// - The `enable' and `wr_enable' nets should both be driven high
+// - An address is expected to be provided on the rising edge of `clk'
+// - Data is expected to be provided on the rising edge of `clk'
+// - Some time after that clock edge, determined by ASYNC_DELAY, the data
+//   will be stored in memory
+//
+// A reset operation, which is active low, will reload the contents of the
+// DATA_FILE into the memory array.
+//
+// If neither `enable' or `wr_enable' are driven high, the memory will drive
+// the data lines to high impedance
 // ----------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
