@@ -21,22 +21,35 @@
 
 `timescale 1ns / 1ps
 
-module memory #(
-     parameter DEPTH = 16,
-     parameter WIDTH = 8,
-     parameter ASYNC_DELAY = 1,
-     parameter DATA_FILE = "data.mif"
-  ) (
-     input wire               clk,
-     input wire               resetn,
-     input wire               enable,
-     input wire [(DEPTH-1):0] address,
-     input wire               wr_enable,
-     input wire [(WIDTH-1):0] wr_data,
-     output reg [(WIDTH-1):0] rd_data
-     );
+module memory
+  #(
 
-  localparam DISABLED = 8'hff;
+    // Used to determine how deep to make the memory array. The number of
+    // addresses provided is 2 raised to the power of DEPTH
+    parameter DEPTH = 16,
+    // Number of bits to store at each address
+    parameter WIDTH = 8,
+    // The amount of simulation time to wait after an address is clocked in on
+    // the address line before providing the data at the data line (read) or
+    // writing the data to the memory (write)
+    parameter ASYNC_DELAY = 1,
+    // File containing binary data (ASCII).  These are expected to be .mif files
+    // from a Xilinx memory core generator or an output of the oddball
+    // assembler
+    parameter DATA_FILE = "data.mif"
+
+    ) (
+       input wire               clk,
+       input wire               resetn,
+       input wire               enable,
+       input wire [(DEPTH-1):0] address,
+       input wire               wr_enable,
+       input wire [(WIDTH-1):0] wr_data,
+       output reg [(WIDTH-1):0] rd_data
+       );
+
+  // High Z the memory if not reading or writing
+  localparam DISABLED = 8'hzz;
 
   reg [(WIDTH-1):0]           mem_array [0:(2**DEPTH-1)];
   initial begin
