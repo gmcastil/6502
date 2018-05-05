@@ -71,6 +71,8 @@ module memory
   localparam DISABLED = 8'hzz;
 
   reg [(WIDTH-1):0]           mem_array [0:(2**DEPTH-1)];
+
+  // Load the image file at the beginning of the simulation
   initial begin
     $readmemb(DATA_FILE, mem_array);
   end
