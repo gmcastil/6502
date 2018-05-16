@@ -147,6 +147,8 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  CPX_imm = 8'hE0,  //  2       2
+  CPX_zp  = 8'hE4,  //  2       3
   CPX_abs = 8'hEC;  //  3       4
 
 localparam
