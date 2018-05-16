@@ -158,6 +158,8 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  CPY_imm = 8'hC0,  //  2       2
+  CPY_zp  = 8'hC4,  //  2       3
   CPY_abs = 8'hCC;  //  3       4
 
 localparam
