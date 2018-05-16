@@ -357,6 +357,9 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  ROR_acc = 8'h6A,  //  1       2
+  ROR_zp  = 8'h66,  //  2       5
+  ROR_zpx = 8'h76,  //  2       6
   ROR_abs = 8'h6E,  //  3       6
   ROR_abx = 8'h7E;  //  3       7
 
@@ -367,9 +370,14 @@ localparam
   // Flags Affected: n v - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  SBC_imm = 8'hE9,  //  2       2
+  SBC_zp  = 8'hE5,  //  2       3
+  SBC_zpx = 8'hF5,  //  2       4
   SBC_abs = 8'hED,  //  3       4
-  SBC_abx = 8'hFD,  //  3       4        3
-  SBC_aby = 8'hF9;  //  3       4        3
+  SBC_abx = 8'hFD,  //  3       4+       3
+  SBC_aby = 8'hF9,  //  3       4+       3
+  SBC_inx = 8'hE1,  //  2       6
+  SBC_iny = 8'hF1;  //  2       5+
 
 localparam
   //
