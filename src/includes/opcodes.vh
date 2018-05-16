@@ -199,9 +199,14 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  EOR_imm = 8'h49,  //  2       2
+  EOR_zp  = 8'h45,  //  2       3
+  EOR_zpx = 8'h55,  //  2       4
   EOR_abs = 8'h4D,  //  3       4
-  EOR_abx = 8'h5D,  //  3       4        3
-  EOR_aby = 8'h59;  //  3       4        3
+  EOR_abx = 8'h5D,  //  3       4+       3
+  EOR_aby = 8'h59,  //  3       4+       3
+  EOR_inx = 8'h41,  //  2       6
+  EOR_iny = 8'h51;  //  2       5+
 
 localparam
   //
@@ -210,6 +215,8 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  INC_zp  = 8'hE6,  //  2       5
+  INC_zpx = 8'hf6,  //  2       6
   INC_abs = 8'hEE,  //  3       6
   INC_abx = 8'hFE;  //  3       7
 
