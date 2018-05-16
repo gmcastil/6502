@@ -169,6 +169,8 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  DEC_zp  = 8'hC6,  //  2       5
+  DEC_zpx = 8'hD6,  //  2       6
   DEC_abs = 8'hCE,  //  3       6
   DEC_abx = 8'hDE;  //  3       7
 
