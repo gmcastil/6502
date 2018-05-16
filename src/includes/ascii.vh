@@ -4,8 +4,9 @@
 // Author:  George Castillo <gmcastil@gmail.com>
 // Date:    13 August 2017
 //
-// Description:
-//
+// Description:  ASCII representations of opcodes and state vectors to make
+// it easier to understand what is going in the similar.  Opcodes are stored in
+// together with ASCII represenations of the FSM state machine values.
 // ----------------------------------------------------------------------------
 
 // synthesis translate_off
