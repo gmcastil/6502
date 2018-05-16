@@ -386,9 +386,13 @@ localparam
   // Flags Affected: - - - - - - - -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  STA_zp  = 8'h85,  //  2       3
+  STA_xpz = 8'h95,  //  2       4
   STA_abs = 8'h8D,  //  3       4
   STA_abx = 8'h9D,  //  3       5
-  STA_aby = 8'h99;  //  3       5
+  STA_aby = 8'h99,  //  3       5
+  STA_inx = 8'h81,  //  2       6
+  STA_iny = 8'h91;  //  2       6
 
 localparam
   //
