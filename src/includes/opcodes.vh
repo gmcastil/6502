@@ -85,7 +85,7 @@ localparam
   ASL_acc = 8'h0A,  //  1       2
   ASL_zp  = 8'h06,  //  2       5
   ASL_zpx = 8'h16,  //  2       6
-                        ASL_abs = 8'h0E,  //  3       6
+  ASL_abs = 8'h0E,  //  3       6
   ASL_abx = 8'h1E;  //  3       7
 
 localparam
@@ -401,6 +401,8 @@ localparam
   // Flags Affected: - - - - - - - -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  STX_zp  = 8'h86,  //  2       3
+  STX_zpy = 8'h96,  //  2       4
   STX_abs = 8'h8E;  //  3       4
 
 localparam
@@ -410,6 +412,8 @@ localparam
   // Flags Affected: - - - - - - - -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  STY_zp  = 8'h84,  //  2       3
+  STY_zpx = 8'h94,  //  2       4
   STY_abs = 8'h8C;  //  3       4
 
 localparam
