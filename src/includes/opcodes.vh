@@ -85,7 +85,7 @@ localparam
   ASL_acc = 8'h0A,  //  1       2
   ASL_zp  = 8'h06,  //  2       5
   ASL_zpx = 8'h16,  //  2       6
-  ASL_abs = 8'h0E,  //  3       6
+                        ASL_abs = 8'h0E,  //  3       6
   ASL_abx = 8'h1E;  //  3       7
 
 localparam
@@ -245,7 +245,8 @@ localparam
   // Flags Affected: - - - - - - - -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  JMP_abs = 8'h4C;  //  3       3
+  JMP_abs = 8'h4C,  //  3       3
+  JMP_ind = 8'h6C;  //  3       5
 
 localparam
   //
@@ -264,9 +265,13 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   LDA_imm = 8'hA9,  //  2       2
+  LDA_zp  = 8'hA5,  //  2       3
+  LDA_zpx = 8'hB5,  //  2       4
   LDA_abs = 8'hAD,  //  3       4
-  LDA_abx = 8'hBD,  //  3       4        3
-  LDA_aby = 8'hB8;  //  3       4        3
+  LDA_abx = 8'hBD,  //  3       4+       3
+  LDA_aby = 8'hB8,  //  3       4+       3
+  LDA_inx = 8'hA1,  //  2       6
+  LDA_iny = 8'hB1;  //  2       5+
 
 localparam
   //
