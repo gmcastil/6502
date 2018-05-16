@@ -281,8 +281,10 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   LDX_imm = 8'hA2,  //  2       2
+  LDX_zp  = 8'hA6,  //  2       3
+  LDX_zpy = 8'hB6,  //  2       4
   LDX_abs = 8'hAE,  //  3       4
-  LDX_aby = 8'hBe;  //  3       4        3
+  LDX_aby = 8'hBE;  //  3       4+       3
 
 localparam
   //
@@ -292,8 +294,10 @@ localparam
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
   LDY_imm = 8'hA0,  //  2       2
+  LDY_zp  = 8'hA4,  //  2       3
+  LDY_zpx = 8'hB4,  //  2       4
   LDY_abs = 8'hAC,  //  3       4
-  LDY_abx = 8'hBC;  //  3       4        4
+  LDY_abx = 8'hBC;  //  3       4+       4
 
 localparam
   //
@@ -302,7 +306,9 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
-  LSR_acc = 8'h4A,  //  3       2
+  LSR_acc = 8'h4A,  //  1       2
+  LSR_zp  = 8'h46,  //  2       5
+  LSR_zpx = 8'h56,  //  2       6
   LSR_abs = 8'h4E,  //  3       6
   LSR_abx = 8'h5E;  //  3       7
 
@@ -322,9 +328,14 @@ localparam
   // Flags Affected: n - - - - - z -
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  ORA_imm = 8'h09,  //  2       2
+  ORA_zp  = 8'h05,  //  2       3
+  ORA_zpx = 8'h15,  //  2       4
   ORA_abs = 8'h0D,  //  3       4
-  ORA_abx = 8'h1D,  //  3       4        3
-  ORA_aby = 8'h19;  //  3       4        3
+  ORA_abx = 8'h1D,  //  3       4+       3
+  ORA_aby = 8'h19,  //  3       4+       3
+  ORA_inx = 8'h01,  //  2       6
+  ORA_iny = 8'h11;  //  2       5+
 
 localparam
   //
@@ -333,6 +344,9 @@ localparam
   // Flags Affected: n - - - - - z c
   //
   //        Opcode      Bytes   Cycles   Notes   Implemented
+  ROL_acc = 8'h2A,  //  1       2
+  ROL_zp  = 8'h26,  //  2       5
+  ROL_zpx = 8'h36,  //  2       6
   ROL_abs = 8'h2E,  //  3       6                Y
   ROL_abx = 8'h3E;  //  3       7
 
