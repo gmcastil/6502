@@ -1,3 +1,0 @@
-# Reset Vector
-$fffc      $00
-$fffd      $80
