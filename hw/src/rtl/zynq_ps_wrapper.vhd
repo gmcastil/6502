@@ -1,7 +1,7 @@
 --Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------
 --Tool Version: Vivado v.2022.1 (lin64) Build 3526262 Mon Apr 18 15:47:01 MDT 2022
---Date        : Mon May  8 11:49:08 2023
+--Date        : Sat May 20 08:28:30 2023
 --Host        : caprica running 64-bit Debian GNU/Linux 11 (bullseye)
 --Command     : generate_target zynq_ps_wrapper.bd
 --Design      : zynq_ps_wrapper
@@ -28,20 +28,20 @@ entity zynq_ps_wrapper is
     DDR_ras_n : inout STD_LOGIC;
     DDR_reset_n : inout STD_LOGIC;
     DDR_we_n : inout STD_LOGIC;
-    FCLK_CLK0_0 : out STD_LOGIC;
-    FCLK_CLK1_0 : out STD_LOGIC;
-    FCLK_CLK2_0 : out STD_LOGIC;
-    FCLK_CLK3_0 : out STD_LOGIC;
-    FCLK_RESET0_N_0 : out STD_LOGIC;
+    FCLK_CLK0 : out STD_LOGIC;
+    FCLK_CLK1 : out STD_LOGIC;
+    FCLK_CLK2 : out STD_LOGIC;
+    FCLK_CLK3 : out STD_LOGIC;
+    FCLK_RESET0_N : out STD_LOGIC;
     FIXED_IO_ddr_vrn : inout STD_LOGIC;
     FIXED_IO_ddr_vrp : inout STD_LOGIC;
     FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
     FIXED_IO_ps_clk : inout STD_LOGIC;
     FIXED_IO_ps_porb : inout STD_LOGIC;
     FIXED_IO_ps_srstb : inout STD_LOGIC;
-    TTC0_WAVE0_OUT_0 : out STD_LOGIC;
-    TTC0_WAVE1_OUT_0 : out STD_LOGIC;
-    TTC0_WAVE2_OUT_0 : out STD_LOGIC
+    TTC0_WAVE0_OUT : out STD_LOGIC;
+    TTC0_WAVE1_OUT : out STD_LOGIC;
+    TTC0_WAVE2_OUT : out STD_LOGIC
   );
 end zynq_ps_wrapper;
 
@@ -69,14 +69,14 @@ architecture STRUCTURE of zynq_ps_wrapper is
     FIXED_IO_ps_srstb : inout STD_LOGIC;
     FIXED_IO_ps_clk : inout STD_LOGIC;
     FIXED_IO_ps_porb : inout STD_LOGIC;
-    TTC0_WAVE2_OUT_0 : out STD_LOGIC;
-    TTC0_WAVE1_OUT_0 : out STD_LOGIC;
-    FCLK_CLK3_0 : out STD_LOGIC;
-    FCLK_CLK2_0 : out STD_LOGIC;
-    TTC0_WAVE0_OUT_0 : out STD_LOGIC;
-    FCLK_CLK1_0 : out STD_LOGIC;
-    FCLK_CLK0_0 : out STD_LOGIC;
-    FCLK_RESET0_N_0 : out STD_LOGIC
+    TTC0_WAVE0_OUT : out STD_LOGIC;
+    FCLK_CLK0 : out STD_LOGIC;
+    FCLK_CLK1 : out STD_LOGIC;
+    FCLK_CLK2 : out STD_LOGIC;
+    FCLK_CLK3 : out STD_LOGIC;
+    TTC0_WAVE1_OUT : out STD_LOGIC;
+    TTC0_WAVE2_OUT : out STD_LOGIC;
+    FCLK_RESET0_N : out STD_LOGIC
   );
   end component zynq_ps;
 begin
@@ -97,19 +97,19 @@ zynq_ps_i: component zynq_ps
       DDR_ras_n => DDR_ras_n,
       DDR_reset_n => DDR_reset_n,
       DDR_we_n => DDR_we_n,
-      FCLK_CLK0_0 => FCLK_CLK0_0,
-      FCLK_CLK1_0 => FCLK_CLK1_0,
-      FCLK_CLK2_0 => FCLK_CLK2_0,
-      FCLK_CLK3_0 => FCLK_CLK3_0,
-      FCLK_RESET0_N_0 => FCLK_RESET0_N_0,
+      FCLK_CLK0 => FCLK_CLK0,
+      FCLK_CLK1 => FCLK_CLK1,
+      FCLK_CLK2 => FCLK_CLK2,
+      FCLK_CLK3 => FCLK_CLK3,
+      FCLK_RESET0_N => FCLK_RESET0_N,
       FIXED_IO_ddr_vrn => FIXED_IO_ddr_vrn,
       FIXED_IO_ddr_vrp => FIXED_IO_ddr_vrp,
       FIXED_IO_mio(53 downto 0) => FIXED_IO_mio(53 downto 0),
       FIXED_IO_ps_clk => FIXED_IO_ps_clk,
       FIXED_IO_ps_porb => FIXED_IO_ps_porb,
       FIXED_IO_ps_srstb => FIXED_IO_ps_srstb,
-      TTC0_WAVE0_OUT_0 => TTC0_WAVE0_OUT_0,
-      TTC0_WAVE1_OUT_0 => TTC0_WAVE1_OUT_0,
-      TTC0_WAVE2_OUT_0 => TTC0_WAVE2_OUT_0
+      TTC0_WAVE0_OUT => TTC0_WAVE0_OUT,
+      TTC0_WAVE1_OUT => TTC0_WAVE1_OUT,
+      TTC0_WAVE2_OUT => TTC0_WAVE2_OUT
     );
 end STRUCTURE;

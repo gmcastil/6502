@@ -7,33 +7,7 @@ entity uzed_top is
     HEARTBEAT_DEBUG   : boolean := true
   );
   port (
-    -- Processing subsystem DDR3 SDRAM interface
-    DDR_addr          : inout std_logic_vector(14 downto 0);
-    DDR_ba            : inout std_logic_vector(2 downto 0);
-    DDR_cas_n         : inout std_logic;
-    DDR_ck_n          : inout std_logic;
-    DDR_ck_p          : inout std_logic;
-    DDR_cke           : inout std_logic;
-    DDR_cs_n          : inout std_logic;
-    DDR_dm            : inout std_logic_vector(3 downto 0);
-    DDR_dq            : inout std_logic_vector(31 downto 0);
-    DDR_dqs_n         : inout std_logic_vector(3 downto 0);
-    DDR_dqs_p         : inout std_logic_vector(3 downto 0);
-    DDR_odt           : inout std_logic;
-    DDR_ras_n         : inout std_logic;
-    DDR_reset_n       : inout std_logic;
-    DDR_we_n          : inout std_logic;
-    -- Processing subsystem fixed IO
-    FIXED_IO_ddr_vrn  : inout std_logic;
-    FIXED_IO_ddr_vrp  : inout std_logic;
-    FIXED_IO_mio      : inout std_logic_vector(53 downto 0);
-    FIXED_IO_ps_clk   : inout std_logic;
-    FIXED_IO_ps_porb  : inout std_logic;
-    FIXED_IO_ps_srstb : inout std_logic
-    -- Processing subsystem triple timer counters (TTC)
-    -- TTC0_WAVE0_OUT_0  : out   std_logic;
-    -- TTC0_WAVE1_OUT_0  : out   std_logic;
-    -- TTC0_WAVE2_OUT_0  : out   std_logic
+    user_led            : out std_logic_vector(3 downto 0)
   );
 end uzed_top;
 
@@ -41,11 +15,17 @@ architecture arch of uzed_top is
 
   -- Fabric clocks and resets
   signal  fclk        : std_logic_vector(3 downto 0);
-  signal  frstn       : std_logic_vector(3 downto 0);
+  signal  frstn       : std_logic;
 
 begin
 
-  ps7 : entity work.zynq_ps_wrapper
+  user_led(0)         <= fclk(0);
+  user_led(1)         <= fclk(1);
+  user_led(2)         <= fclk(2);
+  user_led(3)         <= fclk(3);
+
+
+  ps7 : entity work.zynq_ps
   port map (
     DDR_addr            => DDR_addr,
     DDR_ba              => DDR_ba,
@@ -62,8 +42,11 @@ begin
     DDR_ras_n           => DDR_ras_n,
     DDR_reset_n         => DDR_reset_n,
     DDR_we_n            => DDR_we_n,
-    FCLK_CLK0_0         => fclk(0),
-    FCLK_RESET0_N_0     => frstn(0),
+    FCLK_CLK0           => fclk(0),
+    FCLK_CLK1           => fclk(1),
+    FCLK_CLK2           => fclk(2),
+    FCLK_CLK3           => fdclk(3),
+    FCLK_RESET0_N       => frstn(0),
     FIXED_IO_ddr_vrn    => FIXED_IO_ddr_vrn,
     FIXED_IO_ddr_vrp    => FIXED_IO_ddr_vrp,
     FIXED_IO_mio        => FIXED_IO_mio,
@@ -74,10 +57,6 @@ begin
     TTC0_WAVE1_OUT_0    => open,
     TTC0_WAVE2_OUT_0    => open
   );
-
-  -- Tie off the unused clock inputs from the processor for now
-  fclk(3 downto 1)    <= (others => '0');
-  frstn(3 downto 1)   <= (others => '1');
 
 end arch;
 
