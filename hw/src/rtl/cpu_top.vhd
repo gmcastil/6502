@@ -2,14 +2,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity cpu_top is
-    generic (
-        RST_POLARITY    : std_logic     := '0'
-    );
     port (
         clk             : in    std_logic;
         clk_en          : in    std_logic;
 
-        rst             : in    std_logic;
+        rstn            : in    std_logic;
 
         rd_data         : in    std_logic_vector(7 downto 0);
         wr_data         : out   std_logic_vector(7 downto 0);
@@ -48,42 +45,30 @@ architecture behavioral of cpu_top is
     alias PCL           : std_logic_vector(7 downto 0) is PC(7 downto 0);
 
     -- Individual processor flags
-    alias N			    : std_logic is P(7);
-    alias V			    : std_logic is P(6);
-    alias B			    : std_logic is P(4);
-    alias D			    : std_logic is P(3);
-    alias I			    : std_logic is P(2);
-    alias Z			    : std_logic is P(1);
-    alias C			    : std_logic is P(0);
+    alias N             : std_logic is P(7);
+    alias V             : std_logic is P(6);
+    alias B             : std_logic is P(4);
+    alias D             : std_logic is P(3);
+    alias I             : std_logic is P(2);
+    alias Z             : std_logic is P(1);
+    alias C             : std_logic is P(0);
 
 begin
 
-    -- process(clk)
-    -- begin
-    --     if rising_edge(clk) then
-    --         if (rst = RST_POLARITY) then
-    --             -- The 65C02 only initializes these values during reset. The
-    --             -- remainder are initialized by software.
-    --             B       <= '1';
-    --             D       <= '0';
-    --             I       <= '1';
-    --             -- Additionally, this one is hard wired to 1
-    --             P(5)    <= '1';
-    --         end if;
-    --     end if;
-    -- end process;
     process(clk)
     begin
-        wr_data     <= (others=>'0');
+        if rising_edge(clk) then
+            if (rstn = '0') then
+                -- The 65C02 only initializes these values during reset. The
+                -- remainder are initialized by software.
+                B       <= '1';
+                D       <= '0';
+                I       <= '1';
+                -- Additionally, this one is hard wired to 1
+                P(5)    <= '1';
+            end if;
+        end if;
     end process;
 
 end architecture behavioral;
-
-
-
-
-
-
-
-
 

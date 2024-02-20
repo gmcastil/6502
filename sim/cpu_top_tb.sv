@@ -4,10 +4,9 @@ module cpu_top_tb //#(
 //)
 ();
 
-  logic           clk_10m00;
-  logic           clk_10m00_en;
-  logic           rst_10m00;
-  logic           rst_10m00_n;
+  logic           clk;
+  logic           clk_en;
+  logic           rstn;
 
   logic   [7:0]   rd_data;
   logic   [7:0]   wr_data;
@@ -23,24 +22,23 @@ module cpu_top_tb //#(
   // asynchronous RAM emulator).
   parameter   T   = 100ns;
 
-  parameter   RST_ASSERT_LEN    = 10;
+  parameter         RST_ASSERT_LEN    = 10;
 
-  integer     rst_assert_cnt    = 0;
+  integer     rst_assert_cnt;
 
   // Clock creation
   initial begin
-    clk_10m00     <= 1'b0;
+    clk       <= 1'b0;
     forever begin
-      clk_10m00   <= ~clk_10m00;
       #(T/2);
+      clk       <= ~clk;
     end
   end
 
   initial begin
     // Initialize CPU control signals
-    clk_10m00_en      <= 1'b1;
-    rst_10m00         <= 1'b1;
-    rst_10m00_n       <= 1'b0;
+    clk               <= 1'b1;
+    rstn              <= 1'b1;
     nmi_n             <= 1'b1;
     irq_n             <= 1'b1;
 
@@ -49,30 +47,29 @@ module cpu_top_tb //#(
   end
 
   // Create a synchronous reset
-  always @(posedge clk_10m00) begin
+  always @(posedge clk) begin
     if (rst_assert_cnt  != RST_ASSERT_LEN) begin
-      rst_10m00       <= 1'b1;
-      rst_10m00_n     <= 1'b0;
-    end else begin
-      rst_10m00       <= 1'b0;
-      rst_10m00_n     <= 1'b1;
+      rstn            <= 1'b0;
       rst_assert_cnt++;
+    end else begin
+      rstn            <= 1'b1;
     end
-    $stop();
-  end  
+  end
 
+  // Note that no standard governs VHDL to SystemVerilog generics, so use
+  // only when needed
   cpu_top //#(
   //)
   cpu_top_i0 (
-    .clk          (clk_10m00),      // in    std_logic
-    .clk_en       (clk_10m00_en),   // in    std_logic
-    .rst          (rst_10m00_n),    // in    std_logic
-    .rd_data      (rd_data),        // in    std_logic_vector(7 downto 0)
-    .wr_data      (wr_data),        // out   std_logic_vector(7 downto 0)
-    .addr         (addr),           // out   std_logic_vector(15 downto 0)
-    .rw_n         (rw_n),           // out   std_logic
-    .nmi_n        (nmi_n),          // in    std_logic
-    .irq_n        (irq_n)           // in    std_logic
+    .clk            (clk),        // in    std_logic
+    .clk_en         (clk_en),     // in    std_logic
+    .rstn           (rstn),       // in    std_logic
+    .rd_data        (rd_data),    // in    std_logic_vector(7 downto 0)
+    .wr_data        (wr_data),    // out   std_logic_vector(7 downto 0)
+    .addr           (addr),       // out   std_logic_vector(15 downto 0)
+    .rw_n           (rw_n),       // out   std_logic
+    .nmi_n          (nmi_n),      // in    std_logic
+    .irq_n          (irq_n)       // in    std_logic
   );
 
 endmodule
