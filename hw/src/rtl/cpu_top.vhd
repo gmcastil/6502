@@ -55,6 +55,14 @@ architecture behavioral of cpu_top is
 
 begin
 
+    instr_decoder: entity work.instr_decoder
+        port map (
+            IR          => IR,
+            mode        => mode,
+            length      => length,
+            timing      => timing
+        );
+
     process(clk)
     begin
         if rising_edge(clk) then
@@ -69,6 +77,7 @@ begin
             end if;
         end if;
     end process;
+
 
 end architecture behavioral;
 
